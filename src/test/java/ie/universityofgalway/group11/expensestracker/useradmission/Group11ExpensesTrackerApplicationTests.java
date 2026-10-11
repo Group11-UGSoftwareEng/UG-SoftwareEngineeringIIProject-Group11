@@ -1,4 +1,4 @@
-package ie.universityofgalway.group11.expensestracker;
+package ie.universityofgalway.group11.expensestracker.useradmission;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
