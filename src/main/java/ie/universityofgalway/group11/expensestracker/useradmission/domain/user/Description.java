@@ -1,4 +1,4 @@
 package ie.universityofgalway.group11.expensestracker.useradmission.domain.user;
 
-public class EmailAdress {
+public class Description {
 }
