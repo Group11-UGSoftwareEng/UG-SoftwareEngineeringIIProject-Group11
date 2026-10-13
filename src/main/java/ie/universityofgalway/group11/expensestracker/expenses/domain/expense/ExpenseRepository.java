@@ -1,5 +1,7 @@
 package ie.universityofgalway.group11.expensestracker.expenses.domain.expense;
 
+import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
+import java.util.List;
 import java.util.Optional;
 
 public interface ExpenseRepository {
@@ -9,4 +11,7 @@ public interface ExpenseRepository {
     Expense save(Expense expense);
 
     void deleteById(ExpenseId id);
+
+    // Get all expenses for this user
+    List<Expense> findByOwnerId(UserId ownerId);
 }
