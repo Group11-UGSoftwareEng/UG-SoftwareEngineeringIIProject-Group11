@@ -1,13 +1,14 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.application.expense;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.UseCase;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
+import ie.universityofgalway.group11.expensestracker.expenses.domain.expense.Expense;
+import ie.universityofgalway.group11.expensestracker.expenses.domain.expense.ExpenseRepository;
+import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ViewMyExpensesUseCase implements UseCase<String, List<Expense>> {
+public class ViewMyExpensesUseCase implements UseCase<UserId, List<Expense>> {
 
     private final ExpenseRepository expenseRepository;
 
@@ -16,14 +17,14 @@ public class ViewMyExpensesUseCase implements UseCase<String, List<Expense>> {
     }
 
     @Override
-    public List<Expense> execute(String userId) {
-        if (userId == null || userId.isBlank()) {
+    public List<Expense> execute(UserId userId) {
+        if (userId == null) {
             throw new IllegalArgumentException("User ID is required.");
         }
 
         // Get this user's expenses
         List<Expense> expenses =
-                new ArrayList<>(expenseRepository.findByUserId(userId));
+                new ArrayList<>(expenseRepository.findByOwnerId(userId));
 
         // Show the newest expenses first
         expenses.sort((first, second) ->

@@ -3,8 +3,11 @@ package ie.universityofgalway.group11.expensestracker.expenses.infrastructure;
 import ie.universityofgalway.group11.expensestracker.expenses.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.expenses.domain.expense.ExpenseId;
 import ie.universityofgalway.group11.expensestracker.expenses.domain.expense.ExpenseRepository;
+import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,5 +32,19 @@ public class InMemoryExpenseRepository implements ExpenseRepository {
     @Override
     public void deleteById(ExpenseId id) {
         store.remove(id);
+    }
+
+    @Override
+    public List<Expense> findByOwnerId(UserId ownerId) {
+        List<Expense> userExpenses = new ArrayList<>();
+
+        // Find expenses belonging to this user
+        for (Expense expense : store.values()) {
+            if (expense.isOwnedBy(ownerId)) {
+                userExpenses.add(expense);
+            }
+        }
+
+        return userExpenses;
     }
 }
