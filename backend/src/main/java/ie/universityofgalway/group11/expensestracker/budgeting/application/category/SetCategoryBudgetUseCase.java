@@ -2,7 +2,7 @@ package ie.universityofgalway.group11.expensestracker.budgeting.application.cate
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.SetCategoryBudgetCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.SetCategoryBudgetResponse;
-import ie.universityofgalway.group11.expensestracker.config.UseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.common.UseCase;
 
 public class SetCategoryBudgetUseCase implements UseCase<SetCategoryBudgetCommand, SetCategoryBudgetResponse> {
 
