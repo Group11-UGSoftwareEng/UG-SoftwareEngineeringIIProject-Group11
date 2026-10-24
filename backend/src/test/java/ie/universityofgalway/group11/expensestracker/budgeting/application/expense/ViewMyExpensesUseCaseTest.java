@@ -5,7 +5,6 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ca
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.InMemoryExpenseRepository;
-import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -17,54 +16,43 @@ import static org.junit.jupiter.api.Assertions.*;
 class ViewMyExpensesUseCaseTest {
 
     @Test
-    void showsOnlyMyExpensesWithNewestFirst() {
+    void showsExpensesWithNewestFirst() {
         InMemoryExpenseRepository repository =
                 new InMemoryExpenseRepository();
 
-        UserId user1 = UserId.random();
-        UserId user2 = UserId.random();
-
         Expense older = new Expense(
-                ExpenseId.newId(), user1,
+                ExpenseId.newId(),
                 new Amount(new BigDecimal("12.50")),
                 LocalDate.of(2026, 10, 10),
                 new Category("Food"));
 
         Expense newer = new Expense(
-                ExpenseId.newId(), user1,
+                ExpenseId.newId(),
                 new Amount(new BigDecimal("5.00")),
                 LocalDate.of(2026, 10, 12),
                 new Category("Transport"));
 
-        Expense otherUserExpense = new Expense(
-                ExpenseId.newId(), user2,
-                new Amount(new BigDecimal("20.00")),
-                LocalDate.of(2026, 10, 11),
-                new Category("Shopping"));
-
         repository.save(older);
         repository.save(newer);
-        repository.save(otherUserExpense);
 
         ViewMyExpensesUseCase useCase =
                 new ViewMyExpensesUseCase(repository);
 
-        List<Expense> result = useCase.execute(user1);
+        List<Expense> result = useCase.execute(null);
 
-        // Only user1's expenses, newest first
         assertEquals(2, result.size());
         assertEquals(newer.getId(), result.get(0).getId());
         assertEquals(older.getId(), result.get(1).getId());
     }
 
     @Test
-    void returnsEmptyListWhenUserHasNoExpenses() {
+    void returnsEmptyListWhenNoExpensesExist() {
         InMemoryExpenseRepository repository =
                 new InMemoryExpenseRepository();
 
         ViewMyExpensesUseCase useCase =
                 new ViewMyExpensesUseCase(repository);
 
-        assertTrue(useCase.execute(UserId.random()).isEmpty());
+        assertTrue(useCase.execute(null).isEmpty());
     }
 }

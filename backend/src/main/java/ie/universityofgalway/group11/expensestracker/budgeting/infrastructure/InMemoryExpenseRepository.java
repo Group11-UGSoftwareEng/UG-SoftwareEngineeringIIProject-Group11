@@ -34,7 +34,7 @@ public class InMemoryExpenseRepository implements ExpenseRepository {
         store.remove(id);
     }
 
-//    @Override
+    //    @Override
 //    public List<Expense> findByOwnerId(UserId ownerId) {
 //        List<Expense> userExpenses = new ArrayList<>();
 //
@@ -47,4 +47,8 @@ public class InMemoryExpenseRepository implements ExpenseRepository {
 //
 //        return userExpenses;
 //    }
+    @Override
+    public List<Expense> findAll() {
+        return new ArrayList<>(store.values());
+    }
 }

@@ -14,4 +14,5 @@ public interface ExpenseRepository {
 
     // Get all expenses for this user
     //List<Expense> findByOwnerId(UserId ownerId);
+    List<Expense> findAll();
 }
