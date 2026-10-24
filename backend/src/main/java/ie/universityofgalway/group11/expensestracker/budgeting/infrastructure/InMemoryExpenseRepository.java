@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Stub repository for the prototype; replace with a database-backed one later. */
-@Repository
 public class InMemoryExpenseRepository implements ExpenseRepository {
 
     private final Map<ExpenseId, Expense> store = new ConcurrentHashMap<>();
