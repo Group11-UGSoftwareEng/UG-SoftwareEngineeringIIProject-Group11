@@ -4,7 +4,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 
 public class ExpenseNotFoundException extends RuntimeException {
 
-    public ExpenseNotFoundException(ExpenseId id) {
-        super("Expense not found: " + id.value());
-    }
+//    public ExpenseNotFoundException(ExpenseId id) {
+//        super("Expense not found: " + id.value());
+//    }
 }

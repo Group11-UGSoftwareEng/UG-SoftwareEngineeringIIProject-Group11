@@ -25,7 +25,7 @@ public class InMemoryExpenseRepository implements ExpenseRepository {
 
     @Override
     public Expense save(Expense expense) {
-        store.put(expense.getId(), expense);
+        store.put(expense.id(), expense);
         return expense;
     }
 

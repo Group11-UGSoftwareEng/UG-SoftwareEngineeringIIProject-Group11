@@ -5,12 +5,21 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+//import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
+
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/expenses")
+@RequestMapping("/api/expenses")
 public class ExpenseController {
+
+    //TODO unused...
+    private ExpenseRepository expenseRepository;
+
 
     private final ViewMyExpensesUseCase viewMyExpensesUseCase;
 
@@ -29,9 +38,9 @@ public class ExpenseController {
         String result = "Expenses\n\n";
 
         for (Expense expense : expenses) {
-            result += "Amount: " + expense.getAmount().value() + "\n";
-            result += "Date: " + expense.getDate() + "\n";
-            result += "Category: " + expense.getCategory().name() + "\n\n";
+            result += "Amount: " + expense.amount().value() + "\n";
+            result += "Date: " + expense.date() + "\n";
+            //result += "Category: " + expense.getCategory().name() + "\n\n";
         }
 
         return result;
