@@ -6,7 +6,7 @@ public class Amount {
 
     private final BigDecimal value;
 
-    public Amount(BigDecimal value) {
+    private Amount(BigDecimal value) {
         if (value == null) {
             throw new IllegalArgumentException("Amount is required");
         }
@@ -14,5 +14,16 @@ public class Amount {
             throw new IllegalArgumentException("Amount must be greater than 0");
         }
         this.value = value;
+    }
+
+    public static Amount of(Double value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Amount is missing.");
+        }
+        return new Amount(new BigDecimal(value));
+    }
+
+    public BigDecimal value() {
+        return value;
     }
 }

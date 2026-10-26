@@ -1,19 +1,22 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.domain.expense;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class Expense {
 
+    private final CategoryId categoryId;
     private final ExpenseId id;
     private Amount amount;
     private LocalDate date;
     private Description desc;
     private Currency currency;
 
-    private Expense(ExpenseId id, Amount amount, LocalDate date, Description desc, Currency currency) {
+    private Expense(ExpenseId id, CategoryId categoryId, Amount amount, LocalDate date, Description desc, Currency currency) {
+        this.categoryId = Objects.requireNonNull(categoryId);
         this.id = Objects.requireNonNull(id);
         this.amount = Objects.requireNonNull(amount);
         this.date = Objects.requireNonNull(date);
@@ -21,8 +24,8 @@ public class Expense {
         this.currency = Objects.requireNonNull(currency);
     }
 
-    public static Expense create(Amount amount, Description desc, Currency currency) {
-        return new Expense(ExpenseId.random(), amount, LocalDate.now(), desc, currency);
+    public static Expense create(CategoryId categoryId, Amount amount, Description desc, Currency currency) {
+        return new Expense(ExpenseId.random(), categoryId, amount, LocalDate.now(), desc, currency);
     }
 
     public void update(Amount amount, LocalDate date, Description desc) {
@@ -50,6 +53,7 @@ public class Expense {
         this.date = Objects.requireNonNull(date);
     }
 
+    public CategoryId categoryId() { return categoryId; }
     public ExpenseId id() { return id; }
     public Amount amount() { return amount; }
     public LocalDate date() { return date; }

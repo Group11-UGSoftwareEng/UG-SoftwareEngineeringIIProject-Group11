@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Description {
 
-    private String text;
+    private final String text;
 
     private Description(String text) {
         if (text == null || text.trim().isEmpty()) {
