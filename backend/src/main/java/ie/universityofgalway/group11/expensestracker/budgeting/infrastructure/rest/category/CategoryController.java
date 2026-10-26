@@ -18,13 +18,12 @@ public class CategoryController {
     private final AddExpenseToCategoryUseCase addExpenseToCategoryUseCase;
     private final ViewCategoryExpensesUseCase viewCategoryExpensesUseCase;
 
-    // TODO wiring
     public CategoryController(AddExpenseToCategoryUseCase addExpenseToCategoryUseCase, ViewCategoryExpensesUseCase viewCategoryExpensesUseCase) {
         this.addExpenseToCategoryUseCase = addExpenseToCategoryUseCase;
         this.viewCategoryExpensesUseCase = viewCategoryExpensesUseCase;
     }
 
-    // TODO (Query instead of null)
+    // TODO implement (Query instead of null)
     @GetMapping("/{categoryId}")
     public ResponseEntity<ViewCategoryExpensesResponse> getCategoryExpenses() {
         return ResponseEntity.ok(viewCategoryExpensesUseCase.execute(null));
@@ -36,6 +35,12 @@ public class CategoryController {
         AddExpenseToCategoryCommand command = new AddExpenseToCategoryCommand(categoryId, request.amount(), request.description(), request.currency());
         return ResponseEntity.ok(addExpenseToCategoryUseCase.execute(command));
     }
+
+//    @PostMapping
+//    public ResponseEntity<AddCategoryResponse> addCategory(@RequestBody AddCategoryCommand command) {
+//        AddCategoryResponse response = addCategoryUseCase.execute(command);
+//        return ResponseEntity.ok(response);
+//    }
 
 
 }
