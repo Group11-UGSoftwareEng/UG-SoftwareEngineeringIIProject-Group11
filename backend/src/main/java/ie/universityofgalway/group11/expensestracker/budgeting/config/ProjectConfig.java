@@ -1,30 +1,24 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.config;
 
-//import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewMyExpensesUseCase;
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.AddExpenseToCategoryUseCase;
+//import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddExpenseToCategoryUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewCategoryExpensesUseCase;
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewMyExpensesUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.InMemoryBudgetingRepository;
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewMyExpensesUseCase;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ProjectConfig {
 
-    // Repositories
-    @Bean ExpenseRepository expenseRepository() {
-        return new InMemoryBudgetingRepository();
-    }
+    // Repository
 
     @Bean
-    public CategoryRepository categoryRepository() {
+    InMemoryBudgetingRepository inMemoryBudgetingRepository() {
         return new InMemoryBudgetingRepository();
     }
-
 
     // Use Cases
 
@@ -39,8 +33,8 @@ public class ProjectConfig {
     }
 
     @Bean
-    public ViewMyExpensesUseCase viewMyExpensesUseCase(
+    public ViewAllExpensesUseCase viewMyExpensesUseCase(
             ExpenseRepository expenseRepository) {
-        return new ViewMyExpensesUseCase(expenseRepository);
+        return new ViewAllExpensesUseCase(expenseRepository);
     }
 }

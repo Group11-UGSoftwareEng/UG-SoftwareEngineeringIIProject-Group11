@@ -1,7 +1,7 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.category;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesResponse;
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.AddExpenseToCategoryUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddExpenseToCategoryUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.AddExpenseToCategoryCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.AddExpenseToCategoryResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewCategoryExpensesUseCase;
@@ -24,10 +24,10 @@ public class CategoryController {
     }
 
     // TODO implement (Query instead of null)
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<ViewCategoryExpensesResponse> getCategoryExpenses() {
-        return ResponseEntity.ok(viewCategoryExpensesUseCase.execute(null));
-    }
+//    @GetMapping("/{categoryId}")
+//    public ResponseEntity<ViewCategoryExpensesResponse> getCategoryExpenses() {
+//        return ResponseEntity.ok(viewCategoryExpensesUseCase.execute(null));
+//    }
 
     @PostMapping("/{categoryId}")
     public ResponseEntity<AddExpenseToCategoryResponse> addExpense(@PathVariable UUID categoryId,

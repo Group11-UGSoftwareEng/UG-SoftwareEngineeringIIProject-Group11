@@ -1,15 +1,15 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewMyExpensesUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesResponse;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense.dto.ViewAllExpensesQuery;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 //import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,15 +21,16 @@ public class ExpenseController {
     private ExpenseRepository expenseRepository;
 
 
-    private final ViewMyExpensesUseCase viewMyExpensesUseCase;
+    private final ViewAllExpensesUseCase viewAllExpensesUseCase;
 
-    public ExpenseController(ViewMyExpensesUseCase viewMyExpensesUseCase) {
-        this.viewMyExpensesUseCase = viewMyExpensesUseCase;
+    public ExpenseController(ViewAllExpensesUseCase viewAllExpensesUseCase) {
+        this.viewAllExpensesUseCase = viewAllExpensesUseCase;
     }
 
     @GetMapping(produces = "text/plain")
     public String viewExpenses() {
-        List<Expense> expenses = viewMyExpensesUseCase.execute(null);
+        ViewAllExpensesResponse response = viewAllExpensesUseCase.execute(new ViewAllExpensesQuery());
+        List<Expense> expenses = response.expenses();
 
         if (expenses.isEmpty()) {
             return "No expenses have been added yet.";

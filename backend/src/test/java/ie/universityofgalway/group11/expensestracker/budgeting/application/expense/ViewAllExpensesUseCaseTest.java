@@ -1,24 +1,14 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.application.expense;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Amount;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.InMemoryExpenseRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.InMemoryBudgetingRepository;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class ViewMyExpensesUseCaseTest {
+class ViewAllExpensesUseCaseTest {
 
     @Test
     void showsExpensesWithNewestFirst() {
-        InMemoryExpenseRepository repository =
-                new InMemoryExpenseRepository();
+        InMemoryBudgetingRepository repository =
+                new InMemoryBudgetingRepository();
 
         // Expense older = new Expense(
         //        ExpenseId.random(),
@@ -36,8 +26,8 @@ class ViewMyExpensesUseCaseTest {
         //repository.save(older);
         //repository.save(newer);
 
-        //ViewMyExpensesUseCase useCase =
-        //        new ViewMyExpensesUseCase(repository);
+        //ViewAllExpensesUseCase useCase =
+        //        new ViewAllExpensesUseCase(repository);
 
         //List<Expense> result = useCase.execute(null);
 
@@ -51,8 +41,8 @@ class ViewMyExpensesUseCaseTest {
         //    InMemoryExpenseRepository repository =
         //       new InMemoryExpenseRepository();
 
-        // ViewMyExpensesUseCase useCase =
-        //        new ViewMyExpensesUseCase(repository);
+        // ViewAllExpensesUseCase useCase =
+        //        new ViewAllExpensesUseCase(repository);
 //
         // assertTrue(useCase.execute(null).isEmpty());
     }//

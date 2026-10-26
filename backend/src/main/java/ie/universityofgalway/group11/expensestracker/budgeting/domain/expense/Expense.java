@@ -65,4 +65,16 @@ public class Expense {
     public LocalDate date() { return date; }
     public Description description() { return desc; }
     public Currency currency() { return currency; }
+
+    @Override
+    public String toString() {
+        return "Expense{" +
+                "id=" + id +
+                ", categoryId=" + categoryId +
+                ", amount=" + amount +
+                ", date=" + date +
+                ", description=" + desc +
+                ", currency=" + currency +
+                '}';
+    }
 }
