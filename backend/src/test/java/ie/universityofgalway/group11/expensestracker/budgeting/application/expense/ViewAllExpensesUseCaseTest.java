@@ -1,7 +1,19 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.application.expense;
 
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Amount;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Currency;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Description;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.InMemoryBudgetingRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense.dto.ViewAllExpensesQuery;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ViewAllExpensesUseCaseTest {
 
@@ -10,40 +22,62 @@ class ViewAllExpensesUseCaseTest {
         InMemoryBudgetingRepository repository =
                 new InMemoryBudgetingRepository();
 
-        // Expense older = new Expense(
-        //        ExpenseId.random(),
-        //       Amount.of(12.50),
-        //        LocalDate.of(2026, 10, 10),
-        //       CategoryId.random()
-        //        );
+        CategoryId categoryId = CategoryId.random();
 
-        //  Expense newer = new Expense(
-                //         ExpenseId.newId(),
-                //         new Amount(new BigDecimal("5.00")),
-                //       LocalDate.of(2026, 10, 12),
-                //       new Category("Transport"));
+        Expense older = Expense.create(
+                categoryId,
+                Amount.of(12.50),
+                Description.of("Older expense"),
+                Currency.of("EUR")
+        );
 
-        //repository.save(older);
-        //repository.save(newer);
+        older.update(
+                Amount.of(12.50),
+                LocalDate.of(2026, 10, 10),
+                Description.of("Older expense")
+        );
 
-        //ViewAllExpensesUseCase useCase =
-        //        new ViewAllExpensesUseCase(repository);
+        Expense newer = Expense.create(
+                categoryId,
+                Amount.of(5.00),
+                Description.of("Newer expense"),
+                Currency.of("EUR")
+        );
 
-        //List<Expense> result = useCase.execute(null);
+        newer.update(
+                Amount.of(5.00),
+                LocalDate.of(2026, 10, 12),
+                Description.of("Newer expense")
+        );
 
-        //assertEquals(2, result.size());
-        //assertEquals(newer.getId(), result.get(0).getId());
-        //  assertEquals(older.getId(), result.get(1).getId());
-    //}
+        repository.add(older);
+        repository.add(newer);
 
-        // @Test
-        // void returnsEmptyListWhenNoExpensesExist() {
-        //    InMemoryExpenseRepository repository =
-        //       new InMemoryExpenseRepository();
+        ViewAllExpensesUseCase useCase =
+                new ViewAllExpensesUseCase(repository);
 
-        // ViewAllExpensesUseCase useCase =
-        //        new ViewAllExpensesUseCase(repository);
-//
-        // assertTrue(useCase.execute(null).isEmpty());
-    }//
+        ViewAllExpensesResponse response =
+                useCase.execute(new ViewAllExpensesQuery());
+
+        List<Expense> result = response.expenses();
+
+        assertEquals(2, result.size());
+        assertEquals(newer.id(), result.get(0).id());
+        assertEquals(older.id(), result.get(1).id());
+    }
+
+    @Test
+    void returnsEmptyListWhenNoExpensesExist() {
+        InMemoryBudgetingRepository repository =
+                new InMemoryBudgetingRepository();
+
+        ViewAllExpensesUseCase useCase =
+                new ViewAllExpensesUseCase(repository);
+
+        assertTrue(
+                useCase.execute(new ViewAllExpensesQuery())
+                        .expenses()
+                        .isEmpty()
+        );
+    }
 }
