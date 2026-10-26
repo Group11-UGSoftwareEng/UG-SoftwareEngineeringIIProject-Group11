@@ -1,4 +1,4 @@
-package ie.universityofgalway.group11.expensestracker.budgeting.application.expense;
+package ie.universityofgalway.group11.expensestracker.budgeting.application.category;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.UseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.AddExpenseToCategoryCommand;
@@ -17,8 +17,8 @@ public class AddExpenseToCategoryUseCase implements UseCase<AddExpenseToCategory
 
     // TODO: add to an existing category: category = findById(id), category.addExpense(expense).
     @Override
-    public AddExpenseToCategoryResponse execute(AddExpenseToCategoryCommand input) {
-        Expense expense = Expense.create(CategoryId.of(input.categoryId()), Amount.of(input.amount()), Description.of(input.description()), Currency.of(input.currency()));
+    public AddExpenseToCategoryResponse execute(AddExpenseToCategoryCommand command) {
+        Expense expense = Expense.create(CategoryId.of(command.categoryId()), Amount.of(command.amount()), Description.of(command.description()), Currency.of(command.currency()));
         Expense addedExpense = categoryRepository.add(expense);
         System.out.println(addedExpense);
         return new AddExpenseToCategoryResponse(addedExpense.categoryId().asUuid(),

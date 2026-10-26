@@ -1,7 +1,7 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.category;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesResponse;
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.AddExpenseToCategoryUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddExpenseToCategoryUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.AddExpenseToCategoryCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.AddExpenseToCategoryResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewCategoryExpensesUseCase;
@@ -18,17 +18,16 @@ public class CategoryController {
     private final AddExpenseToCategoryUseCase addExpenseToCategoryUseCase;
     private final ViewCategoryExpensesUseCase viewCategoryExpensesUseCase;
 
-    // TODO wiring
     public CategoryController(AddExpenseToCategoryUseCase addExpenseToCategoryUseCase, ViewCategoryExpensesUseCase viewCategoryExpensesUseCase) {
         this.addExpenseToCategoryUseCase = addExpenseToCategoryUseCase;
         this.viewCategoryExpensesUseCase = viewCategoryExpensesUseCase;
     }
 
-    // TODO (Query instead of null)
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<ViewCategoryExpensesResponse> getCategoryExpenses() {
-        return ResponseEntity.ok(viewCategoryExpensesUseCase.execute(null));
-    }
+    // TODO implement (Query instead of null)
+//    @GetMapping("/{categoryId}")
+//    public ResponseEntity<ViewCategoryExpensesResponse> getCategoryExpenses() {
+//        return ResponseEntity.ok(viewCategoryExpensesUseCase.execute(null));
+//    }
 
     @PostMapping("/{categoryId}")
     public ResponseEntity<AddExpenseToCategoryResponse> addExpense(@PathVariable UUID categoryId,
@@ -36,6 +35,12 @@ public class CategoryController {
         AddExpenseToCategoryCommand command = new AddExpenseToCategoryCommand(categoryId, request.amount(), request.description(), request.currency());
         return ResponseEntity.ok(addExpenseToCategoryUseCase.execute(command));
     }
+
+//    @PostMapping
+//    public ResponseEntity<AddCategoryResponse> addCategory(@RequestBody AddCategoryCommand command) {
+//        AddCategoryResponse response = addCategoryUseCase.execute(command);
+//        return ResponseEntity.ok(response);
+//    }
 
 
 }

@@ -20,7 +20,7 @@ public class Amount {
         if (value == null) {
             throw new IllegalArgumentException("Amount is missing.");
         }
-        return new Amount(new BigDecimal(value));
+        return new Amount(BigDecimal.valueOf(value));
     }
 
     public BigDecimal value() {

@@ -34,6 +34,12 @@ public class Expense {
         this.desc = Objects.requireNonNull(desc);
     }
 
+    public void update(Amount amount, LocalDate date, Category category) {
+        this.amount = Objects.requireNonNull(amount);
+        this.date = Objects.requireNonNull(date);
+        //this.category = Objects.requireNonNull(category);
+    }
+
     // Domain Behaviour
 
     public void updateCurrency(Currency currency) {
@@ -59,4 +65,16 @@ public class Expense {
     public LocalDate date() { return date; }
     public Description description() { return desc; }
     public Currency currency() { return currency; }
+
+    @Override
+    public String toString() {
+        return "Expense{" +
+                "id=" + id +
+                ", categoryId=" + categoryId +
+                ", amount=" + amount +
+                ", date=" + date +
+                ", description=" + desc +
+                ", currency=" + currency +
+                '}';
+    }
 }

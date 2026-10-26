@@ -9,6 +9,7 @@ public class Category {
 
     private final CategoryId id;
     private CategoryName name;
+    private CategoryBudget budget;
     private final Set<Expense> expenses = new HashSet<>();
 
 
