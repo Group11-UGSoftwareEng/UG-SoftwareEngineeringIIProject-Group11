@@ -4,17 +4,21 @@ package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.r
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 //import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/expenses")
+@RequestMapping("/api/expenses")
 public class ExpenseController {
+
+    private ExpenseRepository expenseRepository;
+
+
+
 
 //    private final ViewMyExpensesUseCase viewMyExpensesUseCase;
 //

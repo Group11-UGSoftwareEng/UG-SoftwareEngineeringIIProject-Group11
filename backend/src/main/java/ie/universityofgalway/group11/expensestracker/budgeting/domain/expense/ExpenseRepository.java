@@ -12,6 +12,4 @@ public interface ExpenseRepository {
 
     void deleteById(ExpenseId id);
 
-    // Get all expenses for this user
-    //List<Expense> findByOwnerId(UserId ownerId);
 }
