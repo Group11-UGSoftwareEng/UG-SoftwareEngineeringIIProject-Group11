@@ -1,0 +1,275 @@
+
+.ss-panel {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+  color: #162238;
+  max-width: 1160px;
+  margin: 24px auto;
+  padding: 28px;
+  border-radius: 20px;
+  background: #f7f8fc;
+  box-sizing: border-box;
+}
+
+.ss-panel *,
+.ss-panel *::before,
+.ss-panel *::after {
+  box-sizing: border-box;
+}
+
+.ss-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.ss-header h2 {
+  margin: 3px 0 5px;
+  font-size: 27px;
+  letter-spacing: -0.7px;
+}
+
+.ss-eyebrow {
+  margin: 0;
+  color: #7968dc;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.ss-subtitle,
+.ss-muted {
+  color: #758198;
+  margin: 0;
+  font-size: 14px;
+}
+
+.ss-refresh {
+  border: 1px solid #dfe3ed;
+  background: #fff;
+  padding: 10px 16px;
+  border-radius: 9px;
+  font-weight: 600;
+  color: #323e55;
+  cursor: pointer;
+}
+
+.ss-refresh:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.ss-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.ss-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #64718b;
+}
+
+.ss-filters input,
+.ss-filters select {
+  min-width: 160px;
+  border: 1px solid #dfe3ed;
+  color: #23324d;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 14px;
+  padding: 10px 11px;
+  background: #fff;
+}
+
+.ss-error {
+  margin: 0 0 16px;
+  padding: 12px;
+  background: #fff0f0;
+  color: #a52a3c;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.ss-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.ss-stat,
+.ss-card {
+  background: #fff;
+  border: 1px solid #e8ebf3;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(26, 40, 71, 0.035);
+}
+
+.ss-stat {
+  padding: 21px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ss-stat span {
+  font-size: 13px;
+  color: #74819b;
+}
+
+.ss-stat strong {
+  font-size: 25px;
+  letter-spacing: -0.6px;
+}
+
+.ss-content {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.ss-card {
+  padding: 23px;
+  min-width: 0;
+}
+
+.ss-card h3 {
+  margin: 0 0 20px;
+  font-size: 16px;
+}
+
+.ss-segments {
+  display: flex;
+  overflow: hidden;
+  gap: 3px;
+  height: 17px;
+  border-radius: 20px;
+  background: #ecedf4;
+  margin: 0 0 22px;
+}
+
+.ss-segments > div {
+  min-width: 0;
+}
+
+.ss-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ss-category {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.ss-dot {
+  height: 11px;
+  width: 11px;
+  border-radius: 4px;
+  flex: none;
+}
+
+.ss-category-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ss-category-percent {
+  color: #8791a4;
+}
+
+.ss-category strong {
+  min-width: 82px;
+  text-align: right;
+}
+
+.ss-table-scroll {
+  overflow-x: auto;
+}
+
+.ss-table {
+  border-collapse: collapse;
+  min-width: 440px;
+  width: 100%;
+  font-size: 12px;
+}
+
+.ss-table th {
+  color: #8490a5;
+  text-align: left;
+  font-weight: 600;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e8ebf3;
+}
+
+.ss-table td {
+  padding: 14px 10px;
+  border-bottom: 1px solid #eff1f6;
+}
+
+.ss-table th:not(:first-child),
+.ss-table td:not(:first-child) {
+  text-align: right;
+}
+
+.ss-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ss-empty {
+  text-align: center !important;
+  color: #8490a5;
+  padding: 25px !important;
+}
+
+@media (max-width: 800px) {
+  .ss-panel {
+    padding: 16px;
+    margin: 10px;
+  }
+
+  .ss-content {
+    grid-template-columns: 1fr;
+  }
+
+  .ss-header h2 {
+    font-size: 23px;
+  }
+}
+
+@media (max-width: 520px) {
+  .ss-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .ss-stat {
+    padding: 15px;
+  }
+
+  .ss-header {
+    align-items: center;
+  }
+
+  .ss-refresh {
+    padding: 9px 11px;
+  }
+
+  .ss-filters label,
+  .ss-filters input,
+  .ss-filters select {
+    width: 100%;
+  }
+}
