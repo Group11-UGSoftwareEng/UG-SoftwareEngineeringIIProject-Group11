@@ -33,8 +33,8 @@ class ViewAllExpensesUseCaseTest {
 
         older.update(
                 Amount.of(12.50),
-                LocalDate.of(2026, 10, 10),
-                Description.of("Older expense")
+                Description.of("Older expense"),
+                Currency.of("EUR")
         );
 
         Expense newer = Expense.create(
@@ -46,8 +46,8 @@ class ViewAllExpensesUseCaseTest {
 
         newer.update(
                 Amount.of(5.00),
-                LocalDate.of(2026, 10, 12),
-                Description.of("Newer expense")
+                Description.of("Newer expense"),
+                Currency.of("EUR")
         );
 
         repository.add(older);

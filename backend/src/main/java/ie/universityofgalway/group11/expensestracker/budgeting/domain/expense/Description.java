@@ -25,11 +25,13 @@ public class Description {
 
         return text.equals(other.text);
     }
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(text);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return text;
     }
 
