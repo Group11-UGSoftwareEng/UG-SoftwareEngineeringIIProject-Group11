@@ -35,15 +35,11 @@ public class ExpenseController {
         if (expenses.isEmpty()) {
             return "No expenses have been added yet.";
         }
-
         String result = "Expenses\n\n";
-
+        int count = 1;
         for (Expense expense : expenses) {
-            result += "Amount: " + expense.amount().value() + "\n";
-            result += "Date: " + expense.date() + "\n";
-            //result += "Category: " + expense.getCategory().name() + "\n\n";
+            result += count++ + ". " + expense.toString() + "\n";
         }
-
         return result;
     }
 }

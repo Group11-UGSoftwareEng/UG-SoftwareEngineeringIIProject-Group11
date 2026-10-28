@@ -28,22 +28,19 @@ public class Expense {
         return new Expense(ExpenseId.random(), categoryId, amount, LocalDate.now(), desc, currency);
     }
 
-    public void update(Amount amount, LocalDate date, Description desc) {
-        this.amount = Objects.requireNonNull(amount);
-        this.date = Objects.requireNonNull(date);
-        this.desc = Objects.requireNonNull(desc);
-    }
-
-    public void update(Amount amount, LocalDate date, Category category) {
-        this.amount = Objects.requireNonNull(amount);
-        this.date = Objects.requireNonNull(date);
-        //this.category = Objects.requireNonNull(category);
-    }
-
     // Domain Behaviour
+
+    public void update(Amount amount, Description desc, Currency currency) {
+        this.amount = Objects.requireNonNull(amount);
+        this.desc = Objects.requireNonNull(desc);
+        this.currency = Objects.requireNonNull(currency);
+    }
 
     public void updateCurrency(Currency currency) {
         // TODO: actual currency conversion logic
+        Amount newAmount = amount();
+
+        updateAmount(newAmount);
         this.currency = Objects.requireNonNull(currency);
     }
 
@@ -53,10 +50,6 @@ public class Expense {
 
     public void updateDescription(Description desc) {
         this.desc = Objects.requireNonNull(desc);
-    }
-
-    public void updateDate(LocalDate date) {
-        this.date = Objects.requireNonNull(date);
     }
 
     public CategoryId categoryId() { return categoryId; }
