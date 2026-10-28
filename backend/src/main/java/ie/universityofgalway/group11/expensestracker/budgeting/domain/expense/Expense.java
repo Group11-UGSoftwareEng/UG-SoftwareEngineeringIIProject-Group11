@@ -1,39 +1,80 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.domain.expense;
 
-import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class Expense {
 
+    private final CategoryId categoryId;
     private final ExpenseId id;
-    private final UserId ownerId;
     private Amount amount;
     private LocalDate date;
-    private Category category;
+    private Description desc;
+    private Currency currency;
 
-    public Expense(ExpenseId id, UserId ownerId, Amount amount, LocalDate date, Category category) {
+    private Expense(ExpenseId id, CategoryId categoryId, Amount amount, LocalDate date, Description desc, Currency currency) {
+        this.categoryId = Objects.requireNonNull(categoryId);
         this.id = Objects.requireNonNull(id);
-        this.ownerId = Objects.requireNonNull(ownerId);
         this.amount = Objects.requireNonNull(amount);
         this.date = Objects.requireNonNull(date);
-        this.category = Objects.requireNonNull(category);
+        this.desc = Objects.requireNonNull(desc);
+        this.currency = Objects.requireNonNull(currency);
     }
 
-    public boolean isOwnedBy(UserId userId) {
-        return ownerId.equals(userId);
+    public static Expense create(CategoryId categoryId, Amount amount, Description desc, Currency currency) {
+        return new Expense(ExpenseId.random(), categoryId, amount, LocalDate.now(), desc, currency);
+    }
+
+    public void update(Amount amount, LocalDate date, Description desc) {
+        this.amount = Objects.requireNonNull(amount);
+        this.date = Objects.requireNonNull(date);
+        this.desc = Objects.requireNonNull(desc);
     }
 
     public void update(Amount amount, LocalDate date, Category category) {
         this.amount = Objects.requireNonNull(amount);
         this.date = Objects.requireNonNull(date);
-        this.category = Objects.requireNonNull(category);
+        //this.category = Objects.requireNonNull(category);
     }
 
-    public ExpenseId getId() { return id; }
-    public UserId getOwnerId() { return ownerId; }
-    public Amount getAmount() { return amount; }
-    public LocalDate getDate() { return date; }
-    public Category getCategory() { return category; }
+    // Domain Behaviour
+
+    public void updateCurrency(Currency currency) {
+        // TODO: actual currency conversion logic
+        this.currency = Objects.requireNonNull(currency);
+    }
+
+    public void updateAmount(Amount amount) {
+        this.amount = Objects.requireNonNull(amount);
+    }
+
+    public void updateDescription(Description desc) {
+        this.desc = Objects.requireNonNull(desc);
+    }
+
+    public void updateDate(LocalDate date) {
+        this.date = Objects.requireNonNull(date);
+    }
+
+    public CategoryId categoryId() { return categoryId; }
+    public ExpenseId id() { return id; }
+    public Amount amount() { return amount; }
+    public LocalDate date() { return date; }
+    public Description description() { return desc; }
+    public Currency currency() { return currency; }
+
+    @Override
+    public String toString() {
+        return "Expense{" +
+                "id=" + id +
+                ", categoryId=" + categoryId +
+                ", amount=" + amount +
+                ", date=" + date +
+                ", description=" + desc +
+                ", currency=" + currency +
+                '}';
+    }
 }
