@@ -6,6 +6,9 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.expen
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.AddExpenseToCategoryResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewCategoryExpensesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.category.dto.AddExpenseToCategoryRequest;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.EditCategoryDetailsUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.EditCategoryDetailsCommand;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.category.dto.EditCategoryDetailsRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +20,16 @@ public class CategoryController {
 
     private final AddExpenseToCategoryUseCase addExpenseToCategoryUseCase;
     private final ViewCategoryExpensesUseCase viewCategoryExpensesUseCase;
+    private final EditCategoryDetailsUseCase editCategoryDetailsUseCase;
 
-    public CategoryController(AddExpenseToCategoryUseCase addExpenseToCategoryUseCase, ViewCategoryExpensesUseCase viewCategoryExpensesUseCase) {
+    public CategoryController(
+            AddExpenseToCategoryUseCase addExpenseToCategoryUseCase,
+            ViewCategoryExpensesUseCase viewCategoryExpensesUseCase,
+            EditCategoryDetailsUseCase editCategoryDetailsUseCase) {
+
         this.addExpenseToCategoryUseCase = addExpenseToCategoryUseCase;
         this.viewCategoryExpensesUseCase = viewCategoryExpensesUseCase;
+        this.editCategoryDetailsUseCase = editCategoryDetailsUseCase;
     }
 
     // TODO implement (Query instead of null)
@@ -34,6 +43,18 @@ public class CategoryController {
                                                                    @RequestBody AddExpenseToCategoryRequest request) {
         AddExpenseToCategoryCommand command = new AddExpenseToCategoryCommand(categoryId, request.amount(), request.description(), request.currency());
         return ResponseEntity.ok(addExpenseToCategoryUseCase.execute(command));
+    }
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<String> editCategory(
+            @PathVariable("categoryId") UUID categoryId,
+            @RequestBody EditCategoryDetailsRequest request) {
+
+        EditCategoryDetailsCommand command =
+                new EditCategoryDetailsCommand(categoryId, request.newName());
+
+        editCategoryDetailsUseCase.execute(command);
+
+        return ResponseEntity.ok("Category name updated.");
     }
 
 //    @PostMapping

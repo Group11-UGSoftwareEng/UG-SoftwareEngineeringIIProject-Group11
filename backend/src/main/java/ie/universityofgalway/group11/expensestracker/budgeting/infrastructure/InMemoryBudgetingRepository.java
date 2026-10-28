@@ -7,6 +7,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
 // import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
 import org.springframework.stereotype.Repository;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryRepository {
 
     private final Map<ExpenseId, Expense> store = new ConcurrentHashMap<>();
+    private final Map<CategoryId, Category> categories =
+            new ConcurrentHashMap<>();
 
     //Expense Repository
 
@@ -53,5 +56,14 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
         }
         return expense;
     }
+    @Override
+    public Optional<Category> findById(CategoryId id) {
+        return Optional.ofNullable(categories.get(id));
+    }
 
+    @Override
+    public Category save(Category category) {
+        categories.put(category.id(), category);
+        return category;
+    }
 }
