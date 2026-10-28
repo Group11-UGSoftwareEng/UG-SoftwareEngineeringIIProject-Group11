@@ -66,7 +66,7 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
         categoryStore.put(CategoryId.of(UUID.fromString("7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843")),
                         Category.create(CategoryName.of("Example Category 1"), YearMonth.of(2026, 10)));
         categoryStore.put(CategoryId.of(UUID.fromString("7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843")),
-                Category.create(CategoryName.of("Example Category 1"), YearMonth.of(2026, 10)));
+                Category.create(CategoryName.of("Example Category 2"), YearMonth.of(2026, 10)));
 
         return categoryStore.get(categoryId);
 
