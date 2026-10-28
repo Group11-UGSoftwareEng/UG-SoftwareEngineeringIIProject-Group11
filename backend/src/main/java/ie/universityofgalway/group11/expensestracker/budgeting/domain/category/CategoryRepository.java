@@ -5,4 +5,5 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 public interface CategoryRepository {
 
     Expense add(Expense expense);
+    void deleteById(CategoryId id);
 }
