@@ -1,6 +1,6 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesResponse;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.ViewAllExpensesResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense.dto.ViewAllExpensesQuery;

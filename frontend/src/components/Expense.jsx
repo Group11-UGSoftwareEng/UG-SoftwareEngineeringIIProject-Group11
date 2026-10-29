@@ -1,6 +1,6 @@
 // To show the expense row
 
-export default function Expense({ date, description, amount, currency }) {
+export default function Expense({ dateAdded, description, amount, currency }) {
 
     return (
     <div
@@ -14,7 +14,7 @@ export default function Expense({ date, description, amount, currency }) {
         marginBottom: "8px",
         }}
     >
-        <div>{new Date(date).toLocaleDateString()}</div>
+        <div>{new Date(dateAdded).toLocaleDateString()}</div>
         <div style={{ flex: 1 }}>{description}</div>
         <div>{Number(amount).toFixed(2)}</div>
         <div>{currency}</div>

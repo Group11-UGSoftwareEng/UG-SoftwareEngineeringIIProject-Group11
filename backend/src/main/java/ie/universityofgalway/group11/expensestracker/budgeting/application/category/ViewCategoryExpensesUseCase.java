@@ -1,4 +1,4 @@
-package ie.universityofgalway.group11.expensestracker.budgeting.application.expense;
+package ie.universityofgalway.group11.expensestracker.budgeting.application.category;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesResponse;

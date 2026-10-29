@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record AddExpenseToCategoryResponse(UUID categoryId,
-                                           UUID expenseId,
+                                           UUID id,
                                            BigDecimal amount,
                                            LocalDate dateAdded,
                                            String description,

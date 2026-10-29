@@ -8,27 +8,40 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.C
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.*;
+import jakarta.transaction.Transactional;
+
+import java.util.Optional;
 
 public class AddExpenseToCategoryUseCase implements UseCase<AddExpenseToCategoryCommand, AddExpenseToCategoryResponse> {
 
+    private final ExpenseRepository expenseRepository;
     private final CategoryRepository categoryRepository;
 
-    public AddExpenseToCategoryUseCase(CategoryRepository categoryRepository) {
+    public AddExpenseToCategoryUseCase(ExpenseRepository expenseRepository, CategoryRepository categoryRepository) {
+        this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
     }
 
-    // TODO: add to an existing category: category = findById(id), category.addExpense(expense).
+    @Transactional
     @Override
     public AddExpenseToCategoryResponse execute(AddExpenseToCategoryCommand command) {
-        Expense expense = Expense.create(CategoryId.of(command.categoryId()), Amount.of(command.amount()), Description.of(command.description()), Currency.of(command.currency()));
-        Expense addedExpense = categoryRepository.add(expense);
-        Category categoryWhereExpenseIsAdded = categoryRepository.findById(CategoryId.of(command.categoryId()));
+        Category toCategory = categoryRepository
+                .findById(CategoryId.of(command.categoryId()))
+                .orElseThrow(() ->
+                        new CategoryException(
+                                "Category does not exist. Cannot add expense."
+                        ));
 
-        if (categoryWhereExpenseIsAdded == null) {
-            throw new CategoryException("Category does not exist in database. It is not possible to add an expense to this UUID.");
-        }
+        Expense addedExpense = Expense.create(
+                CategoryId.of(command.categoryId()),
+                Amount.of(command.amount()),
+                Description.of(command.description()),
+                Currency.of(command.currency()));
 
-        categoryWhereExpenseIsAdded.addExpense(expense);
+
+        expenseRepository.save(addedExpense, toCategory); // saves to database
+        toCategory.addExpenseToTheCategory(addedExpense); // saves to the category list
+
 
         return new AddExpenseToCategoryResponse(addedExpense.categoryId().asUuid(),
                                                 addedExpense.id().asUuid(),
