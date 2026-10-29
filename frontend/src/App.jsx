@@ -12,6 +12,8 @@ function App() {
     <>
 
         <Expense />
+        <ProjectedSpending />
+
     </>
   )
 }
