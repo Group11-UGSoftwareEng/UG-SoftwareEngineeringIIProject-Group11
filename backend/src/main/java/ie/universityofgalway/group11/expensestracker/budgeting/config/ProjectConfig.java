@@ -13,7 +13,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpensePersistanceAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ResetBudgetingUseCase;
 @Configuration
 public class ProjectConfig {
 
@@ -43,6 +43,11 @@ public class ProjectConfig {
     @Bean
     public ViewCategoryExpensesUseCase viewCategoryExpensesUseCase(CategoryRepository categoryRepository) {
         return new ViewCategoryExpensesUseCase(categoryRepository);
+    }
+    @Bean
+    public ResetBudgetingUseCase resetBudgetingUseCase(
+            CategoryRepository categoryRepository) {
+        return new ResetBudgetingUseCase(categoryRepository);
     }
 
     @Bean

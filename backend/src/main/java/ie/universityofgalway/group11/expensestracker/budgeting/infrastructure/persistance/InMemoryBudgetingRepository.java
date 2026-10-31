@@ -56,5 +56,41 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
 
         return Optional.ofNullable(categoryStore.get(categoryId));
     }
+    @Override
+    public List<Category> findByPeriod(YearMonth period) {
+        List<Category> categories = new ArrayList<>();
+
+        for (Category category : categoryStore.values()) {
+            if (category.year() == period.getYear()
+                    && category.month() == period.getMonthValue()) {
+                categories.add(category);
+            }
+        }
+
+        return categories;
+    }
+
+    @Override
+    public Optional<YearMonth> findLatestPeriod() {
+        YearMonth latest = null;
+
+        for (Category category : categoryStore.values()) {
+            YearMonth period =
+                    YearMonth.of(category.year(), category.month());
+
+            if (latest == null || period.isAfter(latest)) {
+                latest = period;
+            }
+        }
+
+        return Optional.ofNullable(latest);
+    }
+
+    @Override
+    public void saveAll(List<Category> categories) {
+        for (Category category : categories) {
+            categoryStore.put(category.id(), category);
+        }
+    }
 
 }
