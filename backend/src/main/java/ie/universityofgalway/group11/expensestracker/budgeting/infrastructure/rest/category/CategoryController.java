@@ -55,7 +55,11 @@ public class CategoryController {
 
         return ResponseEntity.ok("Category name updated.");
     }
-
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleInvalidInput(
+            IllegalArgumentException error) {
+        return ResponseEntity.badRequest().body(error.getMessage());
+    }
 //    @PostMapping
 //    public ResponseEntity<AddCategoryResponse> addCategory(@RequestBody AddCategoryCommand command) {
 //        AddCategoryResponse response = addCategoryUseCase.execute(command);
