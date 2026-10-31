@@ -41,7 +41,18 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
         return new ArrayList<>(expenseStore.values());
     }
 
+    @Override
+    public List<Expense> findByCategoryId(CategoryId categoryId) {
+        List<Expense> expenses = new ArrayList<>();
 
+        for (Expense expense : expenseStore.values()) {
+            if (expense.categoryId().equals(categoryId)) {
+                expenses.add(expense);
+            }
+        }
+
+        return expenses;
+    }
     // Category Repository
 
     @Override

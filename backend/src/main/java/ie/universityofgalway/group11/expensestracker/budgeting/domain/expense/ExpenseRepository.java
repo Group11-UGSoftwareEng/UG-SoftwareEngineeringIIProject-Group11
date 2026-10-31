@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 
 @Repository
 public interface ExpenseRepository {
@@ -19,4 +20,5 @@ public interface ExpenseRepository {
     // Get all expenses for this user
     //List<Expense> findByOwnerId(UserId ownerId);
     List<Expense> findAll();
+    List<Expense> findByCategoryId(CategoryId categoryId);
 }

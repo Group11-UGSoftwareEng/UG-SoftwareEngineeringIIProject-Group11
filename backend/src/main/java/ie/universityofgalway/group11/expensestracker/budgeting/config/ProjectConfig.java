@@ -41,8 +41,12 @@ public class ProjectConfig {
     }
 
     @Bean
-    public ViewCategoryExpensesUseCase viewCategoryExpensesUseCase(CategoryRepository categoryRepository) {
-        return new ViewCategoryExpensesUseCase(categoryRepository);
+    public ViewCategoryExpensesUseCase viewCategoryExpensesUseCase(
+            CategoryRepository categoryRepository,
+            ExpenseRepository expenseRepository) {
+
+        return new ViewCategoryExpensesUseCase(
+                categoryRepository, expenseRepository);
     }
 
     @Bean
