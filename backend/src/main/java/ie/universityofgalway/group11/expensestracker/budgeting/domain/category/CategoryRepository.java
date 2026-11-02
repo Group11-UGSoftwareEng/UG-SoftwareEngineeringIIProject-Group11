@@ -7,8 +7,7 @@ import java.util.Optional;
 
 @Repository
 public interface CategoryRepository {
-
     Optional<Category> findById(CategoryId categoryId);
-
     List<Category> findAllCategories();
+    void deleteById(CategoryId id);
 }
