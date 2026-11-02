@@ -482,7 +482,7 @@ export default function Expense({
                 id="expense-description"
                 type="text"
                 maxLength={200}
-                placeholder="e.g. Groceries at Tesco"
+                placeholder="e.g. Groceries"
                 value={description}
                 onChange={event =>
                   setDescription(event.target.value)
