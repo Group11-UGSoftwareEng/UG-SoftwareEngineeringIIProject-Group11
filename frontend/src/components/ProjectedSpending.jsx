@@ -245,7 +245,7 @@ export default function ProjectedSpending({
 
         if (!contentType.includes('application/json')) {
           throw new Error(
-            'The server returned HTML instead of JSON. Check that Spring Boot is running on port 8080 or 808 and that the Vite proxy points to the correct port.'
+            'The server returned HTML instead of JSON. Check Spring Boot'
           )
         }
 
@@ -329,8 +329,7 @@ export default function ProjectedSpending({
         )}
 
         {loading && !forecast && (
-          <p className="ps-loading">
-            Loading spending information...
+          <p className="ps-loading">       
           </p>
         )}
 
