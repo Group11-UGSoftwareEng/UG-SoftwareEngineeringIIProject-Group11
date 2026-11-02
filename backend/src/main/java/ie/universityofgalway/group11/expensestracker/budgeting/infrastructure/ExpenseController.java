@@ -1,5 +1,5 @@
 
-package budgeting.infrastructure.rest.expense;
+package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -40,8 +40,13 @@ public class ExpenseController {
         this.categoryRepository = categoryRepository;
     }
 
-    // Existing endpoint preserved.
+    // =========================================================
+    // 1. ORIGINAL EXPENSE ENDPOINT
     // GET /api/expenses
+    //
+    // Preserves the original plain-text response for Postman.
+    // =========================================================
+
     @GetMapping(produces = "text/plain")
     public String viewExpenses() {
 
@@ -70,7 +75,10 @@ public class ExpenseController {
         return result.toString();
     }
 
-    // Response format for the React expense table.
+    // =========================================================
+    // 2. JSON RESPONSE OBJECTS FOR REACT
+    // =========================================================
+
     public record ExpenseDetails(
             UUID id,
             UUID categoryId,
@@ -81,13 +89,18 @@ public class ExpenseController {
             LocalDate date
     ) {}
 
-    // Response format for the category dropdown.
     public record CategoryDetails(
             UUID id,
             String name
     ) {}
 
+    // =========================================================
+    // 3. CATEGORY LIST
     // GET /api/expenses/categories
+    //
+    // Used by the category dropdown in Expense.jsx.
+    // =========================================================
+
     @GetMapping(
             value = "/categories",
             produces = "application/json"
@@ -109,7 +122,13 @@ public class ExpenseController {
                 .toList();
     }
 
+    // =========================================================
+    // 4. EXPENSE LIST AS JSON
     // GET /api/expenses/list
+    //
+    // Used by Expense.jsx to display saved records.
+    // =========================================================
+
     @GetMapping(
             value = "/list",
             produces = "application/json"
@@ -140,6 +159,13 @@ public class ExpenseController {
                 )
                 .toList();
     }
+
+    // =========================================================
+    // 5. DATABASE ENTITY TO JSON CONVERSION
+    //
+    // Gets descriptions, amounts, dates and categories
+    // from the existing persisted expense records.
+    // =========================================================
 
     private ExpenseDetails toExpenseDetails(
             ExpenseEntity expense,

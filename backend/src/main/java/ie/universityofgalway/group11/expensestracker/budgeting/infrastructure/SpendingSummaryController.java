@@ -1,5 +1,5 @@
 
-package budgeting.infrastructure.rest.expense;
+package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure;
 
 import java.util.Map;
 
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import budgeting.application.SpendingSummaryService;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.SpendingSummaryService;
 @RestController
 @RequestMapping("/api/expenses/summary")
 public class SpendingSummaryController {
