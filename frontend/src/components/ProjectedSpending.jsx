@@ -1,25 +1,14 @@
 
-import { useEffect, useState } from 'react';
-
-// ---------- STYLING ----------
+import { useEffect, useState } from 'react'
 
 const styles = `
   .projected-spending {
-    --ps-white: #ffffff;
-    --ps-background: #f4f4f4;
-    --ps-border: #d4d4d4;
-    --ps-text: #222222;
-    --ps-muted: #666666;
-    --ps-accent: #424b57;
-
     width: 100%;
-    max-width: 1100px;
-    margin: 24px auto;
-    padding: 24px;
-    background: var(--ps-white);
-    border: 1px solid var(--ps-border);
-    border-radius: 3px;
-    color: var(--ps-text);
+    margin: 20px 0;
+    padding: 22px;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    color: #222222;
     color-scheme: light;
     font-family: Arial, Helvetica, sans-serif;
     text-align: left;
@@ -29,52 +18,41 @@ const styles = `
     box-sizing: border-box;
   }
 
-  .projected-spending h2,
-  .projected-spending h3,
-  .projected-spending strong {
-    color: var(--ps-text);
-  }
-
-  .projected-spending h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0 0 6px;
-  }
-
-  .projected-spending h3 {
-    font-size: 15px;
-    font-weight: 700;
-    margin: 0 0 16px;
-  }
-
-  .ps-description {
-    color: var(--ps-muted);
-    font-size: 13px;
-    margin: 0;
-  }
-
   .ps-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 16px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--ps-border);
+    gap: 15px;
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #cccccc;
+  }
+
+  .ps-header h2 {
+    margin: 0 0 6px;
+    color: #222222;
+    font-size: 21px;
+    font-weight: bold;
+  }
+
+  .ps-subtitle {
+    color: #666666;
+    font-size: 13px;
+    margin: 0;
   }
 
   .ps-button {
-    padding: 10px 18px;
-    background: var(--ps-accent);
-    border: 1px solid var(--ps-accent);
+    padding: 10px 16px;
+    background: #333333;
+    border: 1px solid #333333;
+    color: white;
     border-radius: 2px;
-    color: #ffffff;
     font-size: 13px;
-    font-weight: 600;
     cursor: pointer;
   }
 
   .ps-button:hover {
-    background: #303640;
+    background: #555555;
   }
 
   .ps-button:disabled {
@@ -82,487 +60,242 @@ const styles = `
     cursor: wait;
   }
 
-  .ps-inputs {
+  .ps-summary {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
-    padding: 20px 0;
+    margin-bottom: 25px;
   }
 
-  .ps-inputs label {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    color: var(--ps-text);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .ps-inputs input {
-    width: 100%;
-    min-width: 0;
-    padding: 11px 12px;
-    background: #ffffff;
-    border: 1px solid #bcbcbc;
-    border-radius: 2px;
-    color: var(--ps-text);
-    font-size: 14px;
-    font-family: inherit;
-  }
-
-  .ps-inputs input:focus {
-    outline: 2px solid #888888;
-    outline-offset: 1px;
-  }
-
-  .ps-error {
-    padding: 12px;
-    margin: 0 0 15px;
-    border: 1px solid #aaaaaa;
-    background: #f4f4f4;
-    color: #333333;
-    font-size: 13px;
-  }
-
-  .ps-status {
-    font-size: 13px;
-    color: var(--ps-muted);
-  }
-
-  .ps-stats {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  .ps-stat {
-    background: var(--ps-background);
-    border: 1px solid var(--ps-border);
-    border-radius: 2px;
-    padding: 18px 15px;
-    min-width: 0;
-  }
-
-  .ps-stat-label {
-    display: block;
-    font-size: 12px;
-    color: var(--ps-muted);
-    margin-bottom: 13px;
-  }
-
-  .ps-stat-value {
-    display: block;
-    font-size: 23px;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .ps-stat-featured {
-    border: 2px solid #424b57;
-    padding: 17px 14px;
-  }
-
-  .ps-section {
-    border: 1px solid var(--ps-border);
-    border-radius: 2px;
-    margin-bottom: 15px;
+  .ps-card {
+    background: #f5f5f5;
+    border: 1px solid #d5d5d5;
     padding: 20px;
-    background: #ffffff;
+    min-width: 0;
   }
 
-  .ps-chart {
-    display: flex;
-    flex-direction: column;
-    gap: 13px;
+  .ps-card-label {
+    display: block;
+    color: #555555;
+    font-size: 13px;
+    margin-bottom: 12px;
   }
 
-  .ps-chart-row {
+  .ps-card-value {
+    display: block;
+    color: #222222;
+    font-size: 25px;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+
+  .ps-section-title {
+    color: #222222;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 0 15px;
+  }
+
+  .ps-table {
+    border: 1px solid #d5d5d5;
+    width: 100%;
+  }
+
+  .ps-table-header,
+  .ps-table-row {
     display: grid;
-    grid-template-columns: 105px minmax(0, 1fr) 100px;
+    grid-template-columns: minmax(110px, 1.3fr)
+      minmax(80px, 1fr)
+      minmax(80px, 1fr)
+      minmax(90px, 1.5fr);
     align-items: center;
     gap: 12px;
-    font-size: 12px;
+    padding: 14px;
+    font-size: 13px;
   }
 
-  .ps-chart-label {
-    color: var(--ps-text);
+  .ps-table-header {
+    background: #eeeeee;
+    border-bottom: 1px solid #cccccc;
+    color: #333333;
+    font-weight: bold;
   }
 
-  .ps-chart-track {
-    height: 16px;
-    background: #ebebeb;
-    border: 1px solid #dddddd;
-  }
-
-  .ps-chart-fill {
-    height: 100%;
-    background: #777777;
-  }
-
-  .ps-chart-fill.current {
-    background: #424b57;
-  }
-
-  .ps-chart-fill.future {
-    background: #b3b3b3;
-  }
-
-  .ps-chart-value {
-    text-align: right;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ps-text);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .ps-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 18px;
-    font-size: 11px;
-    color: var(--ps-muted);
-  }
-
-  .ps-legend span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .ps-legend-mark {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #777777;
-  }
-
-  .ps-legend-mark.current {
-    background: #424b57;
-  }
-
-  .ps-legend-mark.future {
-    background: #b3b3b3;
-  }
-
-  .ps-breakdown {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--ps-border);
-    border: 1px solid var(--ps-border);
-  }
-
-  .ps-detail {
+  .ps-table-row {
     background: #ffffff;
-    padding: 15px;
+    border-bottom: 1px solid #eeeeee;
+    color: #333333;
   }
 
-  .ps-detail span {
-    display: block;
-    color: var(--ps-muted);
-    font-size: 12px;
-    margin-bottom: 8px;
+  .ps-table-row:last-child {
+    border-bottom: none;
   }
 
-  .ps-detail strong {
-    font-size: 18px;
-    font-weight: 700;
+  .ps-category-name {
+    color: #222222;
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
 
-  .ps-progress {
-    height: 10px;
-    background: #e5e5e5;
-    margin: 18px 0;
-    border: 1px solid var(--ps-border);
+  .ps-amount {
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
   }
 
-  .ps-progress-fill {
+  .ps-bar-background {
+    width: 100%;
+    height: 14px;
+    background: #e6e6e6;
+  }
+
+  .ps-bar-fill {
     height: 100%;
-    background: var(--ps-accent);
+    background: #555555;
+    transition: width 0.2s ease;
   }
 
   .ps-note {
-    color: var(--ps-muted);
+    margin-top: 16px;
+    color: #666666;
     font-size: 12px;
     line-height: 1.6;
-    padding: 12px 0 0;
   }
 
-  .ps-note p {
-    margin: 0;
-    color: var(--ps-muted);
+  .ps-error {
+    padding: 14px;
+    background: #f5f5f5;
+    border: 1px solid #aaaaaa;
+    color: #333333;
+    font-size: 13px;
+    margin-bottom: 15px;
   }
 
-  @media (max-width: 800px) {
-    .ps-stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  .ps-empty {
+    border: 1px solid #d5d5d5;
+    padding: 20px;
+    background: #f5f5f5;
+    color: #555555;
+    font-size: 13px;
+  }
+
+  .ps-loading {
+    color: #666666;
+    font-size: 13px;
+  }
+
+  @media (max-width: 750px) {
+    .ps-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .ps-table-header,
+    .ps-table-row {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .ps-bar-background {
+      grid-column: 1 / -1;
     }
   }
 
-  @media (max-width: 550px) {
+  @media (max-width: 450px) {
     .projected-spending {
       padding: 14px;
     }
 
     .ps-header {
-      flex-direction: column;
       align-items: flex-start;
-    }
-
-    .ps-inputs {
-      grid-template-columns: 1fr;
-    }
-
-    .ps-stats,
-    .ps-breakdown {
-      grid-template-columns: 1fr;
-    }
-
-    .ps-chart-row {
-      grid-template-columns: 75px minmax(0, 1fr);
-    }
-
-    .ps-chart-value {
-      grid-column: 2;
-      text-align: left;
+      flex-direction: column;
     }
   }
-`;
-
-// ---------- DATE HELPERS ----------
-
-function todayString() {
-  const date = new Date();
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatMonth(value) {
-  if (!value) return 'Unknown';
-
-  let year;
-  let month;
-
-  if (typeof value === 'string') {
-    [year, month] = value.split('-').map(Number);
-  } else {
-    year = value.year;
-    month = value.month;
-  }
-
-  if (!year || !month) return 'Unknown';
-
-  return new Intl.DateTimeFormat('en-IE', {
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(year, month - 1, 1));
-}
-
-// ---------- COMPONENT ----------
+`
 
 export default function ProjectedSpending({
   apiBase = '/api',
+  currency = 'EUR',
+  refreshKey = 0
 }) {
+  const [forecast, setForecast] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [reload, setReload] = useState(0)
 
-  // Text inputs.
-  const [asOf, setAsOf] = useState(todayString);
-  const [historyMonths, setHistoryMonths] = useState('3');
-  const [currency, setCurrency] = useState('EUR');
-
-  // API state.
-  const [forecast, setForecast] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  // Validate values before sending.
-  const validDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(asOf)
-    && !Number.isNaN(new Date(`${asOf}T12:00:00`).getTime())
-    && new Date(`${asOf}T12:00:00`).toISOString().slice(0, 10) === asOf;
-
-  const validMonths =
-    /^\\d+$/.test(historyMonths) &&
-    Number(historyMonths) >= 1 &&
-    Number(historyMonths) <= 24;
-
-  const normalizedCurrency = currency.trim().toUpperCase();
-
-  const validCurrency =
-    ['EUR', 'USD', 'GBP'].includes(normalizedCurrency);
-
-  const inputsValid =
-    validDate && validMonths && validCurrency;
-
-  // ---------- API REQUEST ----------
-
+  // Fetch the existing expenses through the forecast API.
   useEffect(() => {
-
-    if (!inputsValid) {
-      setForecast(null);
-      setError(
-        'Enter a valid date (YYYY-MM-DD), historical months (1-24), and currency (EUR, USD or GBP).'
-      );
-      setLoading(false);
-      return;
-    }
-
-    const controller = new AbortController();
+    const controller = new AbortController()
 
     async function loadForecast() {
-      setLoading(true);
-      setError('');
+      setLoading(true)
+      setError('')
 
       try {
-        const params = new URLSearchParams({
-          asOf,
-          historyMonths,
-          currency: normalizedCurrency,
-        });
-
         const response = await fetch(
-          `${apiBase}/expenses/forecast?${params}`,
+          `${apiBase}/expenses/forecast?currency=${encodeURIComponent(currency)}`,
           {
             signal: controller.signal,
             headers: {
-              Accept: 'application/json',
-            },
+              Accept: 'application/json'
+            }
           }
-        );
+        )
+
+        const contentType =
+          response.headers.get('content-type') || ''
+
+        if (!contentType.includes('application/json')) {
+          throw new Error(
+            'The server returned HTML instead of JSON. Check that Spring Boot is running on port 8080 or 808 and that the Vite proxy points to the correct port.'
+          )
+        }
+
+        const result = await response.json()
 
         if (!response.ok) {
-          let message =
-            `Forecast request failed (HTTP ${response.status}).`;
-
-          try {
-            const body = await response.json();
-            message = body.error || message;
-          } catch {
-            // Keep HTTP error.
-          }
-
-          throw new Error(message);
-        }
-
-        const type = response.headers.get('content-type') || '';
-
-        if (!type.includes('application/json')) {
           throw new Error(
-            'The server did not return JSON. Check Spring Boot on port 808 and the Vite proxy.'
-          );
+            result.error ||
+            `Forecast request failed: HTTP ${response.status}`
+          )
         }
 
-        const data = await response.json();
-        setForecast(data);
-
+        if (!controller.signal.aborted) {
+          setForecast(result)
+        }
       } catch (err) {
         if (err.name !== 'AbortError') {
-          setForecast(null);
+          setForecast(null)
           setError(
-            err.message || 'Unable to load projected spending.'
-          );
+            err.message || 'Unable to retrieve spending forecast.'
+          )
         }
       } finally {
         if (!controller.signal.aborted) {
-          setLoading(false);
+          setLoading(false)
         }
       }
     }
 
-    loadForecast();
+    loadForecast()
 
-    return () => controller.abort();
+    return () => controller.abort()
+  }, [apiBase, currency, refreshKey, reload])
 
-  }, [
-    apiBase,
-    asOf,
-    historyMonths,
-    normalizedCurrency,
-    inputsValid,
-    refreshKey,
-  ]);
-
-  // ---------- CALCULATIONS ----------
-
-  const money = (amount) =>
-    new Intl.NumberFormat('en-IE', {
+  // Format values as currency.
+  function formatMoney(value) {
+    return new Intl.NumberFormat('en-IE', {
       style: 'currency',
-      currency: validCurrency ? normalizedCurrency : 'EUR',
-    }).format(Number(amount ?? 0));
-
-  const spent = Number(
-    forecast?.currentMonthSpent ?? 0
-  );
-
-  const currentProjection = Number(
-    forecast?.projectedCurrentMonth ?? 0
-  );
-
-  const nextProjection = Number(
-    forecast?.projectedNextMonth ?? 0
-  );
-
-  const historicalAverage = Number(
-    forecast?.historicalMonthlyAverage ?? 0
-  );
-
-  const additional = currentProjection - spent;
-
-  const progress = currentProjection > 0
-    ? Math.min(100, Math.max(0, (spent / currentProjection) * 100))
-    : 0;
-
-  // ---------- CHART DATA ----------
-
-  const chartData = [];
-
-  if (forecast) {
-
-    for (const item of forecast.historicalMonths ?? []) {
-      chartData.push({
-        month: formatMonth(item.month),
-        amount: Number(item.total ?? 0),
-        type: 'actual',
-      });
-    }
-
-    chartData.push({
-      month: formatMonth(asOf.slice(0, 7)),
-      amount: currentProjection,
-      type: 'current',
-    });
-
-    const [year, month] = asOf
-      .slice(0, 7)
-      .split('-')
-      .map(Number);
-
-    const nextDate = new Date(year, month, 1);
-
-    const nextMonth = `${nextDate.getFullYear()}-${String(
-      nextDate.getMonth() + 1
-    ).padStart(2, '0')}`;
-
-    chartData.push({
-      month: formatMonth(nextMonth),
-      amount: nextProjection,
-      type: 'future',
-    });
+      currency
+    }).format(Number(value ?? 0))
   }
 
-  const maxAmount = Math.max(
-    1,
-    ...chartData.map((item) => item.amount)
-  );
+  const categories = forecast?.categories ?? []
 
-  // ---------- RENDER ----------
+  const highestProjection = Math.max(
+    1,
+    ...categories.map(category =>
+      Number(category.projectedMonthEnd ?? 0)
+    )
+  )
 
   return (
     <>
@@ -570,72 +303,24 @@ export default function ProjectedSpending({
 
       <section className="projected-spending">
 
-        <header className="ps-header">
+        <div className="ps-header">
           <div>
             <h2>Projected Spending</h2>
-            <p className="ps-description">
-              Monthly spending estimates based on previous expenses.
+            <p className="ps-subtitle">
+              {forecast?.month || 'Current Month'} |
+              {' '}Category-based spending forecast
             </p>
           </div>
 
           <button
-            type="button"
             className="ps-button"
-            disabled={loading || !inputsValid}
-            onClick={() =>
-              setRefreshKey((value) => value + 1)
-            }
+            type="button"
+            disabled={loading}
+            onClick={() => setReload(value => value + 1)}
           >
             {loading ? 'Loading...' : 'Refresh'}
           </button>
-        </header>
-
-        {/* TEXT INPUTS */}
-
-        <div className="ps-inputs">
-
-          <label>
-            Forecast Date
-            <input
-              type="text"
-              placeholder="YYYY-MM-DD"
-              value={asOf}
-              onChange={(e) => setAsOf(e.target.value)}
-            />
-          </label>
-
-          <label>
-            Historical Months
-            <input
-              type="text"
-              placeholder="3"
-              value={historyMonths}
-              onChange={(e) =>
-                setHistoryMonths(e.target.value)
-              }
-            />
-          </label>
-
-          <label>
-            Currency
-            <input
-              type="text"
-              placeholder="EUR"
-              maxLength={3}
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-            />
-          </label>
-
         </div>
-
-        {/* ERRORS */}
-
-        {loading && (
-          <p className="ps-status">
-            Loading forecast...
-          </p>
-        )}
 
         {error && (
           <div className="ps-error" role="alert">
@@ -643,981 +328,127 @@ export default function ProjectedSpending({
           </div>
         )}
 
-        {/* RESULTS */}
-
-        {forecast && (
-          <>
-
-            <div className="ps-stats">
-
-              <div className="ps-stat">
-                <span className="ps-stat-label">
-                  Spent This Month
-                </span>
-                <strong className="ps-stat-value">
-                  {money(spent)}
-                </strong>
-              </div>
-
-              <div className="ps-stat ps-stat-featured">
-                <span className="ps-stat-label">
-                  Projected Month-End
-                </span>
-                <strong className="ps-stat-value">
-                  {money(currentProjection)}
-                </strong>
-              </div>
-
-              <div className="ps-stat">
-                <span className="ps-stat-label">
-                  Next Month Forecast
-                </span>
-                <strong className="ps-stat-value">
-                  {money(nextProjection)}
-                </strong>
-              </div>
-
-              <div className="ps-stat">
-                <span className="ps-stat-label">
-                  Historical Average
-                </span>
-                <strong className="ps-stat-value">
-                  {money(historicalAverage)}
-                </strong>
-              </div>
-
-            </div>
-
-            {/* MONTHLY COMPARISON */}
-
-            <div className="ps-section">
-              <h3>Monthly Spending Comparison</h3>
-
-              <div className="ps-chart">
-                {chartData.map((item, index) => (
-                  <div
-                    className="ps-chart-row"
-                    key={`${item.month}-${index}`}
-                  >
-
-                    <span className="ps-chart-label">
-                      {item.month}
-                    </span>
-
-                    <div className="ps-chart-track">
-                      <div
-                        className={`ps-chart-fill ${
-                          item.type === 'current'
-                            ? 'current'
-                            : item.type === 'future'
-                            ? 'future'
-                            : ''
-                        }`}
-                        style={{
-                          width: `${
-                            (item.amount / maxAmount) * 100
-                          }%`,
-                        }}
-                      />
-                    </div>
-
-                    <span className="ps-chart-value">
-                      {money(item.amount)}
-                    </span>
-
-                  </div>
-                ))}
-              </div>
-
-              <div className="ps-legend">
-                <span>
-                  <i className="ps-legend-mark" />
-                  Previous Months
-                </span>
-                <span>
-                  <i className="ps-legend-mark current" />
-                  Current Projection
-                </span>
-                <span>
-                  <i className="ps-legend-mark future" />
-                  Next Month
-                </span>
-              </div>
-            </div>
-
-            {/* CURRENT MONTH BREAKDOWN */}
-
-            <div className="ps-section">
-              <h3>Current Month Breakdown</h3>
-
-              <div
-                className="ps-progress"
-                role="progressbar"
-                aria-valuenow={Math.round(progress)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label="Spending progress"
-              >
-                <div
-                  className="ps-progress-fill"
-                  style={{
-                    width: `${progress}%`,
-                  }}
-                />
-              </div>
-
-              <div className="ps-breakdown">
-
-                <div className="ps-detail">
-                  <span>Already Spent</span>
-                  <strong>{money(spent)}</strong>
-                </div>
-
-                <div className="ps-detail">
-                  <span>Estimated Remaining Spending</span>
-                  <strong>{money(additional)}</strong>
-                </div>
-
-                <div className="ps-detail">
-                  <span>Current Month Run Rate</span>
-                  <strong>
-                    {money(forecast.currentMonthRunRate)}
-                  </strong>
-                </div>
-
-                <div className="ps-detail">
-                  <span>Next Month Forecast</span>
-                  <strong>{money(nextProjection)}</strong>
-                </div>
-
-              </div>
-            </div>
-
-            {/* EXPLANATION */}
-
-            <div className="ps-note">
-              <p>
-                {forecast.note ||
-                  'Forecast based on recorded spending and previous monthly averages.'}
-              </p>
-            </div>
-
-          </>
-        )}
-
-      </section>
-    </>
-  );
-}
-
-
-import { useEffect, useState } from 'react';
-
-// ---------- STYLING ----------
-
-const styles = `
-  .projected-spending {
-    --ps-white: #ffffff;
-    --ps-background: #f4f4f4;
-    --ps-border: #d4d4d4;
-    --ps-text: #222222;
-    --ps-muted: #666666;
-    --ps-accent: #424b57;
-
-    width: 100%;
-    max-width: 1100px;
-    margin: 24px auto;
-    padding: 24px;
-    background: var(--ps-white);
-    border: 1px solid var(--ps-border);
-    border-radius: 3px;
-    color: var(--ps-text);
-    color-scheme: light;
-    font-family: Arial, Helvetica, sans-serif;
-    text-align: left;
-  }
-
-  .projected-spending * {
-    box-sizing: border-box;
-  }
-
-  .projected-spending h2,
-  .projected-spending h3,
-  .projected-spending strong {
-    color: var(--ps-text);
-  }
-
-  .projected-spending h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0 0 6px;
-  }
-
-  .projected-spending h3 {
-    font-size: 15px;
-    font-weight: 700;
-    margin: 0 0 16px;
-  }
-
-  .ps-description {
-    color: var(--ps-muted);
-    font-size: 13px;
-    margin: 0;
-  }
-
-  .ps-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--ps-border);
-  }
-
-  .ps-button {
-    padding: 10px 18px;
-    background: var(--ps-accent);
-    border: 1px solid var(--ps-accent);
-    border-radius: 2px;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .ps-button:hover {
-    background: #303640;
-  }
-
-  .ps-button:disabled {
-    opacity: 0.5;
-    cursor: wait;
-  }
-
-  .ps-inputs {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    padding: 20px 0;
-  }
-
-  .ps-inputs label {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    color: var(--ps-text);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .ps-inputs input {
-    width: 100%;
-    min-width: 0;
-    padding: 11px 12px;
-    background: #ffffff;
-    border: 1px solid #bcbcbc;
-    border-radius: 2px;
-    color: var(--ps-text);
-    font-size: 14px;
-    font-family: inherit;
-  }
-
-  .ps-inputs input:focus {
-    outline: 2px solid #888888;
-    outline-offset: 1px;
-  }
-
-  .ps-error {
-    padding: 12px;
-    margin: 0 0 15px;
-    border: 1px solid #aaaaaa;
-    background: #f4f4f4;
-    color: #333333;
-    font-size: 13px;
-  }
-
-  .ps-status {
-    font-size: 13px;
-    color: var(--ps-muted);
-  }
-
-  .ps-stats {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  .ps-stat {
-    background: var(--ps-background);
-    border: 1px solid var(--ps-border);
-    border-radius: 2px;
-    padding: 18px 15px;
-    min-width: 0;
-  }
-
-  .ps-stat-label {
-    display: block;
-    font-size: 12px;
-    color: var(--ps-muted);
-    margin-bottom: 13px;
-  }
-
-  .ps-stat-value {
-    display: block;
-    font-size: 23px;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .ps-stat-featured {
-    border: 2px solid #424b57;
-    padding: 17px 14px;
-  }
-
-  .ps-section {
-    border: 1px solid var(--ps-border);
-    border-radius: 2px;
-    margin-bottom: 15px;
-    padding: 20px;
-    background: #ffffff;
-  }
-
-  .ps-chart {
-    display: flex;
-    flex-direction: column;
-    gap: 13px;
-  }
-
-  .ps-chart-row {
-    display: grid;
-    grid-template-columns: 105px minmax(0, 1fr) 100px;
-    align-items: center;
-    gap: 12px;
-    font-size: 12px;
-  }
-
-  .ps-chart-label {
-    color: var(--ps-text);
-  }
-
-  .ps-chart-track {
-    height: 16px;
-    background: #ebebeb;
-    border: 1px solid #dddddd;
-  }
-
-  .ps-chart-fill {
-    height: 100%;
-    background: #777777;
-  }
-
-  .ps-chart-fill.current {
-    background: #424b57;
-  }
-
-  .ps-chart-fill.future {
-    background: #b3b3b3;
-  }
-
-  .ps-chart-value {
-    text-align: right;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ps-text);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .ps-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 18px;
-    font-size: 11px;
-    color: var(--ps-muted);
-  }
-
-  .ps-legend span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .ps-legend-mark {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #777777;
-  }
-
-  .ps-legend-mark.current {
-    background: #424b57;
-  }
-
-  .ps-legend-mark.future {
-    background: #b3b3b3;
-  }
-
-  .ps-breakdown {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--ps-border);
-    border: 1px solid var(--ps-border);
-  }
-
-  .ps-detail {
-    background: #ffffff;
-    padding: 15px;
-  }
-
-  .ps-detail span {
-    display: block;
-    color: var(--ps-muted);
-    font-size: 12px;
-    margin-bottom: 8px;
-  }
-
-  .ps-detail strong {
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .ps-progress {
-    height: 10px;
-    background: #e5e5e5;
-    margin: 18px 0;
-    border: 1px solid var(--ps-border);
-  }
-
-  .ps-progress-fill {
-    height: 100%;
-    background: var(--ps-accent);
-  }
-
-  .ps-note {
-    color: var(--ps-muted);
-    font-size: 12px;
-    line-height: 1.6;
-    padding: 12px 0 0;
-  }
-
-  .ps-note p {
-    margin: 0;
-    color: var(--ps-muted);
-  }
-
-  @media (max-width: 800px) {
-    .ps-stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 550px) {
-    .projected-spending {
-      padding: 14px;
-    }
-
-    .ps-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .ps-inputs {
-      grid-template-columns: 1fr;
-    }
-
-    .ps-stats,
-    .ps-breakdown {
-      grid-template-columns: 1fr;
-    }
-
-    .ps-chart-row {
-      grid-template-columns: 75px minmax(0, 1fr);
-    }
-
-    .ps-chart-value {
-      grid-column: 2;
-      text-align: left;
-    }
-  }
-`;
-
-// ---------- DATE HELPERS ----------
-
-function todayString() {
-  const date = new Date();
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatMonth(value) {
-  if (!value) return 'Unknown';
-
-  let year;
-  let month;
-
-  if (typeof value === 'string') {
-    [year, month] = value.split('-').map(Number);
-  } else {
-    year = value.year;
-    month = value.month;
-  }
-
-  if (!year || !month) return 'Unknown';
-
-  return new Intl.DateTimeFormat('en-IE', {
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(year, month - 1, 1));
-}
-
-// ---------- COMPONENT ----------
-
-export default function ProjectedSpending({
-  apiBase = '/api',
-}) {
-
-  // Text inputs.
-  const [asOf, setAsOf] = useState(todayString);
-  const [historyMonths, setHistoryMonths] = useState('3');
-  const [currency, setCurrency] = useState('EUR');
-
-  // API state.
-  const [forecast, setForecast] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  // Validate values before sending.
-  const validDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(asOf)
-    && !Number.isNaN(new Date(`${asOf}T12:00:00`).getTime())
-    && new Date(`${asOf}T12:00:00`).toISOString().slice(0, 10) === asOf;
-
-  const validMonths =
-    /^\\d+$/.test(historyMonths) &&
-    Number(historyMonths) >= 1 &&
-    Number(historyMonths) <= 24;
-
-  const normalizedCurrency = currency.trim().toUpperCase();
-
-  const validCurrency =
-    ['EUR', 'USD', 'GBP'].includes(normalizedCurrency);
-
-  const inputsValid =
-    validDate && validMonths && validCurrency;
-
-  // ---------- API REQUEST ----------
-
-  useEffect(() => {
-
-    if (!inputsValid) {
-      setForecast(null);
-      setError(
-        'Enter a valid date (YYYY-MM-DD), historical months (1-24), and currency (EUR, USD or GBP).'
-      );
-      setLoading(false);
-      return;
-    }
-
-    const controller = new AbortController();
-
-    async function loadForecast() {
-      setLoading(true);
-      setError('');
-
-      try {
-        const params = new URLSearchParams({
-          asOf,
-          historyMonths,
-          currency: normalizedCurrency,
-        });
-
-        const response = await fetch(
-          `${apiBase}/expenses/forecast?${params}`,
-          {
-            signal: controller.signal,
-            headers: {
-              Accept: 'application/json',
-            },
-          }
-        );
-
-        if (!response.ok) {
-          let message =
-            `Forecast request failed (HTTP ${response.status}).`;
-
-          try {
-            const body = await response.json();
-            message = body.error || message;
-          } catch {
-            // Keep HTTP error.
-          }
-
-          throw new Error(message);
-        }
-
-        const type = response.headers.get('content-type') || '';
-
-        if (!type.includes('application/json')) {
-          throw new Error(
-            'The server did not return JSON. Check Spring Boot on port 808 and the Vite proxy.'
-          );
-        }
-
-        const data = await response.json();
-        setForecast(data);
-
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          setForecast(null);
-          setError(
-            err.message || 'Unable to load projected spending.'
-          );
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadForecast();
-
-    return () => controller.abort();
-
-  }, [
-    apiBase,
-    asOf,
-    historyMonths,
-    normalizedCurrency,
-    inputsValid,
-    refreshKey,
-  ]);
-
-  // ---------- CALCULATIONS ----------
-
-  const money = (amount) =>
-    new Intl.NumberFormat('en-IE', {
-      style: 'currency',
-      currency: validCurrency ? normalizedCurrency : 'EUR',
-    }).format(Number(amount ?? 0));
-
-  const spent = Number(
-    forecast?.currentMonthSpent ?? 0
-  );
-
-  const currentProjection = Number(
-    forecast?.projectedCurrentMonth ?? 0
-  );
-
-  const nextProjection = Number(
-    forecast?.projectedNextMonth ?? 0
-  );
-
-  const historicalAverage = Number(
-    forecast?.historicalMonthlyAverage ?? 0
-  );
-
-  const additional = currentProjection - spent;
-
-  const progress = currentProjection > 0
-    ? Math.min(100, Math.max(0, (spent / currentProjection) * 100))
-    : 0;
-
-  // ---------- CHART DATA ----------
-
-  const chartData = [];
-
-  if (forecast) {
-
-    for (const item of forecast.historicalMonths ?? []) {
-      chartData.push({
-        month: formatMonth(item.month),
-        amount: Number(item.total ?? 0),
-        type: 'actual',
-      });
-    }
-
-    chartData.push({
-      month: formatMonth(asOf.slice(0, 7)),
-      amount: currentProjection,
-      type: 'current',
-    });
-
-    const [year, month] = asOf
-      .slice(0, 7)
-      .split('-')
-      .map(Number);
-
-    const nextDate = new Date(year, month, 1);
-
-    const nextMonth = `${nextDate.getFullYear()}-${String(
-      nextDate.getMonth() + 1
-    ).padStart(2, '0')}`;
-
-    chartData.push({
-      month: formatMonth(nextMonth),
-      amount: nextProjection,
-      type: 'future',
-    });
-  }
-
-  const maxAmount = Math.max(
-    1,
-    ...chartData.map((item) => item.amount)
-  );
-
-  // ---------- RENDER ----------
-
-  return (
-    <>
-      <style>{styles}</style>
-
-      <section className="projected-spending">
-
-        <header className="ps-header">
-          <div>
-            <h2>Projected Spending</h2>
-            <p className="ps-description">
-              Monthly spending estimates based on previous expenses.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            className="ps-button"
-            disabled={loading || !inputsValid}
-            onClick={() =>
-              setRefreshKey((value) => value + 1)
-            }
-          >
-            {loading ? 'Loading...' : 'Refresh'}
-          </button>
-        </header>
-
-        {/* TEXT INPUTS */}
-
-        <div className="ps-inputs">
-
-          <label>
-            Forecast Date
-            <input
-              type="text"
-              placeholder="YYYY-MM-DD"
-              value={asOf}
-              onChange={(e) => setAsOf(e.target.value)}
-            />
-          </label>
-
-          <label>
-            Historical Months
-            <input
-              type="text"
-              placeholder="3"
-              value={historyMonths}
-              onChange={(e) =>
-                setHistoryMonths(e.target.value)
-              }
-            />
-          </label>
-
-          <label>
-            Currency
-            <input
-              type="text"
-              placeholder="EUR"
-              maxLength={3}
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-            />
-          </label>
-
-        </div>
-
-        {/* ERRORS */}
-
-        {loading && (
-          <p className="ps-status">
-            Loading forecast...
+        {loading && !forecast && (
+          <p className="ps-loading">
+            Loading spending information...
           </p>
         )}
 
-        {error && (
-          <div className="ps-error" role="alert">
-            {error}
-          </div>
-        )}
-
-        {/* RESULTS */}
-
         {forecast && (
           <>
+            {/* Overall month projection */}
+            <div className="ps-summary">
 
-            <div className="ps-stats">
-
-              <div className="ps-stat">
-                <span className="ps-stat-label">
+              <div className="ps-card">
+                <span className="ps-card-label">
                   Spent This Month
                 </span>
-                <strong className="ps-stat-value">
-                  {money(spent)}
+                <strong className="ps-card-value">
+                  {formatMoney(forecast.currentMonthSpent)}
                 </strong>
               </div>
 
-              <div className="ps-stat ps-stat-featured">
-                <span className="ps-stat-label">
+              <div className="ps-card">
+                <span className="ps-card-label">
                   Projected Month-End
                 </span>
-                <strong className="ps-stat-value">
-                  {money(currentProjection)}
+                <strong className="ps-card-value">
+                  {formatMoney(forecast.projectedCurrentMonth)}
                 </strong>
               </div>
 
-              <div className="ps-stat">
-                <span className="ps-stat-label">
-                  Next Month Forecast
+              <div className="ps-card">
+                <span className="ps-card-label">
+                  Estimated Remaining Spending
                 </span>
-                <strong className="ps-stat-value">
-                  {money(nextProjection)}
-                </strong>
-              </div>
-
-              <div className="ps-stat">
-                <span className="ps-stat-label">
-                  Historical Average
-                </span>
-                <strong className="ps-stat-value">
-                  {money(historicalAverage)}
+                <strong className="ps-card-value">
+                  {formatMoney(forecast.estimatedRemaining)}
                 </strong>
               </div>
 
             </div>
 
-            {/* MONTHLY COMPARISON */}
+            {/* Category breakdown */}
+            <h3 className="ps-section-title">
+              Spending by Category
+            </h3>
 
-            <div className="ps-section">
-              <h3>Monthly Spending Comparison</h3>
+            {categories.length === 0 ? (
+              <div className="ps-empty">
+                No expenses have been recorded this month.
+                Add expenses through the existing API to
+                generate a projection.
+              </div>
+            ) : (
+              <div className="ps-table">
 
-              <div className="ps-chart">
-                {chartData.map((item, index) => (
-                  <div
-                    className="ps-chart-row"
-                    key={`${item.month}-${index}`}
-                  >
+                <div className="ps-table-header">
+                  <span>Category</span>
+                  <span>Spent</span>
+                  <span>Projected</span>
+                  <span>Comparison</span>
+                </div>
 
-                    <span className="ps-chart-label">
-                      {item.month}
-                    </span>
+                {categories.map(category => {
+                  const projected = Number(
+                    category.projectedMonthEnd ?? 0
+                  )
 
-                    <div className="ps-chart-track">
+                  const percentage =
+                    (projected / highestProjection) * 100
+
+                  return (
+                    <div
+                      className="ps-table-row"
+                      key={category.categoryId}
+                    >
+                      <span className="ps-category-name">
+                        {category.categoryName}
+                      </span>
+
+                      <span className="ps-amount">
+                        {formatMoney(category.spent)}
+                      </span>
+
+                      <span className="ps-amount">
+                        {formatMoney(projected)}
+                      </span>
+
                       <div
-                        className={`ps-chart-fill ${
-                          item.type === 'current'
-                            ? 'current'
-                            : item.type === 'future'
-                            ? 'future'
-                            : ''
-                        }`}
-                        style={{
-                          width: `${
-                            (item.amount / maxAmount) * 100
-                          }%`,
-                        }}
-                      />
+                        className="ps-bar-background"
+                        title={`${category.categoryName}: ${formatMoney(projected)}`}
+                      >
+                        <div
+                          className="ps-bar-fill"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              Math.max(0, percentage)
+                            )}%`
+                          }}
+                        />
+                      </div>
                     </div>
-
-                    <span className="ps-chart-value">
-                      {money(item.amount)}
-                    </span>
-
-                  </div>
-                ))}
-              </div>
-
-              <div className="ps-legend">
-                <span>
-                  <i className="ps-legend-mark" />
-                  Previous Months
-                </span>
-                <span>
-                  <i className="ps-legend-mark current" />
-                  Current Projection
-                </span>
-                <span>
-                  <i className="ps-legend-mark future" />
-                  Next Month
-                </span>
-              </div>
-            </div>
-
-            {/* CURRENT MONTH BREAKDOWN */}
-
-            <div className="ps-section">
-              <h3>Current Month Breakdown</h3>
-
-              <div
-                className="ps-progress"
-                role="progressbar"
-                aria-valuenow={Math.round(progress)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label="Spending progress"
-              >
-                <div
-                  className="ps-progress-fill"
-                  style={{
-                    width: `${progress}%`,
-                  }}
-                />
-              </div>
-
-              <div className="ps-breakdown">
-
-                <div className="ps-detail">
-                  <span>Already Spent</span>
-                  <strong>{money(spent)}</strong>
-                </div>
-
-                <div className="ps-detail">
-                  <span>Estimated Remaining Spending</span>
-                  <strong>{money(additional)}</strong>
-                </div>
-
-                <div className="ps-detail">
-                  <span>Current Month Run Rate</span>
-                  <strong>
-                    {money(forecast.currentMonthRunRate)}
-                  </strong>
-                </div>
-
-                <div className="ps-detail">
-                  <span>Next Month Forecast</span>
-                  <strong>{money(nextProjection)}</strong>
-                </div>
+                  )
+                })}
 
               </div>
-            </div>
-
-            {/* EXPLANATION */}
+            )}
 
             <div className="ps-note">
               <p>
-                {forecast.note ||
-                  'Forecast based on recorded spending and previous monthly averages.'}
+                {forecast.note}
+              </p>
+              <p>
+                Based on expenses recorded during the current
+                month. Projections use the average amount spent
+                per elapsed day to estimate the total at month-end.
               </p>
             </div>
 
           </>
         )}
-
       </section>
     </>
-  );
+  )
 }
