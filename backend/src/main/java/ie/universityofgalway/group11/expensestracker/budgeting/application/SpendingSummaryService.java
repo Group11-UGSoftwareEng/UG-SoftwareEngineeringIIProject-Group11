@@ -1,5 +1,5 @@
 
-package budgeting.application;
+package ie.universityofgalway.group11.expensestracker.budgeting.application;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
