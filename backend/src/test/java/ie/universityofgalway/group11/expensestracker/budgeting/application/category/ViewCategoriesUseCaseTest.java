@@ -21,7 +21,10 @@ class ViewCategoriesUseCaseTest {
                 CategoryBudget.of(200.0));
 
         ViewCategoriesUseCase useCase =
-                new ViewCategoriesUseCase(repositoryWith(List.of(category)));
+                new ViewCategoriesUseCase(
+                        new ResetBudgetingUseCase(repositoryWith(List.of(category))),
+                        YearMonth.of(2026, 11)
+                );
 
         var response = useCase.execute(new ViewCategoriesCommand());
 
@@ -39,7 +42,10 @@ class ViewCategoriesUseCaseTest {
     @Test
     void returnsEmptyListWhenNoCategoriesExist() {
         ViewCategoriesUseCase useCase =
-                new ViewCategoriesUseCase(repositoryWith(List.of()));
+                new ViewCategoriesUseCase(
+                        new ResetBudgetingUseCase(repositoryWith(List.of())),
+                        YearMonth.of(2026, 11)
+                );
 
         var response = useCase.execute(new ViewCategoriesCommand());
 

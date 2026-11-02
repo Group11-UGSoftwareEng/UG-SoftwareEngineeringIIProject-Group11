@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ResetBudgetingUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
+import java.time.YearMonth;
 @Configuration
 public class ProjectConfig {
 
@@ -56,9 +57,17 @@ public class ProjectConfig {
             ExpenseRepository expenseRepository) {
         return new ViewAllExpensesUseCase(expenseRepository);
     }
+
     @Bean
     public ViewCategoriesUseCase viewCategoriesUseCase(
-            CategoryRepository categoryRepository) {
-        return new ViewCategoriesUseCase(categoryRepository);
+            ResetBudgetingUseCase resetBudgetingUseCase,
+            YearMonth budgetingPeriod) {
+        return new ViewCategoriesUseCase(
+                resetBudgetingUseCase, budgetingPeriod);
+    }
+
+    @Bean
+    public YearMonth budgetingPeriod() {
+        return YearMonth.now();
     }
 }
