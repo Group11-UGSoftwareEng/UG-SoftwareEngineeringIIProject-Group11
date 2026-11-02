@@ -1,6 +1,5 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddExpenseToCategoryUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
@@ -8,6 +7,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.AdapterHelper;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryEntity;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryJPARepository;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,22 +23,35 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
 
     public ExpensePersistanceAdapter(
             ExpenseJPARepository expenseJpaRepository,
-            CategoryJPARepository categoryJPARepository) {
-
+            CategoryJPARepository categoryJpaRepository
+    ) {
         this.expenseJpaRepository = expenseJpaRepository;
-        this.categoryJpaRepository = categoryJPARepository;
+        this.categoryJpaRepository = categoryJpaRepository;
         this.helper = new AdapterHelper();
     }
+
     @Override
     public Optional<Expense> findById(ExpenseId id) {
-        return Optional.empty();
+        return expenseJpaRepository.findById(id.asUuid())
+                .map(helper::toExpenseDomain);
     }
 
     @Override
     public Expense save(Expense expense, Category toCategory) {
-        CategoryEntity categoryEntity = helper.toCategoryEntity(toCategory);
-        ExpenseEntity expenseEntity = helper.toExpenseEntity(expense, categoryEntity);
+
+        CategoryEntity existingCategory = categoryJpaRepository
+                .findById(expense.categoryId().asUuid())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Category not found in database"
+                        )
+                );
+
+        ExpenseEntity expenseEntity =
+                helper.toExpenseEntity(expense, existingCategory);
+
         expenseJpaRepository.save(expenseEntity);
+
         return expense;
     }
 
@@ -52,12 +65,13 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
 
     @Override
     public void deleteById(ExpenseId id) {
-
+        expenseJpaRepository.deleteById(id.asUuid());
     }
 
     @Override
     public List<Expense> findAll() {
-        return expenseJpaRepository.findAll().stream()
+        return expenseJpaRepository.findAll()
+                .stream()
                 .map(helper::toExpenseDomain)
                 .collect(Collectors.toList());
     }
