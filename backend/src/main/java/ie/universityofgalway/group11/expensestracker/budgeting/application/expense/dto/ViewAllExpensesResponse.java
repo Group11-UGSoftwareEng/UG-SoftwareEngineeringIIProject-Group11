@@ -1,4 +1,4 @@
-package ie.universityofgalway.group11.expensestracker.budgeting.application.expense;
+package ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import java.util.List;
 

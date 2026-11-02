@@ -1,6 +1,6 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesResponse;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.ViewAllExpensesResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense.dto.ViewAllExpensesQuery;
@@ -35,15 +35,11 @@ public class ExpenseController {
         if (expenses.isEmpty()) {
             return "No expenses have been added yet.";
         }
-
         String result = "Expenses\n\n";
-
+        int count = 1;
         for (Expense expense : expenses) {
-            result += "Amount: " + expense.amount().value() + "\n";
-            result += "Date: " + expense.date() + "\n";
-            //result += "Category: " + expense.getCategory().name() + "\n\n";
+            result += count++ + ". " + expense.toString() + "\n";
         }
-
         return result;
     }
 }
