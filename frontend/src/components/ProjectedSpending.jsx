@@ -521,10 +521,8 @@ export default function ProjectedSpending({
         <header className="ps-header">
           <div>
             <p className="ps-eyebrow">
-              SPENDTRACK / FORECASTING
+              SPEND FORECASTING
             </p>
-
-            <h2>Projected spending</h2>
 
             <p className="ps-muted">
               Predict upcoming expenses using your spending history.
