@@ -1,324 +1,412 @@
 
-import { useEffect, useMemo, useState } from 'react';
-import './SpendingSummary.css';
+import { useEffect, useState } from 'react'
 
-const dateString = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+const css = `
+  .ss {
+    font-family: Arial, sans-serif;
+    color: #242424;
+    color-scheme: light;
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 22px;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    text-align: left;
+  }
 
-const currentMonth = () => {
-  const today = new Date();
+  .ss * {
+    box-sizing: border-box;
+  }
 
-  return {
-    from: dateString(
-      new Date(today.getFullYear(), today.getMonth(), 1)
-    ),
-    to: dateString(
-      new Date(today.getFullYear(), today.getMonth() + 1, 0)
-    ),
-  };
-};
+  .ss h2,
+  .ss h3,
+  .ss strong {
+    color: #242424;
+  }
 
-const COLORS = [
-  '#6b5ce7',
-  '#0ea5a4',
-  '#f59e0b',
-  '#4f86e8',
-  '#e76f91',
-  '#8f98a8',
-];
+  .ss-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #dddddd;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+  }
+
+  .ss h2 {
+    margin: 0 0 6px;
+    font-size: 21px;
+  }
+
+  .ss h3 {
+    font-size: 16px;
+    margin: 0 0 14px;
+  }
+
+  .ss-muted {
+    font-size: 13px;
+    color: #666666;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .ss button {
+    background: #333333;
+    color: #ffffff;
+    border: 1px solid #333333;
+    padding: 9px 16px;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+
+  .ss button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  .ss-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .ss-stat {
+    background: #f4f4f4;
+    border: 1px solid #d3d3d3;
+    padding: 18px;
+    min-width: 0;
+  }
+
+  .ss-stat span {
+    display: block;
+    font-size: 12px;
+    color: #666666;
+    margin-bottom: 10px;
+  }
+
+  .ss-stat strong {
+    font-size: 24px;
+    overflow-wrap: anywhere;
+  }
+
+  .ss-section {
+    border: 1px solid #dddddd;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+
+  .ss-row {
+    display: grid;
+    grid-template-columns:
+      minmax(100px, 1.5fr)
+      minmax(80px, 1fr)
+      72px
+      minmax(100px, 1.5fr);
+    gap: 12px;
+    align-items: center;
+    border-top: 1px solid #eeeeee;
+    padding: 13px 0;
+    font-size: 13px;
+  }
+
+  .ss-row-head {
+    font-weight: bold;
+    background: #eeeeee;
+    border-top: 0;
+    padding: 12px;
+  }
+
+  .ss-bar {
+    background: #e5e5e5;
+    height: 13px;
+    min-width: 0;
+  }
+
+  .ss-fill {
+    height: 100%;
+    background: #555555;
+  }
+
+  .ss-detail {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 470px;
+  }
+
+  .ss-detail th,
+  .ss-detail td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #dddddd;
+    text-align: left;
+  }
+
+  .ss-detail th {
+    background: #eeeeee;
+  }
+
+  .ss-detail td:not(:first-child),
+  .ss-detail th:not(:first-child) {
+    text-align: right;
+  }
+
+  .ss-scroll {
+    overflow-x: auto;
+  }
+
+  .ss-error {
+    background: #f4f4f4;
+    border: 1px solid #999999;
+    padding: 12px;
+    color: #333333;
+    margin: 0 0 16px;
+    font-size: 13px;
+  }
+
+  @media (max-width: 700px) {
+    .ss-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .ss-row {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .ss-bar {
+      grid-column: 1 / -1;
+    }
+
+    .ss-header {
+      align-items: flex-start;
+    }
+  }
+`
 
 export default function SpendingSummary({
   apiBase = '/api',
-  categoryNames = {},
+  currency = 'EUR',
+  refreshKey = 0
 }) {
-  const initialDates = useMemo(currentMonth, []);
-
-  const [from, setFrom] = useState(initialDates.from);
-  const [to, setTo] = useState(initialDates.to);
-  const [currency, setCurrency] = useState('EUR');
-
-  const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [summary, setSummary] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [refresh, setRefresh] = useState(0)
 
   useEffect(() => {
-    if (!from || !to || from > to) {
-      setSummary(null);
-      setError('Choose a valid date range.');
-      return;
-    }
+    const controller = new AbortController()
 
-    const controller = new AbortController();
-
-    const load = async () => {
-      setLoading(true);
-      setError('');
+    async function load() {
+      setLoading(true)
+      setError('')
 
       try {
-        const params = new URLSearchParams({
-          from,
-          to,
-          currency,
-        });
-
         const response = await fetch(
-          `${apiBase}/expenses/summary?${params}`,
+          `${apiBase}/expenses/summary?currency=${encodeURIComponent(currency)}`,
           {
             signal: controller.signal,
             headers: {
-              Accept: 'application/json',
-            },
+              Accept: 'application/json'
+            }
           }
-        );
+        )
 
-        if (!response.ok) {
-          let message =
-            `Could not load spending summary (HTTP ${response.status}).`;
+        const type =
+          response.headers.get('content-type') || ''
 
-          try {
-            const body = await response.json();
-            message = body.error || message;
-          } catch {
-            // The server did not return JSON.
-          }
-
-          throw new Error(message);
+        if (!type.includes('application/json')) {
+          throw new Error(
+            'Expected JSON. Check the backend and Vite proxy.'
+          )
         }
 
-        setSummary(await response.json());
+        const body = await response.json()
+
+        if (!response.ok) {
+          throw new Error(
+            body.error || `HTTP ${response.status}`
+          )
+        }
+
+        if (!controller.signal.aborted) {
+          setSummary(body)
+        }
+
       } catch (err) {
         if (err.name !== 'AbortError') {
-          setSummary(null);
-          setError(
-            err.message || 'Unable to connect to the server.'
-          );
+          setError(err.message)
+          setSummary(null)
         }
       } finally {
         if (!controller.signal.aborted) {
-          setLoading(false);
+          setLoading(false)
         }
       }
-    };
+    }
 
-    load();
+    // Initial load.
+    load()
 
-    return () => controller.abort();
-  }, [from, to, currency, apiBase, refreshKey]);
+    const interval = setInterval(load, 15000)
 
-  const formatMoney = (value) =>
+    return () => {
+      controller.abort()
+      clearInterval(interval)
+    }
+
+  }, [apiBase, currency, refreshKey, refresh])
+
+  // Format money values.
+  const money = value =>
     new Intl.NumberFormat('en-IE', {
       style: 'currency',
-      currency,
-    }).format(Number(value ?? 0));
+      currency
+    }).format(Number(value ?? 0))
 
-  const categories = summary?.categories ?? [];
+  const items = summary?.categories ?? []
 
-  const total = Number(summary?.totalSpent ?? 0);
-  const count = Number(summary?.transactionCount ?? 0);
+  const total = Number(
+    summary?.totalSpent ?? 0
+  )
 
-  const average = count > 0 ? total / count : 0;
-
-  const colorFor = (index) =>
-    COLORS[index % COLORS.length];
+  const count = Number(
+    summary?.transactionCount ?? 0
+  )
 
   return (
-    <section
-      className="ss-panel"
-      aria-label="Spending summary with categories"
-    >
-      {/* Header */}
+    <>
+      <style>{css}</style>
 
-      <div className="ss-header">
-        <div>
-          <p className="ss-eyebrow">
-            SPENDTRACK / REPORTS
-          </p>
+      <section className="ss">
 
-          <h2>Spending summary</h2>
+        {/* Header */}
+        <div className="ss-header">
+          <div>
+            <h2>Current Month Spending Summary</h2>
 
-          <p className="ss-subtitle">
-            See where your money goes, by category.
-          </p>
-        </div>
-
-        <button
-          className="ss-refresh"
-          type="button"
-          onClick={() =>
-            setRefreshKey((key) => key + 1)
-          }
-          disabled={loading}
-        >
-          {loading ? 'Loading…' : 'Refresh'}
-        </button>
-      </div>
-
-      {/* Filters */}
-
-      <div className="ss-filters">
-        <label>
-          From
-
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-          />
-        </label>
-
-        <label>
-          To
-
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-          />
-        </label>
-
-        <label>
-          Currency
-
-          <select
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-          >
-            <option value="EUR">EUR (€)</option>
-            <option value="USD">USD ($)</option>
-            <option value="GBP">GBP (£)</option>
-          </select>
-        </label>
-      </div>
-
-      {/* Error display */}
-
-      {error && (
-        <p className="ss-error" role="alert">
-          {error}
-        </p>
-      )}
-
-      {/* Summary statistics */}
-
-      <div className="ss-stats">
-        <div className="ss-stat">
-          <span>Total spent</span>
-
-          <strong>{formatMoney(total)}</strong>
-        </div>
-
-        <div className="ss-stat">
-          <span>Transactions</span>
-
-          <strong>{count}</strong>
-        </div>
-
-        <div className="ss-stat">
-          <span>Average expense</span>
-
-          <strong>{formatMoney(average)}</strong>
-        </div>
-      </div>
-
-      {/* Category information */}
-
-      <div className="ss-content">
-        <div className="ss-card">
-          <h3>Category breakdown</h3>
-
-          {loading && !summary ? (
             <p className="ss-muted">
-              Loading your summary…
+              {summary
+                ? `${summary.from} to ${summary.to}`
+                : 'Current calendar month'
+              }
+              {' '}· Actual recorded expenses
             </p>
-          ) : categories.length === 0 ? (
+          </div>
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() =>
+              setRefresh(value => value + 1)
+            }
+          >
+            {loading ? 'Loading...' : 'Refresh'}
+          </button>
+        </div>
+
+        {/* Errors */}
+        {error && (
+          <p
+            className="ss-error"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
+
+        {/* Summary statistics */}
+        <div className="ss-stats">
+
+          <div className="ss-stat">
+            <span>Total Spent</span>
+            <strong>{money(total)}</strong>
+          </div>
+
+          <div className="ss-stat">
+            <span>Transactions</span>
+            <strong>{count}</strong>
+          </div>
+
+          <div className="ss-stat">
+            <span>Average Expense</span>
+            <strong>
+              {money(count ? total / count : 0)}
+            </strong>
+          </div>
+
+        </div>
+
+        {/* Category breakdown */}
+        <div className="ss-section">
+
+          <h3>Spending by Category</h3>
+
+          {items.length === 0 ? (
             <p className="ss-muted">
-              No expenses found for these dates and currency.
+              No expenses recorded this month in {currency}.
             </p>
           ) : (
             <>
-              {/* Spending distribution */}
+              <div className="ss-row ss-row-head">
+                <span>Category</span>
+                <span>Total</span>
+                <span>Share</span>
+                <span>Comparison</span>
+              </div>
 
-              <div
-                className="ss-segments"
-                role="img"
-                aria-label="Proportion of spending per category"
-              >
-                {categories.map((item, index) => (
-                  <div
-                    key={item.categoryId}
-                    style={{
-                      flexGrow: Math.max(
-                        Number(item.totalSpent),
-                        0
-                      ),
-                      background: colorFor(index),
-                    }}
-                    title={`${
-                      categoryNames[item.categoryId] ||
+              {items.map(item => (
+                <div
+                  className="ss-row"
+                  key={item.categoryId}
+                >
+                  <strong>
+                    {item.categoryName ||
                       `Category ${item.categoryId.slice(0, 8)}`
-                    } — ${Number(
+                    }
+                  </strong>
+
+                  <span>
+                    {money(item.totalSpent)}
+                  </span>
+
+                  <span>
+                    {Number(
                       item.percentageOfTotal
-                    ).toFixed(1)}%`}
-                  />
-                ))}
-              </div>
+                    ).toFixed(1)}%
+                  </span>
 
-              {/* Category list */}
-
-              <div className="ss-category-list">
-                {categories.map((item, index) => {
-                  const label =
-                    categoryNames[item.categoryId] ||
-                    `Category ${item.categoryId.slice(0, 8)}`;
-
-                  return (
+                  <div className="ss-bar">
                     <div
-                      className="ss-category"
-                      key={item.categoryId}
-                    >
-                      <span
-                        className="ss-dot"
-                        style={{
-                          background: colorFor(index),
-                        }}
-                      />
-
-                      <span
-                        className="ss-category-name"
-                        title={item.categoryId}
-                      >
-                        {label}
-                      </span>
-
-                      <span className="ss-category-percent">
-                        {Number(
-                          item.percentageOfTotal
-                        ).toFixed(1)}%
-                      </span>
-
-                      <strong>
-                        {formatMoney(item.totalSpent)}
-                      </strong>
-                    </div>
-                  );
-                })}
-              </div>
+                      className="ss-fill"
+                      style={{
+                        width: `${
+                          Math.max(
+                            0,
+                            Math.min(
+                              100,
+                              Number(item.percentageOfTotal)
+                            )
+                          )
+                        }%`
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </>
           )}
+
         </div>
 
-        {/* Detailed table */}
+        {/* Detailed category information */}
+        <div className="ss-section">
 
-        <div className="ss-card ss-table-card">
-          <h3>Category details</h3>
+          <h3>Category Details</h3>
 
-          <div className="ss-table-scroll">
-            <table className="ss-table">
+          <div className="ss-scroll">
+
+            <table className="ss-detail">
               <thead>
                 <tr>
                   <th>Category</th>
@@ -329,44 +417,46 @@ export default function SpendingSummary({
               </thead>
 
               <tbody>
-                {categories.length ? (
-                  categories.map((item) => (
-                    <tr key={item.categoryId}>
-                      <td title={item.categoryId}>
-                        {categoryNames[item.categoryId] ||
-                          `Category ${
-                            item.categoryId.slice(0, 8)
-                          }`}
-                      </td>
+                {items.map(item => (
+                  <tr key={item.categoryId}>
+                    <td>
+                      {item.categoryName ||
+                        item.categoryId}
+                    </td>
 
-                      <td>{item.transactionCount}</td>
+                    <td>
+                      {item.transactionCount}
+                    </td>
 
-                      <td>
-                        {formatMoney(
-                          item.averageTransaction
-                        )}
-                      </td>
+                    <td>
+                      {money(item.averageTransaction)}
+                    </td>
 
-                      <td>
-                        {formatMoney(item.totalSpent)}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
+                    <td>
+                      {money(item.totalSpent)}
+                    </td>
+                  </tr>
+                ))}
+
+                {items.length === 0 && (
                   <tr>
-                    <td
-                      colSpan="4"
-                      className="ss-empty"
-                    >
-                      No category data available.
+                    <td colSpan="4">
+                      No category data.
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
+
           </div>
+
         </div>
-      </div>
-    </section>
-  );
+
+        <p className="ss-muted">
+
+        </p>
+
+      </section>
+    </>
+  )
 }
