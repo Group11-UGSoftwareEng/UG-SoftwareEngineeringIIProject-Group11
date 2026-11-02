@@ -40,7 +40,7 @@ public class ExpenseController {
         this.categoryRepository = categoryRepository;
     }
 
-    // Original endpoint retained for existing Postman tests.
+    // Existing endpoint preserved.
     // GET /api/expenses
     @GetMapping(produces = "text/plain")
     public String viewExpenses() {
@@ -70,7 +70,7 @@ public class ExpenseController {
         return result.toString();
     }
 
-    // JSON structure used by the frontend.
+    // Response format for the React expense table.
     public record ExpenseDetails(
             UUID id,
             UUID categoryId,
@@ -81,42 +81,17 @@ public class ExpenseController {
             LocalDate date
     ) {}
 
+    // Response format for the category dropdown.
     public record CategoryDetails(
             UUID id,
             String name
     ) {}
 
-    // GET /api/expenses/list
-    // Return readable expense records from the database.
-    @GetMapping(value = "/list", produces = "application/json")
-    public List<ExpenseDetails> listExpenses() {
-
-        Map<UUID, CategoryEntity> categories =
-                categoryRepository.findAll()
-                        .stream()
-                        .collect(Collectors.toMap(
-                                CategoryEntity::getId,
-                                Function.identity(),
-                                (first, second) -> first
-                        ));
-
-        return expenseRepository.findAll()
-                .stream()
-                .map(expense -> toDetails(expense, categories))
-                .sorted(
-                        Comparator.comparing(
-                                ExpenseDetails::date,
-                                Comparator.nullsLast(
-                                        Comparator.reverseOrder()
-                                )
-                        )
-                )
-                .toList();
-    }
-
     // GET /api/expenses/categories
-    // Populate the category dropdown in React.
-    @GetMapping(value = "/categories", produces = "application/json")
+    @GetMapping(
+            value = "/categories",
+            produces = "application/json"
+    )
     public List<CategoryDetails> listCategories() {
 
         return categoryRepository.findAll()
@@ -134,22 +109,57 @@ public class ExpenseController {
                 .toList();
     }
 
-    private ExpenseDetails toDetails(
+    // GET /api/expenses/list
+    @GetMapping(
+            value = "/list",
+            produces = "application/json"
+    )
+    public List<ExpenseDetails> listExpenses() {
+
+        Map<UUID, CategoryEntity> categories =
+                categoryRepository.findAll()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                CategoryEntity::getId,
+                                Function.identity(),
+                                (first, second) -> first
+                        ));
+
+        return expenseRepository.findAll()
+                .stream()
+                .map(expense ->
+                        toExpenseDetails(expense, categories)
+                )
+                .sorted(
+                        Comparator.comparing(
+                                ExpenseDetails::date,
+                                Comparator.nullsLast(
+                                        Comparator.reverseOrder()
+                                )
+                        )
+                )
+                .toList();
+    }
+
+    private ExpenseDetails toExpenseDetails(
             ExpenseEntity expense,
             Map<UUID, CategoryEntity> categories
     ) {
 
-        UUID categoryId = expense.getCategory() == null
-                ? null
-                : expense.getCategory().getId();
+        UUID categoryId =
+                expense.getCategory() == null
+                        ? null
+                        : expense.getCategory().getId();
 
-        CategoryEntity category = categoryId == null
-                ? null
-                : categories.get(categoryId);
+        CategoryEntity category =
+                categoryId == null
+                        ? null
+                        : categories.get(categoryId);
 
-        String categoryName = category == null
-                ? "Uncategorized"
-                : category.getName();
+        String categoryName =
+                category == null
+                        ? "Uncategorized"
+                        : category.getName();
 
         return new ExpenseDetails(
                 expense.getId(),
