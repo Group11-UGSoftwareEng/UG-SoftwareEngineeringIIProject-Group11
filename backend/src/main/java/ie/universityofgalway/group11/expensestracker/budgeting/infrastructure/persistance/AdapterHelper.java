@@ -28,14 +28,14 @@ public class AdapterHelper {
     }
 
     public Expense toExpenseDomain(ExpenseEntity entity) {
-        Expense expense = Expense.createWithId(
+        return Expense.createWithId(
                 ExpenseId.of(entity.getId()),
                 toCategoryId(entity.getCategory()),
                 Amount.of(entity.getAmount()),
+                entity.getDate(),
                 Description.of(entity.getDescription()),
                 Currency.of(entity.getCurrency())
-                );
-        return expense;
+        );
     }
 
     public CategoryEntity toCategoryEntity(Category category) {
