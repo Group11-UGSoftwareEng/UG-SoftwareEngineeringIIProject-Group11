@@ -1,5 +1,5 @@
 
-package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense;
+package budgeting.infrastructure.rest.expense;
 
 import java.util.Map;
 
@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.application.SpendingSummaryService;
-
+import budgeting.application.SpendingSummaryService;
 @RestController
 @RequestMapping("/api/expenses/summary")
 public class SpendingSummaryController {
@@ -29,7 +28,7 @@ public class SpendingSummaryController {
     // GET /api/expenses/summary?currency=EUR
 
     @GetMapping
-    public SpendingSummaryService.SpendingSummary getSummary(
+        public SpendingSummaryService.SpendingSummary getSummary(
             @RequestParam(defaultValue = "EUR") String currency
     ) {
         return service.getCurrentMonthSummary(currency);
