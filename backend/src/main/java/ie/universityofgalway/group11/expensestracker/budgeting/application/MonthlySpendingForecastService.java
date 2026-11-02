@@ -6,156 +6,172 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryJPARepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseEntity;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseJPARepository;
 
 @Service
 public class MonthlySpendingForecastService {
 
-    private static final int SCALE = 2;
-    private final ExpenseRepository repository;
+    private final ExpenseJPARepository expenses;
+    private final CategoryJPARepository categories;
 
-    public MonthlySpendingForecastService(ExpenseRepository repository) {
-        this.repository = repository;
+    public MonthlySpendingForecastService(
+            ExpenseJPARepository expenses,
+            CategoryJPARepository categories
+    ) {
+        this.expenses = expenses;
+        this.categories = categories;
     }
 
-    public record MonthlyTotal(
-            YearMonth month,
-            BigDecimal total
+    public record CategoryProjection(
+            UUID categoryId,
+            String categoryName,
+            BigDecimal spent,
+            BigDecimal projectedMonthEnd,
+            int transactionCount
     ) {}
 
     public record ForecastResult(
-            String currency,
+            String month,
             LocalDate asOf,
-            int requestedHistoryMonths,
-            List<MonthlyTotal> historicalMonths,
-            BigDecimal historicalMonthlyAverage,
+            String currency,
+            int elapsedDays,
+            int totalDays,
             BigDecimal currentMonthSpent,
-            BigDecimal currentMonthRunRate,
             BigDecimal projectedCurrentMonth,
-            BigDecimal projectedNextMonth,
+            BigDecimal estimatedRemaining,
+            int transactionCount,
+            List<CategoryProjection> categories,
             String method,
             String note
     ) {}
 
-    public ForecastResult forecast(
-            LocalDate asOf,
-            int historyMonths,
-            String currency
-    ) {
-        Objects.requireNonNull(asOf, "asOf is required");
-
-        if (historyMonths < 1 || historyMonths > 24) {
-            throw new IllegalArgumentException(
-                    "historyMonths must be between 1 and 24"
-            );
+    public ForecastResult forecast(LocalDate asOf, String currency) {
+        if (asOf == null) {
+            throw new IllegalArgumentException("Date is required");
         }
 
-        if (currency == null ||
-                !List.of("EUR", "USD", "GBP").contains(currency)) {
+        String code = currency == null
+                ? "EUR"
+                : currency.trim().toUpperCase(Locale.ROOT);
+
+        if (!List.of("EUR", "USD", "GBP").contains(code)) {
             throw new IllegalArgumentException(
-                    "currency must be EUR, USD or GBP"
+                    "Currency must be EUR, USD or GBP"
             );
         }
 
         YearMonth currentMonth = YearMonth.from(asOf);
+        int elapsedDays = asOf.getDayOfMonth();
+        int totalDays = currentMonth.lengthOfMonth();
 
-        List<Expense> expenses = repository.findAll().stream()
-                .filter(e -> e.date() != null)
-                .filter(e -> !e.date().isAfter(asOf))
-                .filter(e -> currency.equals(e.currency().code()))
-                .toList();
+        Map<UUID, String> categoryNames = categories.findAll()
+                .stream()
+                .collect(Collectors.toMap(
+                        category -> category.getId(),
+                        category -> category.getName(),
+                        (first, second) -> first
+                ));
 
-        List<MonthlyTotal> previous = new ArrayList<>();
-        BigDecimal historyTotal = BigDecimal.ZERO;
+        // Use the original database expense date directly.
+        // Expense.java and AdapterHelper.java are unchanged.
+        Map<UUID, List<ExpenseEntity>> grouped = expenses.findAll()
+                .stream()
+                .filter(expense ->
+                        expense.getDate() != null
+                        && !expense.getDate().isAfter(asOf)
+                )
+                .filter(expense ->
+                        YearMonth.from(expense.getDate())
+                                .equals(currentMonth)
+                )
+                .filter(expense ->
+                        code.equalsIgnoreCase(expense.getCurrency())
+                )
+                .filter(expense ->
+                        expense.getCategory() != null
+                        && expense.getCategory().getId() != null
+                )
+                .collect(Collectors.groupingBy(
+                        expense -> expense.getCategory().getId()
+                ));
 
-        for (int i = historyMonths; i >= 1; i--) {
-            YearMonth month = currentMonth.minusMonths(i);
+        List<CategoryProjection> rows = new ArrayList<>();
+        BigDecimal spentTotal = BigDecimal.ZERO;
+        BigDecimal projectedTotal = BigDecimal.ZERO;
+        int transactionCount = 0;
 
-            BigDecimal monthly = totalForMonth(expenses, month);
+        for (var entry : grouped.entrySet()) {
+            BigDecimal spent = entry.getValue()
+                    .stream()
+                    .map(expense ->
+                            BigDecimal.valueOf(expense.getAmount())
+                    )
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            previous.add(new MonthlyTotal(
-                    month,
-                    money(monthly)
+            BigDecimal projected = spent
+                    .multiply(BigDecimal.valueOf(totalDays))
+                    .divide(
+                            BigDecimal.valueOf(elapsedDays),
+                            2,
+                            RoundingMode.HALF_UP
+                    );
+
+            UUID categoryId = entry.getKey();
+
+            String categoryName = categoryNames.getOrDefault(
+                    categoryId,
+                    "Category " + categoryId.toString().substring(0, 8)
+            );
+
+            rows.add(new CategoryProjection(
+                    categoryId,
+                    categoryName,
+                    money(spent),
+                    money(projected),
+                    entry.getValue().size()
             ));
 
-            historyTotal = historyTotal.add(monthly);
+            spentTotal = spentTotal.add(spent);
+            projectedTotal = projectedTotal.add(projected);
+            transactionCount += entry.getValue().size();
         }
 
-        BigDecimal historicalAverage = historyTotal.divide(
-                BigDecimal.valueOf(historyMonths),
-                SCALE,
-                RoundingMode.HALF_UP
+        rows.sort(
+                Comparator.comparing(
+                        CategoryProjection::projectedMonthEnd
+                ).reversed()
         );
-
-        BigDecimal spent = totalForMonth(expenses, currentMonth);
-
-        int elapsed = asOf.getDayOfMonth();
-        int days = currentMonth.lengthOfMonth();
-        int remaining = days - elapsed;
-
-        BigDecimal runRate = spent
-                .multiply(BigDecimal.valueOf(days))
-                .divide(
-                        BigDecimal.valueOf(elapsed),
-                        SCALE,
-                        RoundingMode.HALF_UP
-                );
-
-        BigDecimal projectedCurrent = spent.add(
-                historicalAverage
-                        .multiply(BigDecimal.valueOf(remaining))
-                        .divide(
-                                BigDecimal.valueOf(days),
-                                SCALE,
-                                RoundingMode.HALF_UP
-                        )
-        );
-
-        BigDecimal projectedNext = historyTotal
-                .add(projectedCurrent)
-                .divide(
-                        BigDecimal.valueOf(historyMonths + 1L),
-                        SCALE,
-                        RoundingMode.HALF_UP
-                );
-
-        String note = historyTotal.signum() == 0
-                ? "No spending recorded in the historical months; estimates have limited evidence."
-                : "Forecast based on recorded spending; one-off purchases and seasonality may change actual totals.";
 
         return new ForecastResult(
-                currency,
+                currentMonth.toString(),
                 asOf,
-                historyMonths,
-                List.copyOf(previous),
-                money(historicalAverage),
-                money(spent),
-                money(runRate),
-                money(projectedCurrent),
-                money(projectedNext),
-                "Current month = spent to date + historical monthly average times remaining fraction of month; "
-                        + "next month = average of historical monthly totals and projected current month.",
-                note
+                code,
+                elapsedDays,
+                totalDays,
+                money(spentTotal),
+                money(projectedTotal),
+                money(projectedTotal.subtract(spentTotal)),
+                transactionCount,
+                List.copyOf(rows),
+                "Recorded current-month spending / days elapsed x days in month",
+                transactionCount == 0
+                        ? "No expenses have been recorded this month."
+                        : "Projection based only on expenses recorded this month. Estimates can fluctuate early in the month."
         );
-    }
-
-    private static BigDecimal totalForMonth(
-            List<Expense> expenses,
-            YearMonth month
-    ) {
-        return expenses.stream()
-                .filter(e -> YearMonth.from(e.date()).equals(month))
-                .map(e -> e.amount().value())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private static BigDecimal money(BigDecimal value) {
-        return value.setScale(SCALE, RoundingMode.HALF_UP);
+        return value.setScale(2, RoundingMode.HALF_UP);
     }
 }

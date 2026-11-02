@@ -26,19 +26,13 @@ public class MonthlySpendingForecastController {
         this.service = service;
     }
 
-    /**
-     * Example:
-     * GET /api/expenses/forecast?asOf=2026-10-28&historyMonths=3&currency=EUR
-     */
     @GetMapping
     public MonthlySpendingForecastService.ForecastResult forecast(
-            @RequestParam(required = false) LocalDate asOf,
-            @RequestParam(defaultValue = "3") int historyMonths,
-            @RequestParam(defaultValue = "EUR") String currency
+            @RequestParam(defaultValue = "EUR") String currency,
+            @RequestParam(required = false) LocalDate asOf
     ) {
         return service.forecast(
                 asOf == null ? LocalDate.now() : asOf,
-                historyMonths,
                 currency
         );
     }
@@ -46,13 +40,13 @@ public class MonthlySpendingForecastController {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> invalid(
-            IllegalArgumentException e
+            IllegalArgumentException exception
     ) {
         return Map.of(
                 "error",
-                e.getMessage() == null
-                        ? "Invalid forecast request"
-                        : e.getMessage()
+                exception.getMessage() == null
+                        ? "Invalid request"
+                        : exception.getMessage()
         );
     }
 }
