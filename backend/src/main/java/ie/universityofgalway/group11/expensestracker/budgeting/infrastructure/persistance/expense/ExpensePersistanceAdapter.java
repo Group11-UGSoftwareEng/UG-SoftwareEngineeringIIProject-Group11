@@ -9,7 +9,6 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryJPARepository;
 
 import org.springframework.stereotype.Repository;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,14 +66,6 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
     @Override
     public void deleteById(ExpenseId id) {
         expenseJpaRepository.deleteById(id.asUuid());
-    }
-    @Override
-    public List<Expense> findByCategoryId(CategoryId categoryId) {
-        return expenseJpaRepository
-                .findByCategory_Id(categoryId.asUuid())
-                .stream()
-                .map(helper::toExpenseDomain)
-                .collect(Collectors.toList());
     }
 
     @Override
