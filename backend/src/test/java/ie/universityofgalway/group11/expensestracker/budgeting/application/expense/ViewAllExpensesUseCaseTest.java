@@ -12,7 +12,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.InMemoryBudgetingRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense.dto.ViewAllExpensesQuery;
 import org.junit.jupiter.api.Test;
-
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -32,12 +32,7 @@ class ViewAllExpensesUseCaseTest {
         Expense older = Expense.create(
                 categoryId,
                 Amount.of(12.50),
-                Description.of("Older expense"),
-                Currency.of("EUR")
-        );
-
-        older.update(
-                Amount.of(12.50),
+                LocalDate.of(2026, 10, 28),
                 Description.of("Older expense"),
                 Currency.of("EUR")
         );
@@ -45,16 +40,10 @@ class ViewAllExpensesUseCaseTest {
         Expense newer = Expense.create(
                 categoryId,
                 Amount.of(5.00),
+                LocalDate.of(2026, 10, 29),
                 Description.of("Newer expense"),
                 Currency.of("EUR")
         );
-
-        newer.update(
-                Amount.of(5.00),
-                Description.of("Newer expense"),
-                Currency.of("EUR")
-        );
-
         repository.save(older, cat);
         repository.save(newer, cat);
 

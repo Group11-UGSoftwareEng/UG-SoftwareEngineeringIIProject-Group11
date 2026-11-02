@@ -57,6 +57,11 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
         return Optional.ofNullable(categoryStore.get(categoryId));
     }
     @Override
+    public List<Category> findAllCategories() {
+        return new ArrayList<>(categoryStore.values());
+    }
+
+    @Override
     public List<Category> findByPeriod(YearMonth period) {
         List<Category> categories = new ArrayList<>();
 
@@ -92,5 +97,4 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
             categoryStore.put(category.id(), category);
         }
     }
-
 }

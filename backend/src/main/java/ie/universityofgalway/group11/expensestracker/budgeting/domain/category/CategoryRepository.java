@@ -11,6 +11,8 @@ public interface CategoryRepository {
 
     Optional<Category> findById(CategoryId categoryId);
 
+    List<Category> findAllCategories();
+
     List<Category> findByPeriod(YearMonth period);
 
     Optional<YearMonth> findLatestPeriod();
