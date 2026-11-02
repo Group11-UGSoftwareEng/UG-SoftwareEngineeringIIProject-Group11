@@ -56,5 +56,9 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
 
         return Optional.ofNullable(categoryStore.get(categoryId));
     }
+    @Override
+    public List<Category> findAllCategories() {
+        return new ArrayList<>(categoryStore.values());
+    }
 
 }
