@@ -4,37 +4,44 @@ package ie.universityofgalway.group11.expensestracker.budgeting.application;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryJPARepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseEntity;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseJPARepository;
 
 @Service
 public class SpendingSummaryService {
 
-    private final ExpenseRepository expenseRepository;
+    private final ExpenseJPARepository expenseRepository;
+    private final CategoryJPARepository categoryRepository;
 
     public SpendingSummaryService(
-            ExpenseRepository expenseRepository
+            ExpenseJPARepository expenseRepository,
+            CategoryJPARepository categoryRepository
     ) {
         this.expenseRepository = expenseRepository;
+        this.categoryRepository = categoryRepository;
     }
 
-    // Result returned for each expense category.
     public record CategorySummary(
             String categoryId,
+            String categoryName,
             BigDecimal totalSpent,
             BigDecimal percentageOfTotal,
             int transactionCount,
             BigDecimal averageTransaction
     ) {}
 
-    // Complete spending summary response.
     public record SpendingSummary(
             LocalDate from,
             LocalDate to,
@@ -44,126 +51,137 @@ public class SpendingSummaryService {
             List<CategorySummary> categories
     ) {}
 
-    // Internal accumulator for each category.
-    private static class CategoryTotals {
-        BigDecimal total = BigDecimal.ZERO;
-        int count = 0;
+    private static class Totals {
+        BigDecimal sum = BigDecimal.ZERO;
+        int count;
 
         void add(BigDecimal amount) {
-            total = total.add(amount);
+            sum = sum.add(amount);
             count++;
         }
     }
 
-    public SpendingSummary getSummary(
-            LocalDate from,
-            LocalDate to,
-            String currency
-    ) {
+    public SpendingSummary getCurrentMonthSummary(String currency) {
 
-        // Validate the selected date range.
-        if (from == null || to == null || from.isAfter(to)) {
-            throw new IllegalArgumentException(
-                    "Please provide a valid date range"
-            );
-        }
+        String code = currency == null
+                ? "EUR"
+                : currency.trim().toUpperCase(Locale.ROOT);
 
-        // Keep different currencies separate.
-        if (currency == null ||
-                !List.of("EUR", "USD", "GBP").contains(currency)) {
+        if (!List.of("EUR", "USD", "GBP").contains(code)) {
             throw new IllegalArgumentException(
                     "Currency must be EUR, USD or GBP"
             );
         }
 
-        // Retrieve the recorded expenses.
-        List<Expense> expenses = expenseRepository.findAll();
+        // Automatically determine the current month.
+        LocalDate today = LocalDate.now();
+        YearMonth month = YearMonth.from(today);
 
-        Map<String, CategoryTotals> grouped =
-                new TreeMap<>();
+        LocalDate from = month.atDay(1);
+        LocalDate to = today;
 
-        BigDecimal totalSpent = BigDecimal.ZERO;
-        int transactionCount = 0;
+        // Retrieve category names from existing database records.
+        Map<UUID, String> names = new HashMap<>();
 
-        // Filter and group the expenses.
-        for (Expense expense : expenses) {
+        categoryRepository.findAll().forEach(category ->
+                names.put(
+                        category.getId(),
+                        category.getName()
+                )
+        );
 
-            LocalDate date = expense.date();
+        Map<UUID, Totals> grouped = new HashMap<>();
 
-            if (date == null ||
-                    date.isBefore(from) ||
-                    date.isAfter(to)) {
+        BigDecimal total = BigDecimal.ZERO;
+        int count = 0;
+
+        // Read existing saved expenses directly.
+        // No changes to Expense.java are required.
+        for (ExpenseEntity expense : expenseRepository.findAll()) {
+
+            if (
+                    expense.getDate() == null ||
+                    expense.getDate().isBefore(from) ||
+                    expense.getDate().isAfter(to) ||
+                    !code.equalsIgnoreCase(expense.getCurrency()) ||
+                    expense.getCategory() == null ||
+                    expense.getCategory().getId() == null ||
+                    expense.getAmount() == null
+            ) {
                 continue;
             }
 
-            if (!currency.equals(expense.currency().code())) {
-                continue;
-            }
+            UUID categoryId = expense.getCategory().getId();
 
-            BigDecimal amount = expense.amount().value();
-            String categoryId = expense.categoryId().toString();
-
-            CategoryTotals totals = grouped.computeIfAbsent(
-                    categoryId,
-                    key -> new CategoryTotals()
+            BigDecimal amount = BigDecimal.valueOf(
+                    expense.getAmount()
             );
 
-            totals.add(amount);
+            grouped.computeIfAbsent(
+                    categoryId,
+                    id -> new Totals()
+            ).add(amount);
 
-            totalSpent = totalSpent.add(amount);
-            transactionCount++;
+            total = total.add(amount);
+            count++;
         }
 
-        // Calculate category-specific statistics.
-        List<CategorySummary> categorySummaries =
-                new ArrayList<>();
+        List<CategorySummary> categories = new ArrayList<>();
 
-        for (Map.Entry<String, CategoryTotals> entry
-                : grouped.entrySet()) {
+        for (var entry : grouped.entrySet()) {
 
-            CategoryTotals totals = entry.getValue();
+            Totals categoryTotals = entry.getValue();
 
-            BigDecimal percentage =
-                    totalSpent.signum() == 0
-                            ? BigDecimal.ZERO.setScale(2)
-                            : totals.total
-                                .multiply(BigDecimal.valueOf(100))
-                                .divide(
-                                    totalSpent,
+            BigDecimal share = total.signum() == 0
+                    ? money(BigDecimal.ZERO)
+                    : categoryTotals.sum
+                            .multiply(BigDecimal.valueOf(100))
+                            .divide(
+                                    total,
                                     2,
                                     RoundingMode.HALF_UP
-                                );
+                            );
 
-            BigDecimal average = totals.total.divide(
-                    BigDecimal.valueOf(totals.count),
-                    2,
-                    RoundingMode.HALF_UP
+            String categoryName = names.getOrDefault(
+                    entry.getKey(),
+                    "Category " + entry.getKey()
+                            .toString()
+                            .substring(0, 8)
             );
 
-            categorySummaries.add(
+            BigDecimal averageTransaction = categoryTotals.sum
+                    .divide(
+                            BigDecimal.valueOf(categoryTotals.count),
+                            2,
+                            RoundingMode.HALF_UP
+                    );
+
+            categories.add(
                     new CategorySummary(
-                            entry.getKey(),
-                            money(totals.total),
-                            percentage,
-                            totals.count,
-                            average
+                            entry.getKey().toString(),
+                            categoryName,
+                            money(categoryTotals.sum),
+                            share,
+                            categoryTotals.count,
+                            averageTransaction
                     )
             );
         }
 
-        // Largest spending categories appear first.
-        categorySummaries.sort(
-                (a, b) -> b.totalSpent()
-                        .compareTo(a.totalSpent())
+        // Show highest-spending categories first.
+        categories.sort(
+                Comparator.comparing(
+                        CategorySummary::totalSpent
+                ).reversed()
         );
 
         return new SpendingSummary(
                 from,
                 to,
-                currency,
-                money(totalSpent),
-                transactionCount,
-                List.copyOf(categorySummaries)
+                code,
+                money(total),
+                count,
+                List.copyOf(categories)
         );
     }
 
