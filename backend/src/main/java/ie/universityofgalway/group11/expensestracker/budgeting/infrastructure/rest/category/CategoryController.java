@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesResponse;
 
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesCommand;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesResponse;
 import java.util.UUID;
 
 @RestController
@@ -18,10 +21,22 @@ public class CategoryController {
 
     private final AddExpenseToCategoryUseCase addExpenseToCategoryUseCase;
     private final ViewCategoryExpensesUseCase viewCategoryExpensesUseCase;
+    private final ViewCategoriesUseCase viewCategoriesUseCase;
 
-    public CategoryController(AddExpenseToCategoryUseCase addExpenseToCategoryUseCase, ViewCategoryExpensesUseCase viewCategoryExpensesUseCase) {
+    public CategoryController(
+            AddExpenseToCategoryUseCase addExpenseToCategoryUseCase,
+            ViewCategoryExpensesUseCase viewCategoryExpensesUseCase,
+            ViewCategoriesUseCase viewCategoriesUseCase) {
+
         this.addExpenseToCategoryUseCase = addExpenseToCategoryUseCase;
         this.viewCategoryExpensesUseCase = viewCategoryExpensesUseCase;
+        this.viewCategoriesUseCase = viewCategoriesUseCase;
+    }
+    @GetMapping
+    public ResponseEntity<ViewCategoriesResponse> getCategories() {
+        ViewCategoriesCommand command = new ViewCategoriesCommand();
+
+        return ResponseEntity.ok(viewCategoriesUseCase.execute(command));
     }
 
     @GetMapping("/{categoryId}/expenses")
