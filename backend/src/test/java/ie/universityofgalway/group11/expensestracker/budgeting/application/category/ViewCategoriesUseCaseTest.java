@@ -70,9 +70,7 @@ class ViewCategoriesUseCaseTest {
             public List<Category> findAllCategories() {
                 return categories;
             }
-            @Override
-            public void deleteById(CategoryId id) { 
-            }
+
             @Override
             public List<Category> findByPeriod(YearMonth period) {
                 return categories.stream()

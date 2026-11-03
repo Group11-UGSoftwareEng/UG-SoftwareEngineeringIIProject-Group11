@@ -61,9 +61,6 @@ public class Expense {
     public void updateDescription(Description desc) {
         this.desc = Objects.requireNonNull(desc);
     }
-    public void updateDate(LocalDate date) {
-        this.date = Objects.requireNonNull(date);
-    }
 
     public CategoryId categoryId() { return categoryId; }
     public ExpenseId id() { return id; }

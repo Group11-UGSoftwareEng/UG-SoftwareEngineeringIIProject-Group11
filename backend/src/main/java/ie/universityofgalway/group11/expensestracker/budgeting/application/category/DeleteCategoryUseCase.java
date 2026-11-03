@@ -21,8 +21,9 @@ public class DeleteCategoryUseCase implements UseCase<DeleteCategoryCommand, Del
     @Override
     public DeleteCategoryResponse execute(DeleteCategoryCommand command) {
         CategoryId id = CategoryId.of(command.categoryId());
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new CategoryNotFoundException(id));
-        int expenseCount = expenseRepository.findByCategoryId(id).size();
+        Category category = categoryRepository.findById(id).
+                orElseThrow(CategoryNotFoundException::new);
+        long expenseCount = expenseRepository.findAll().stream().filter(expense -> expense.categoryId().equals(id)).count();
         if (expenseCount > 0) {
             throw new CategoryInUseException(expenseCount);
         }

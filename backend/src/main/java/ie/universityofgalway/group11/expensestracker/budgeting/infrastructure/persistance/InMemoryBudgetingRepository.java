@@ -65,8 +65,7 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
 
     @Override
     public Expense save(Expense expense, Category toCategory) {
-        expenseStore.put(expense.id(), expense);
-        return expense;
+        return expenseStore.put(expense.id(), expense);
     }
 
     @Override
@@ -107,9 +106,11 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
     }
 
     @Override
-    public void deleteById(CategoryId id) {
-        categoryStore.remove(id);
+    public boolean existsByName(CategoryName name) {
+        return categoryStore.values().stream()
+                .anyMatch(c -> c.name().name().equalsIgnoreCase(name.name()));
     }
+
     @Override
     public List<Category> findAllCategories() {
         return new ArrayList<>(categoryStore.values());

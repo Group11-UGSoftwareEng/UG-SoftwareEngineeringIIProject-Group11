@@ -17,9 +17,6 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ResetBudgetingUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
-import ie.universityofgalway.group11.expensestracker.budgeting.application.category.DeleteCategoryUseCase;
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.DeleteExpenseUseCase;
-import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.EditExpenseUseCase;
 import java.time.YearMonth;
 @Configuration
 public class ProjectConfig {
@@ -88,33 +85,5 @@ public class ProjectConfig {
     @Bean
     public YearMonth budgetingPeriod() {
         return YearMonth.now();
-    }
-    @Bean
-    public DeleteExpenseUseCase deleteExpenseUseCase(ExpenseRepository expenseRepository) {
-        return new DeleteExpenseUseCase(expenseRepository);
-    }
-
-    @Bean
-    public EditExpenseUseCase editExpenseUseCase(ExpenseRepository expenseRepository, CategoryRepository categoryRepository) {
-        return new EditExpenseUseCase(expenseRepository, categoryRepository);
-    }
-
-    @Bean
-    public DeleteCategoryUseCase deleteCategoryUseCase(CategoryRepository categoryRepository, ExpenseRepository expenseRepository) {
-        return new DeleteCategoryUseCase(categoryRepository, expenseRepository);
-    }
-    @Bean
-    public DeleteExpenseUseCase deleteExpenseUseCase(ExpenseRepository expenseRepository) {
-        return new DeleteExpenseUseCase(expenseRepository);
-    }
-
-    @Bean
-    public EditExpenseUseCase editExpenseUseCase(ExpenseRepository expenseRepository, CategoryRepository categoryRepository) {
-        return new EditExpenseUseCase(expenseRepository, categoryRepository);
-    }
-
-    @Bean
-    public DeleteCategoryUseCase deleteCategoryUseCase(CategoryRepository categoryRepository, ExpenseRepository expenseRepository) {
-        return new DeleteCategoryUseCase(categoryRepository, expenseRepository);
     }
 }
