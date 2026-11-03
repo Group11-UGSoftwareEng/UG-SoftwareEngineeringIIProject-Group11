@@ -71,5 +71,12 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
     public List<Category> findAllCategories() {
         return new ArrayList<>(categoryStore.values());
     }
-
+    @Override
+    public void deleteById(CategoryId id) {
+        categoryStore.remove(id);
+    }
+    public Category save(Category category) {
+        categoryStore.put(category.id(), category);
+        return category;
+    }
 }

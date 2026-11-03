@@ -11,7 +11,9 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Am
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Currency;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Description;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.InMemoryBudgetingRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryBudget;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.InMemoryBudgetingRepository;
+import java.time.YearMonth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,16 +28,20 @@ class DeleteCategoryUseCaseTest {
     void setUp() {
         repository = new InMemoryBudgetingRepository();
         useCase = new DeleteCategoryUseCase(repository, repository);
-        food = repository.save(Category.create(CategoryName.of("Food")));
+        food = repository.save(Category.create(
+                CategoryName.of("Food"),
+                YearMonth.of(2026, 11),
+                CategoryBudget.of(100.0)));
     }
     private void addExpenseTo(Category category) {
-        repository.save(Expense.create(
+        Expense expense = Expense.create(
                 category.id(),
                 Amount.of(10.00),
                 Description.of("Test expense"),
-                Currency.of("EUR")));
-    }
+                Currency.of("EUR"));
 
+        repository.save(expense, category);
+    }
     @Test
     void deletesACategoryWithNoExpenses() {
         DeleteCategoryResponse response = useCase.execute(new DeleteCategoryCommand(food.id().asUuid()));
@@ -55,7 +61,10 @@ class DeleteCategoryUseCaseTest {
 
     @Test
     void expensesInOtherCategoriesDoNotBlockDeletion() {
-        Category transport = repository.save(Category.create(CategoryName.of("Transport")));
+        Category transport = repository.save(Category.create(
+                CategoryName.of("Transport"),
+                YearMonth.of(2026, 11),
+                CategoryBudget.of(100.0)));
         addExpenseTo(transport);
         DeleteCategoryResponse response = useCase.execute(new DeleteCategoryCommand(food.id().asUuid()));
         assertTrue(response.success());

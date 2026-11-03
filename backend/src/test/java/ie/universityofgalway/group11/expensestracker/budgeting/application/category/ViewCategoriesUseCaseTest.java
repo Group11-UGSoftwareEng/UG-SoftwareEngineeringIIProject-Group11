@@ -48,6 +48,11 @@ class ViewCategoriesUseCaseTest {
     private CategoryRepository repositoryWith(List<Category> categories) {
         return new CategoryRepository() {
             @Override
+            public void deleteById(CategoryId id) {
+                throw new UnsupportedOperationException(
+                        "Deleting is not needed in these view tests.");
+            }
+            @Override
             public Optional<Category> findById(CategoryId categoryId) {
                 return categories.stream()
                         .filter(category -> category.id().equals(categoryId))

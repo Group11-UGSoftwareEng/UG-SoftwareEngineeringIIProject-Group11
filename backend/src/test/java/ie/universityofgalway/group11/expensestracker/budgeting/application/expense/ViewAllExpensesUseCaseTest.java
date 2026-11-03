@@ -12,7 +12,8 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.InMemoryBudgetingRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.expense.dto.ViewAllExpensesQuery;
 import org.junit.jupiter.api.Test;
-
+import java.time.LocalDate;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -29,28 +30,20 @@ class ViewAllExpensesUseCaseTest {
         CategoryId categoryId = CategoryId.random();
         Category cat = Category.createWithId(categoryId, CategoryName.of("Test"), YearMonth.of(2026, 10), CategoryBudget.of(12.0));
 
-        Expense older = Expense.create(
+        Expense older = Expense.createWithId(
+                ExpenseId.random(),
                 categoryId,
                 Amount.of(12.50),
+                LocalDate.of(2026, 10, 28),
                 Description.of("Older expense"),
                 Currency.of("EUR")
         );
 
-        older.update(
-                Amount.of(12.50),
-                Description.of("Older expense"),
-                Currency.of("EUR")
-        );
-
-        Expense newer = Expense.create(
+        Expense newer = Expense.createWithId(
+                ExpenseId.random(),
                 categoryId,
                 Amount.of(5.00),
-                Description.of("Newer expense"),
-                Currency.of("EUR")
-        );
-
-        newer.update(
-                Amount.of(5.00),
+                LocalDate.of(2026, 10, 29),
                 Description.of("Newer expense"),
                 Currency.of("EUR")
         );

@@ -15,9 +15,13 @@ public class DeleteExpenseUseCase implements UseCase<DeleteExpenseCommand, Delet
     }
     @Override
     public DeleteExpenseResponse execute(DeleteExpenseCommand input) {
-        ExpenseId id = ExpenseId.of(command.expenseId());
-        Expense expense = expenseRepository.findById(input.ExpenseId()).orElseThrow(() -> new ExpenseNotFoundException(input.ExpenseId()));
-        expenseRepository.deleteById(input.expenseId());
+        ExpenseId id = ExpenseId.of(input.expenseId());
+
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(ExpenseNotFoundException::new);
+
+        expenseRepository.deleteById(expense.id());
+
         return new DeleteExpenseResponse(true, "Expense Deleted.");
     }
 }

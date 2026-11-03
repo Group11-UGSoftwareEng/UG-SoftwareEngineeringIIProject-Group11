@@ -39,6 +39,11 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
 
         return categories;
     }
+    @Override
+    @Transactional
+    public void deleteById(CategoryId id) {
+        categoryJpaRepository.deleteById(id.asUuid());
+    }
 
 }
 
