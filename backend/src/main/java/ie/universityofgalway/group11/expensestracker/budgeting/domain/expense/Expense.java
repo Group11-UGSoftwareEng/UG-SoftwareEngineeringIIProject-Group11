@@ -27,6 +27,12 @@ public class Expense {
     public static Expense create(CategoryId categoryId, Amount amount, Description desc, Currency currency) {
         return new Expense(ExpenseId.random(), categoryId, amount, LocalDate.now(), desc, currency);
     }
+    public static Expense create(CategoryId categoryId, Amount amount,
+                                 LocalDate date, Description desc,
+                                 Currency currency) {
+        return new Expense(
+                ExpenseId.random(), categoryId, amount, date, desc, currency);
+    }
 
     public static Expense create(
             CategoryId categoryId,

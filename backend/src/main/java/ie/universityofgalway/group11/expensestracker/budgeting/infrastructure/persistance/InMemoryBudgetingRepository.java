@@ -96,10 +96,10 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
     public Optional<Category> findById(CategoryId categoryId) {
         // TODO: remove placeholders when possible to add categories. They match the frontend examples (UUIDs must match). they do not match the database samples.
         CategoryId id1 = CategoryId.of(UUID.fromString("7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843"));
-        CategoryId id2 = CategoryId.of(UUID.fromString("3f6a1b2c-9d84-4e71-a6c3-5b8f02d9471a"));
-        categoryStore.put(id1,
-                Category.createWithId(id1, CategoryName.of("Example Category 1"), YearMonth.of(2026, 10), CategoryBudget.of(10.0)));
-        categoryStore.put(id2,
+        CategoryId id2 =  CategoryId.of(UUID.fromString("3f6a1b2c-9d84-4e71-a6c3-5b8f02d9471a"));
+        categoryStore.putIfAbsent(id1,
+                        Category.createWithId(id1, CategoryName.of("Example Category 1"), YearMonth.of(2026, 10), CategoryBudget.of(10.0)));
+        categoryStore.putIfAbsent(id2,
                 Category.createWithId(id2, CategoryName.of("Example Category 2"), YearMonth.of(2026, 10), CategoryBudget.of(1.0)));
 
         return Optional.ofNullable(categoryStore.get(categoryId));

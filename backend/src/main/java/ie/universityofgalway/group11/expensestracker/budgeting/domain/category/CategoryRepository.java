@@ -6,11 +6,11 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface CategoryRepository {
 
     Optional<Category> findById(CategoryId categoryId);
 
+    Category save(Category category);
     List<Category> findAllCategories();
 
     void deleteById(CategoryId id);

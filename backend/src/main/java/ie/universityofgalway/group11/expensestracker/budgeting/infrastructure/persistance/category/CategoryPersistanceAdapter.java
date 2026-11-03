@@ -11,7 +11,6 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 @Repository
 public class CategoryPersistanceAdapter implements CategoryRepository {
 
@@ -77,5 +76,18 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
         }
 
         categoryJpaRepository.saveAll(entities);
+    }
+    @Override
+    @Transactional
+    public Category save(Category category) {
+        CategoryEntity entity = categoryJpaRepository
+                .findById(category.id().asUuid())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Category not found."));
+
+        entity.setName(category.name().name());
+        categoryJpaRepository.save(entity);
+
+        return category;
     }
 }

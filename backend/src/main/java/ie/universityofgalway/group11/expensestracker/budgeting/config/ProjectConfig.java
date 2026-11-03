@@ -6,7 +6,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.AdapterHelper;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.EditCategoryDetailsUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryJPARepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryPersistanceAdapter;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseJPARepository;
@@ -61,6 +61,11 @@ public class ProjectConfig {
             ExpenseRepository expenseRepository) {
         return new ViewAllExpensesUseCase(expenseRepository);
     }
+    @Bean
+    public EditCategoryDetailsUseCase editCategoryDetailsUseCase(
+            CategoryRepository categoryRepository) {
+
+        return new EditCategoryDetailsUseCase(categoryRepository);
 
     @Bean
     public ViewCategoriesUseCase viewCategoriesUseCase(
