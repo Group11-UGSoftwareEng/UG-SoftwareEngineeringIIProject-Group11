@@ -1,11 +1,12 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.*;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Amount;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Currency;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Description;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
-// import ie.universityofgalway.group11.expensestracker.useradmission.domain.user.UserId;
-import org.springframework.stereotype.Repository;
 
 import java.time.YearMonth;
 import java.util.*;
@@ -15,11 +16,47 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryRepository {
 
     private final Map<ExpenseId, Expense> expenseStore = new ConcurrentHashMap<>();
-
     private final Map<CategoryId, Category> categoryStore = new ConcurrentHashMap<>();
 
+    public InMemoryBudgetingRepository() {
+        CategoryId id1 = CategoryId.of(UUID.fromString(
+                "7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843"));
+        CategoryId id2 = CategoryId.of(UUID.fromString(
+                "3f6a1b2c-9d84-4e71-a6c3-5b8f02d9471a"));
 
-    //Expense Repository
+        Category category1 = Category.createWithId(
+                id1, CategoryName.of("Example Category 1"),
+                YearMonth.of(2026, 10), CategoryBudget.of(10.0));
+
+        Category category2 = Category.createWithId(
+                id2, CategoryName.of("Example Category 2"),
+                YearMonth.of(2026, 10), CategoryBudget.of(1.0));
+
+        categoryStore.put(id1, category1);
+        categoryStore.put(id2, category2);
+
+        Expense expense1 = Expense.create(
+                id1, Amount.of(2.50),
+                Description.of("Coffee"), Currency.of("EUR"));
+
+        Expense expense2 = Expense.create(
+                id1, Amount.of(4.00),
+                Description.of("Lunch"), Currency.of("EUR"));
+
+        Expense expense3 = Expense.create(
+                id2, Amount.of(0.50),
+                Description.of("Sample purchase"), Currency.of("EUR"));
+
+        category1.addExpenseToTheCategory(expense1);
+        category1.addExpenseToTheCategory(expense2);
+        category2.addExpenseToTheCategory(expense3);
+
+        expenseStore.put(expense1.id(), expense1);
+        expenseStore.put(expense2.id(), expense2);
+        expenseStore.put(expense3.id(), expense3);
+    }
+
+    // Expense Repository
 
     @Override
     public Optional<Expense> findById(ExpenseId id) {
@@ -57,14 +94,6 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
 
     @Override
     public Optional<Category> findById(CategoryId categoryId) {
-        // TODO: remove placeholders when possible to add categories. They match the frontend examples (UUIDs must match). they do not match the database samples.
-        CategoryId id1 = CategoryId.of(UUID.fromString("7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843"));
-        CategoryId id2 =  CategoryId.of(UUID.fromString("3f6a1b2c-9d84-4e71-a6c3-5b8f02d9471a"));
-        categoryStore.put(id1,
-                        Category.createWithId(id1, CategoryName.of("Example Category 1"), YearMonth.of(2026, 10), CategoryBudget.of(10.0)));
-        categoryStore.put(id2,
-                Category.createWithId(id2, CategoryName.of("Example Category 2"), YearMonth.of(2026, 10), CategoryBudget.of(1.0)));
-
         return Optional.ofNullable(categoryStore.get(categoryId));
     }
     @Override
