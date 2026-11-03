@@ -6,6 +6,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.C
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.AdapterHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
 
 import java.time.YearMonth;
 import java.util.ArrayList;

@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface CategoryRepository {
 
+
     Optional<Category> findById(CategoryId categoryId);
 
     Category save(Category category);
@@ -20,4 +21,6 @@ public interface CategoryRepository {
     Optional<YearMonth> findLatestPeriod();
 
     void saveAll(List<Category> categories);
+
+    boolean existsByName(CategoryName name);
 }
