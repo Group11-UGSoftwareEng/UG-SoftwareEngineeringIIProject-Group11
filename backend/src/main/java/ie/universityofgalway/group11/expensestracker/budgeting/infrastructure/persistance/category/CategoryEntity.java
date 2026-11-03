@@ -10,7 +10,13 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "category")
+@Table(
+        name = "category",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uc_category_name_period",
+                columnNames = {"name", "year", "month"}
+        )
+)
 public class CategoryEntity {
 
     @Id
@@ -18,7 +24,7 @@ public class CategoryEntity {
 
     private Double budget;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)

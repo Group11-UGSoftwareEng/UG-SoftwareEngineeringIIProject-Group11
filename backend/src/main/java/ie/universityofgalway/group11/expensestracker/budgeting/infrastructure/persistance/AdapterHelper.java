@@ -43,6 +43,8 @@ public class AdapterHelper {
         entity.setId(category.id().asUuid());
         entity.setName(category.name().name());
         entity.setBudget(category.budget().value().doubleValue());
+        entity.setYear(category.year());
+        entity.setMonth(category.month());
 
         return entity;
     }

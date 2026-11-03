@@ -4,18 +4,22 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.UseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
 
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ViewCategoriesUseCase
         implements UseCase<ViewCategoriesCommand, ViewCategoriesResponse> {
 
-    private final CategoryRepository categoryRepository;
+    private final ResetBudgetingUseCase resetBudgetingUseCase;
+    private final YearMonth budgetingPeriod;
 
-    public ViewCategoriesUseCase(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    public ViewCategoriesUseCase(
+            ResetBudgetingUseCase resetBudgetingUseCase,
+            YearMonth budgetingPeriod) {
+        this.resetBudgetingUseCase = resetBudgetingUseCase;
+        this.budgetingPeriod = budgetingPeriod;
     }
 
     @Override
@@ -23,7 +27,8 @@ public class ViewCategoriesUseCase
         List<ViewCategoriesResponse.CategoryDetails> categories =
                 new ArrayList<>();
 
-        for (Category category : categoryRepository.findAllCategories()) {
+        for (Category category :
+                resetBudgetingUseCase.execute(budgetingPeriod)) {
             categories.add(new ViewCategoriesResponse.CategoryDetails(
                     category.id().asUuid(),
                     category.name().name(),
