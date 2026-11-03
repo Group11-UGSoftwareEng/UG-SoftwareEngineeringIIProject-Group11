@@ -8,5 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface CategoryRepository {
-    Optional<Category> findById(CategoryId categoryId);
-}
+        Optional<Category> findById(CategoryId categoryId);
+        boolean existsByName(CategoryName name);
+        void save(Category category);
+    }

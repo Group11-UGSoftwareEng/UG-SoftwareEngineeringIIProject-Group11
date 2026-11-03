@@ -57,4 +57,15 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
         return Optional.ofNullable(categoryStore.get(categoryId));
     }
 
+    @Override
+    public boolean existsByName(CategoryName name) {
+        return categoryStore.values().stream()
+                .anyMatch(c -> c.name().name().equalsIgnoreCase(name.name()));
+    }
+
+    @Override
+    public void save(Category category) {
+        categoryStore.put(category.id(), category);
+    }
+
 }

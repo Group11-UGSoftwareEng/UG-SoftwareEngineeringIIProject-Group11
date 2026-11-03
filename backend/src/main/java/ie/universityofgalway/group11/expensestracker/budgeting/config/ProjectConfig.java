@@ -13,12 +13,12 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpensePersistanceAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddCategoryUseCase;
 
 @Configuration
 public class ProjectConfig {
 
     // Repository
-
 //    @Bean
 //    InMemoryBudgetingRepository inMemoryBudgetingRepository() {
 //        return new InMemoryBudgetingRepository();
@@ -49,5 +49,9 @@ public class ProjectConfig {
     public ViewAllExpensesUseCase viewMyExpensesUseCase(
             ExpenseRepository expenseRepository) {
         return new ViewAllExpensesUseCase(expenseRepository);
+    }
+    @Bean
+    public AddCategoryUseCase addCategoryUseCase(CategoryRepository categoryRepository) {
+        return new AddCategoryUseCase(categoryRepository);
     }
 }

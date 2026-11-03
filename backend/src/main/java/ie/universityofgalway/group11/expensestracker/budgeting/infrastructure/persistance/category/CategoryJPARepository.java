@@ -8,6 +8,6 @@ import java.util.UUID;
 public interface CategoryJPARepository extends JpaRepository<CategoryEntity, UUID> {
     Optional<CategoryEntity> findById(UUID id);
 
-
+    boolean existsByNameIgnoreCase(String name);
 
 }

@@ -8,6 +8,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
 
 import java.util.Optional;
 
@@ -25,7 +26,24 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
 
     @Override
     public Optional<Category> findById(CategoryId categoryId) {
-       return categoryJpaRepository.findById(categoryId.asUuid()).map(helper::toCategoryDomain);
+        return categoryJpaRepository.findById(categoryId.asUuid()).map(helper::toCategoryDomain);
+    }
+
+    @Override
+    public boolean existsByName(CategoryName name) {
+        return categoryJpaRepository.existsByNameIgnoreCase(name.name());
+    }
+
+    @Override
+    public void save(Category category) {
+        CategoryEntity entity = new CategoryEntity();
+        entity.setId(category.id().asUuid());
+        entity.setName(category.name().name());
+        entity.setBudget(category.budget() == null
+                ? null : category.budget().value().doubleValue());
+        entity.setYear(category.year());
+        entity.setMonth(category.month());
+        categoryJpaRepository.save(entity);
     }
 }
 
