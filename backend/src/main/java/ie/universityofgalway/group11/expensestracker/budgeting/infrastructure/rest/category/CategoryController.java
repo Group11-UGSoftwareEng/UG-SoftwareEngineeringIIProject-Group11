@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesResponse;
-
-import java.util.Map;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesResponse;
@@ -22,6 +20,11 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.exceptions.CategoryException;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.category.dto.AddCategoryRequest;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.DeleteCategoryUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.DeleteCategoryCommand;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.common.exceptions.CategoryInUseException;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.common.exceptions.CategoryNotFoundException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -32,10 +35,12 @@ public class CategoryController {
     private final AddCategoryUseCase addCategoryUseCase;
     private final EditCategoryDetailsUseCase editCategoryDetailsUseCase;
     private final ViewCategoriesUseCase viewCategoriesUseCase;
+    private final DeleteCategoryUseCase deleteCategoryUseCase;
 
     public CategoryController(
             AddExpenseToCategoryUseCase addExpenseToCategoryUseCase,
             ViewCategoryExpensesUseCase viewCategoryExpensesUseCase,
+            DeleteCategoryUseCase deleteCategoryUseCase,
             EditCategoryDetailsUseCase editCategoryDetailsUseCase,
             ViewCategoriesUseCase viewCategoriesUseCase,
             AddCategoryUseCase addCategoryUseCase) {
@@ -44,6 +49,7 @@ public class CategoryController {
         this.viewCategoryExpensesUseCase = viewCategoryExpensesUseCase;
         this.editCategoryDetailsUseCase = editCategoryDetailsUseCase;
         this.viewCategoriesUseCase = viewCategoriesUseCase;
+        this.deleteCategoryUseCase = deleteCategoryUseCase;
         this.addCategoryUseCase = addCategoryUseCase;
     }
   
@@ -74,6 +80,20 @@ public class CategoryController {
                                                                    @RequestBody AddExpenseToCategoryRequest request) {
         AddExpenseToCategoryCommand command = new AddExpenseToCategoryCommand(categoryId, request.amount(), request.description(), request.currency());
         return ResponseEntity.ok(addExpenseToCategoryUseCase.execute(command));
+    }
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<?> deleteCategory(@PathVariable("categoryId") UUID categoryId) {
+        try {
+            return ResponseEntity.ok(deleteCategoryUseCase.execute(new DeleteCategoryCommand(categoryId)));
+        } 
+        catch (CategoryNotFoundException error) {
+            return ResponseEntity.status(404).body(error.getMessage());
+        } 
+        catch (CategoryInUseException error) {
+            return ResponseEntity.status(409).body(Map.of(
+                    "message", error.getMessage(),
+                    "expenseCount", error.expenseCount()));
+        }
     }
     @PutMapping("/{categoryId}")
     public ResponseEntity<String> editCategory(
