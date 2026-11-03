@@ -3,8 +3,12 @@ package ie.universityofgalway.group11.expensestracker.budgeting.application.cate
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.UseCase;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Category;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.CategoryRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.common.exceptions.CategoryException;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
+
+import java.time.YearMonth;
 
 public class AddCategoryUseCase implements UseCase<AddCategoryCommand, AddCategoryResponse> {
 
@@ -16,21 +20,19 @@ public class AddCategoryUseCase implements UseCase<AddCategoryCommand, AddCatego
 
     @Override
     public AddCategoryResponse execute(AddCategoryCommand input) {
-        Category category = new Category(input.categoryName());
+        CategoryName name = CategoryName.of(input.categoryName()); // throws if blank
 
-        // Rule check: titles/names cannot be duplicate (case-insensitive)
-        if (categoryRepository != null && categoryRepository.existsByNameIgnoreCaseAndUserId(category.name(), input.userId())) {
-            throw new IllegalArgumentException("A category with the name '" + category.name() + "' already exists.");
+        if (categoryRepository.existsByName(name)) {
+            throw new CategoryException(
+                    "A category with the name '" + input.categoryName() + "' already exists.");
         }
 
-        if (categoryRepository != null) {
-            categoryRepository.save(category, input.userId());
-        }
+        // No budget yet: that is set later by the SetCategoryBudget use case
+        Category category = Category.create(name, YearMonth.now(), null);
+        categoryRepository.save(category);
 
-        return new AddCategoryResponse(
-                true,
-                "Category '" + category.name() + "' created successfully.",
-                category.name()
-        );
+        return new AddCategoryResponse(true,
+                "Category '" + input.categoryName() + "' created successfully.",
+                input.categoryName());
     }
 }
