@@ -11,6 +11,6 @@ public interface CategoryJPARepository extends JpaRepository<CategoryEntity, UUI
 
     Optional<CategoryEntity> findFirstByOrderByYearDescMonthDesc();
 
-
+    boolean existsByNameIgnoreCase(String name);
 
 }

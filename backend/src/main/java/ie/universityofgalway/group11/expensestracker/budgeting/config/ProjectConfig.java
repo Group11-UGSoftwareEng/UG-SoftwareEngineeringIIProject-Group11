@@ -13,6 +13,8 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpensePersistanceAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddCategoryUseCase;
+
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ResetBudgetingUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.DeleteCategoryUseCase;
@@ -23,7 +25,6 @@ import java.time.YearMonth;
 public class ProjectConfig {
 
     // Repository
-
 //    @Bean
 //    InMemoryBudgetingRepository inMemoryBudgetingRepository() {
 //        return new InMemoryBudgetingRepository();
@@ -64,6 +65,11 @@ public class ProjectConfig {
             ExpenseRepository expenseRepository) {
         return new ViewAllExpensesUseCase(expenseRepository);
     }
+    @Bean
+    public AddCategoryUseCase addCategoryUseCase(CategoryRepository categoryRepository) {
+        return new AddCategoryUseCase(categoryRepository);
+    }
+      
     @Bean
     public EditCategoryDetailsUseCase editCategoryDetailsUseCase(
             CategoryRepository categoryRepository) {

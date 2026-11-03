@@ -121,6 +121,7 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
         categoryStore.remove(id);
     }
 
+    @Override
     public Category save(Category category) {
         categoryStore.put(category.id(), category);
         return category;
