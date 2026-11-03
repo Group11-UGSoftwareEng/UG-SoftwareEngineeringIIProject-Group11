@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import ExpenseForm from "./ExpenseForm";
 import Expense from "./Expense";
 import { useExpenses } from "./contexts/ExpenseContext";
+import CategoryNameEditor from "./CategoryNameEditor";
 import {
+
     getCategories,
     getCategoryExpenses
 } from "../api/categoryApi";
@@ -105,7 +107,18 @@ export default function MainPage() {
 
                     return (
                         <section key={category.id} style={{ minWidth: "280px" }}>
-                            <h2>{category.name}</h2>
+                            <CategoryNameEditor
+                                category={category}
+                                onRenamed={(categoryId, newName) => {
+                                    setCategories((previous) =>
+                                        previous.map((item) =>
+                                            item.id === categoryId
+                                                ? { ...item, name: newName }
+                                                : item
+                                        )
+                                    );
+                                }}
+                            />
 
                             <button
                                 onClick={() => toggleCategory(category.id)}

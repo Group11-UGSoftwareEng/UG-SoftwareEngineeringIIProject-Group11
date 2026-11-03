@@ -21,3 +21,11 @@ export const saveExpense = async (categoryId, expense) => {
     );
     return response.data;
 };
+
+export const renameCategory = async (categoryId, newName) => {
+    const response = await axios.put(
+        `${BASE_URL}/${categoryId}`,
+        { newName }
+    );
+    return response.data;
+};
