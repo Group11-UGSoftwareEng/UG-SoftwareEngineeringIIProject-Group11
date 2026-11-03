@@ -8,6 +8,8 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.Optional;
 
@@ -27,6 +29,17 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
     public Optional<Category> findById(CategoryId categoryId) {
        return categoryJpaRepository.findById(categoryId.asUuid()).map(helper::toCategoryDomain);
     }
+    @Override
+    public List<Category> findAllCategories() {
+        List<Category> categories = new ArrayList<>();
+
+        for (CategoryEntity entity : categoryJpaRepository.findAll()) {
+            categories.add(helper.toCategoryDomain(entity));
+        }
+
+        return categories;
+    }
+
 }
 
 //

@@ -7,7 +7,12 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.category.dto.AddExpenseToCategoryRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesCommand;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoryExpensesResponse;
 
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesCommand;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesResponse;
 import java.util.UUID;
 
 @RestController
@@ -16,18 +21,38 @@ public class CategoryController {
 
     private final AddExpenseToCategoryUseCase addExpenseToCategoryUseCase;
     private final ViewCategoryExpensesUseCase viewCategoryExpensesUseCase;
+    private final ViewCategoriesUseCase viewCategoriesUseCase;
 
-    public CategoryController(AddExpenseToCategoryUseCase addExpenseToCategoryUseCase, ViewCategoryExpensesUseCase viewCategoryExpensesUseCase) {
+    public CategoryController(
+            AddExpenseToCategoryUseCase addExpenseToCategoryUseCase,
+            ViewCategoryExpensesUseCase viewCategoryExpensesUseCase,
+            ViewCategoriesUseCase viewCategoriesUseCase) {
+
         this.addExpenseToCategoryUseCase = addExpenseToCategoryUseCase;
         this.viewCategoryExpensesUseCase = viewCategoryExpensesUseCase;
+        this.viewCategoriesUseCase = viewCategoriesUseCase;
+    }
+    @GetMapping
+    public ResponseEntity<ViewCategoriesResponse> getCategories() {
+        ViewCategoriesCommand command = new ViewCategoriesCommand();
+
+        return ResponseEntity.ok(viewCategoriesUseCase.execute(command));
     }
 
-    // TODO implement (Query instead of null)
-//    @GetMapping("/{categoryId}")
-//    public ResponseEntity<ViewCategoryExpensesResponse> getCategoryExpenses() {
-//        return ResponseEntity.ok(viewCategoryExpensesUseCase.execute(null));
-//    }
+    @GetMapping("/{categoryId}/expenses")
+    public ResponseEntity<?> getCategoryExpenses(
+            @PathVariable("categoryId") UUID categoryId) {
 
+        ViewCategoryExpensesCommand command =
+                new ViewCategoryExpensesCommand(categoryId);
+
+        try {
+            return ResponseEntity.ok(
+                    viewCategoryExpensesUseCase.execute(command));
+        } catch (IllegalArgumentException error) {
+            return ResponseEntity.status(404).body(error.getMessage());
+        }
+    }
     @PostMapping("/{categoryId}")
     public ResponseEntity<AddExpenseToCategoryResponse> addExpense(@PathVariable UUID categoryId,
                                                                    @RequestBody AddExpenseToCategoryRequest request) {
