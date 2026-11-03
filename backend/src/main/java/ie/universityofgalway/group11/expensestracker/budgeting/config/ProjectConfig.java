@@ -6,7 +6,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.ViewAllExpensesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.AdapterHelper;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.EditCategoryDetailsUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryJPARepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryPersistanceAdapter;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseJPARepository;
@@ -15,6 +15,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddCategoryUseCase;
 
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ResetBudgetingUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
+import java.time.YearMonth;
 @Configuration
 public class ProjectConfig {
 
@@ -41,8 +44,17 @@ public class ProjectConfig {
     }
 
     @Bean
-    public ViewCategoryExpensesUseCase viewCategoryExpensesUseCase(CategoryRepository categoryRepository) {
-        return new ViewCategoryExpensesUseCase(categoryRepository);
+    public ViewCategoryExpensesUseCase viewCategoryExpensesUseCase(
+            CategoryRepository categoryRepository,
+            ExpenseRepository expenseRepository) {
+
+        return new ViewCategoryExpensesUseCase(
+                categoryRepository, expenseRepository);
+    }
+    @Bean
+    public ResetBudgetingUseCase resetBudgetingUseCase(
+            CategoryRepository categoryRepository) {
+        return new ResetBudgetingUseCase(categoryRepository);
     }
 
     @Bean
@@ -53,5 +65,25 @@ public class ProjectConfig {
     @Bean
     public AddCategoryUseCase addCategoryUseCase(CategoryRepository categoryRepository) {
         return new AddCategoryUseCase(categoryRepository);
+    }
+      
+    @Bean
+    public EditCategoryDetailsUseCase editCategoryDetailsUseCase(
+            CategoryRepository categoryRepository) {
+
+        return new EditCategoryDetailsUseCase(categoryRepository);
+    }
+
+    @Bean
+    public ViewCategoriesUseCase viewCategoriesUseCase(
+            ResetBudgetingUseCase resetBudgetingUseCase,
+            YearMonth budgetingPeriod) {
+        return new ViewCategoriesUseCase(
+                resetBudgetingUseCase, budgetingPeriod);
+    }
+
+    @Bean
+    public YearMonth budgetingPeriod() {
+        return YearMonth.now();
     }
 }
