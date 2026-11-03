@@ -11,8 +11,17 @@ CREATE TABLE IF NOT EXISTS category
     year   INTEGER      NOT NULL,
     month  INTEGER      NOT NULL,
     CONSTRAINT pk_category PRIMARY KEY (id),
-    CONSTRAINT uc_category_name UNIQUE (name)
+    CONSTRAINT uc_category_name_period UNIQUE (name, year, month)
 );
+ALTER TABLE category
+    DROP CONSTRAINT IF EXISTS uc_category_name;
+
+ALTER TABLE category
+    DROP CONSTRAINT IF EXISTS uc_category_name_period;
+
+ALTER TABLE category
+    ADD CONSTRAINT uc_category_name_period
+        UNIQUE (name, year, month);
 
 CREATE TABLE IF NOT EXISTS expense
 (
