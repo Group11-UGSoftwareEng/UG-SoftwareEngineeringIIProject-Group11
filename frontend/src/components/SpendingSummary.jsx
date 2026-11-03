@@ -1,6 +1,9 @@
 
 import { useEffect, useState } from 'react'
 
+const dateInput = (d) => [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
+const startingToday = new Date()
+
 const styles = `
   .spending-summary {
     width: 100%;
@@ -249,9 +252,11 @@ const styles = `
 
 export default function SpendingSummary({
   apiBase = '/api',
-  currency = 'EUR',
   refreshKey = 0
 }) {
+  const [from, setFrom] = useState(dateInput(new Date(startingToday.getFullYear(), startingToday.getMonth(), 1)))
+  const [to, setTo] = useState(dateInput(startingToday))
+  const [currency, setCurrency] = useState('EUR')
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -262,12 +267,18 @@ export default function SpendingSummary({
     const controller = new AbortController()
 
     async function loadSummary() {
+      if (controller.signal.aborted) return
+      if (!from || !to || from > to) {
+        setError('Choose a valid start and end date.')
+        setSummary(null)
+        return
+      }
       setLoading(true)
       setError('')
 
       try {
         const response = await fetch(
-          `${apiBase}/expenses/summary?currency=${encodeURIComponent(currency)}`,
+          `${apiBase}/expenses/summary?${new URLSearchParams({ from, to, currency })}`,
           {
             signal: controller.signal,
             headers: {
@@ -282,7 +293,7 @@ export default function SpendingSummary({
         if (!contentType.includes('application/json')) {
           throw new Error(
             'The server returned HTML instead of JSON. ' +
-            'Check that Spring Boot is running on port 808 ' +
+            'Check that Spring Boot is running on port 8080 ' +
             'and that the Vite proxy is configured.'
           )
         }
@@ -324,7 +335,7 @@ export default function SpendingSummary({
       clearInterval(interval)
     }
 
-  }, [apiBase, currency, refreshKey, reload])
+  }, [apiBase, from, to, currency, refreshKey, reload])
 
   function formatMoney(value) {
     return new Intl.NumberFormat('en-IE', {
@@ -378,7 +389,26 @@ export default function SpendingSummary({
           </button>
         </div>
 
-        {/* Error message */}
+        {/* Date and currency controls */}
+        <div className="ss-period-controls" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+          <label style={{ display: 'grid', gap: 5, color: '#222' }}>
+            Start date
+            <input type="date" value={from} onChange={e => setFrom(e.target.value)} style={{ color: '#222', background: '#fff', padding: 8 }} />
+          </label>
+          <label style={{ display: 'grid', gap: 5, color: '#222' }}>
+            End date
+            <input type="date" value={to} onChange={e => setTo(e.target.value)} style={{ color: '#222', background: '#fff', padding: 8 }} />
+          </label>
+          <label style={{ display: 'grid', gap: 5, color: '#222' }}>
+            Currency
+            <select value={currency} onChange={e => setCurrency(e.target.value)} style={{ color: '#222', background: '#fff', padding: 8 }}>
+              <option value="EUR">EUR</option>
+              <option value="USD">USD</option>
+              <option value="GBP">GBP</option>
+            </select>
+          </label>
+        </div>
+
         {error && (
           <div className="ss-error" role="alert">
             {error}
@@ -435,9 +465,7 @@ export default function SpendingSummary({
 
             {categories.length === 0 ? (
               <div className="ss-empty">
-                No expenses have been recorded this month.
-                Add expenses through your existing API
-                to generate a spending summary.
+                No expenses were recorded in the selected period and currency. Total spending is zero.
               </div>
             ) : (
               <div className="ss-table">
