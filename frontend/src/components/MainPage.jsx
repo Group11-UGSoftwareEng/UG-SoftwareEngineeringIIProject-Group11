@@ -1,66 +1,142 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ExpenseForm from "./ExpenseForm";
 import Expense from "./Expense";
 import { useExpenses } from "./contexts/ExpenseContext";
-
-// Currently just an example for demonstration purposes.
-
+import {
+    getCategories,
+    getCategoryExpenses
+} from "../api/categoryApi";
 
 export default function MainPage() {
+    const { expenses, setCategoryExpenses } = useExpenses();
 
-    
-    const { expenses } = useExpenses();
-
-    //TODO Sithum: 
-        // Replace the placeholder 
-        // with actual corresponding 
-        // categoryId  
+    const [categories, setCategories] = useState([]);
     const [openCategoryIds, setOpenCategoryIds] = useState([]);
+    const [formCategoryIds, setFormCategoryIds] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    const toggleCategory = (categoryId) => {
-        setOpenCategoryIds((currentIds) =>
-        currentIds.includes(categoryId)
-            ? currentIds.filter((id) => id !== categoryId)
-            : [...currentIds, categoryId]
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadData() {
+            try {
+                const savedCategories = await getCategories();
+
+                const results = await Promise.all(
+                    savedCategories.map(async (category) => ({
+                        categoryId: category.id,
+                        expenses: await getCategoryExpenses(category.id)
+                    }))
+                );
+
+                if (cancelled) return;
+
+                setCategories(savedCategories);
+
+                results.forEach((result) => {
+                    setCategoryExpenses(result.categoryId, result.expenses);
+                });
+            } catch (loadError) {
+                if (!cancelled) {
+                    console.error(loadError);
+                    setError("Could not load your expenses. Please try refreshing.");
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        loadData();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    function toggleCategory(categoryId) {
+        setOpenCategoryIds((previous) =>
+            previous.includes(categoryId)
+                ? previous.filter((id) => id !== categoryId)
+                : [...previous, categoryId]
         );
-    };
+    }
 
-    const categories = [
-        { id: "7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843", name: "Example Category 1" },
-        { id: "3f6a1b2c-9d84-4e71-a6c3-5b8f02d9471a", name: "Example Category 2" }
-    ];
- 
+    function toggleForm(categoryId) {
+        setFormCategoryIds((previous) =>
+            previous.includes(categoryId)
+                ? previous.filter((id) => id !== categoryId)
+                : [...previous, categoryId]
+        );
+    }
+
+    if (loading) {
+        return <p>Loading expenses...</p>;
+    }
+
+    if (error) {
+        return <p role="alert">{error}</p>;
+    }
+
     return (
-    <div>
-      <h1>Expenses tracker</h1>
+        <div>
+            <h1>Expenses tracker</h1>
 
-      <div style={{ display: "flex", gap: "250px" }}>
-        {categories.map((category) => (
-          <div key={category.id}>
-            <div style={{ display: "flex", gap: "30px" }}>
-              <h2>{category.name}</h2>
+            {expenses.length === 0 && (
+                <p>You have not added any expenses yet.</p>
+            )}
 
-              <button onClick={() => toggleCategory(category.id)}>
-                {openCategoryIds.includes(category.id)
-                  ? "Hide"
-                  : "Add an expense"}
-              </button>
+            {categories.length === 0 && <p>No categories added yet.</p>}
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "40px" }}>
+                {categories.map((category) => {
+                    const categoryExpenses = expenses
+                        .filter((expense) => expense.categoryId === category.id)
+                        .sort((a, b) =>
+                            (b.date ?? b.dateAdded ?? "").localeCompare(
+                                a.date ?? a.dateAdded ?? ""
+                            )
+                        );
+
+                    const isOpen = openCategoryIds.includes(category.id);
+                    const isFormOpen = formCategoryIds.includes(category.id);
+
+                    return (
+                        <section key={category.id} style={{ minWidth: "280px" }}>
+                            <h2>{category.name}</h2>
+
+                            <button
+                                onClick={() => toggleCategory(category.id)}
+                                aria-expanded={isOpen}
+                            >
+                                {isOpen ? "Hide expenses" : "View expenses"}
+                            </button>
+
+                            <button onClick={() => toggleForm(category.id)}>
+                                {isFormOpen ? "Hide form" : "Add an expense"}
+                            </button>
+
+                            {isFormOpen && (
+                                <ExpenseForm categoryId={category.id} />
+                            )}
+
+                            {isOpen && (
+                                <div style={{ marginTop: "12px" }}>
+                                    {categoryExpenses.length === 0 ? (
+                                        <p>No expenses in this category yet.</p>
+                                    ) : (
+                                        categoryExpenses.map((expense) => (
+                                            <Expense key={expense.id} {...expense} />
+                                        ))
+                                    )}
+                                </div>
+                            )}
+                        </section>
+                    );
+                })}
             </div>
-
-            {openCategoryIds.includes(category.id) && (
-              <ExpenseForm categoryId={category.id} />
-            )}
-
-            {expenses.filter((e) => e.categoryId === category.id)
-              .map((expense) => (
-                <Expense
-                key={expense.id}
-                {...expense}
-                />)
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+        </div>
+    );
 }

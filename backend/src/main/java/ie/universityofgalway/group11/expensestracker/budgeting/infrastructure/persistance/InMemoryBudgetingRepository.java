@@ -94,11 +94,67 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
 
     @Override
     public Optional<Category> findById(CategoryId categoryId) {
+        // TODO: remove placeholders when possible to add categories. They match the frontend examples (UUIDs must match). they do not match the database samples.
+        CategoryId id1 = CategoryId.of(UUID.fromString("7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843"));
+        CategoryId id2 = CategoryId.of(UUID.fromString("3f6a1b2c-9d84-4e71-a6c3-5b8f02d9471a"));
+        categoryStore.put(id1,
+                Category.createWithId(id1, CategoryName.of("Example Category 1"), YearMonth.of(2026, 10), CategoryBudget.of(10.0)));
+        categoryStore.put(id2,
+                Category.createWithId(id2, CategoryName.of("Example Category 2"), YearMonth.of(2026, 10), CategoryBudget.of(1.0)));
+
         return Optional.ofNullable(categoryStore.get(categoryId));
     }
+
     @Override
     public List<Category> findAllCategories() {
         return new ArrayList<>(categoryStore.values());
     }
 
+
+    @Override
+    public void deleteById(CategoryId id) {
+        categoryStore.remove(id);
+    }
+
+    public Category save(Category category) {
+        categoryStore.put(category.id(), category);
+        return category;
+    }
+
+    @Override
+    public List<Category> findByPeriod(YearMonth period) {
+        List<Category> categories = new ArrayList<>();
+
+        for (Category category : categoryStore.values()) {
+            if (category.year() == period.getYear()
+                    && category.month() == period.getMonthValue()) {
+                categories.add(category);
+            }
+        }
+
+        return categories;
+    }
+
+    @Override
+    public Optional<YearMonth> findLatestPeriod() {
+        YearMonth latest = null;
+
+        for (Category category : categoryStore.values()) {
+            YearMonth period =
+                    YearMonth.of(category.year(), category.month());
+
+            if (latest == null || period.isAfter(latest)) {
+                latest = period;
+            }
+        }
+
+        return Optional.ofNullable(latest);
+    }
+
+    @Override
+    public void saveAll(List<Category> categories) {
+        for (Category category : categories) {
+            categoryStore.put(category.id(), category);
+        }
+    }
 }

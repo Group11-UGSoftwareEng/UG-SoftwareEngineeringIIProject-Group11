@@ -8,6 +8,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ViewCategoriesUseCaseTest {
@@ -20,7 +21,10 @@ class ViewCategoriesUseCaseTest {
                 CategoryBudget.of(200.0));
 
         ViewCategoriesUseCase useCase =
-                new ViewCategoriesUseCase(repositoryWith(List.of(category)));
+                new ViewCategoriesUseCase(
+                        new ResetBudgetingUseCase(repositoryWith(List.of(category))),
+                        YearMonth.of(2026, 11)
+                );
 
         var response = useCase.execute(new ViewCategoriesCommand());
 
@@ -38,7 +42,10 @@ class ViewCategoriesUseCaseTest {
     @Test
     void returnsEmptyListWhenNoCategoriesExist() {
         ViewCategoriesUseCase useCase =
-                new ViewCategoriesUseCase(repositoryWith(List.of()));
+                new ViewCategoriesUseCase(
+                        new ResetBudgetingUseCase(repositoryWith(List.of())),
+                        YearMonth.of(2026, 11)
+                );
 
         var response = useCase.execute(new ViewCategoriesCommand());
 
@@ -47,6 +54,11 @@ class ViewCategoriesUseCaseTest {
 
     private CategoryRepository repositoryWith(List<Category> categories) {
         return new CategoryRepository() {
+            @Override
+            public void deleteById(CategoryId id) {
+                throw new UnsupportedOperationException(
+                        "Deleting is not needed in these view tests.");
+            }
             @Override
             public Optional<Category> findById(CategoryId categoryId) {
                 return categories.stream()
@@ -57,6 +69,29 @@ class ViewCategoriesUseCaseTest {
             @Override
             public List<Category> findAllCategories() {
                 return categories;
+            }
+
+            @Override
+            public List<Category> findByPeriod(YearMonth period) {
+                return categories.stream()
+                        .filter(category ->
+                                category.year() == period.getYear()
+                                        && category.month() == period.getMonthValue())
+                        .toList();
+            }
+
+            @Override
+            public Optional<YearMonth> findLatestPeriod() {
+                return categories.stream()
+                        .map(category ->
+                                YearMonth.of(category.year(), category.month()))
+                        .max(YearMonth::compareTo);
+            }
+
+            @Override
+            public void saveAll(List<Category> categories) {
+                throw new UnsupportedOperationException(
+                        "Saving is not needed in these view tests.");
             }
         };
     }

@@ -3,55 +3,80 @@ package ie.universityofgalway.group11.expensestracker.budgeting.application.expe
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.exceptions.ExpenseNotFoundException;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.DeleteExpenseCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.DeleteExpenseResponse;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryBudget;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Amount;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Currency;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Description;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.InMemoryBudgetingRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.InMemoryBudgetingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.YearMonth;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DeleteExpenseUseCaseTest {
+
     private InMemoryBudgetingRepository repository;
     private DeleteExpenseUseCase useCase;
+    private Category category;
     private Expense expense;
 
     @BeforeEach
     void setUp() {
         repository = new InMemoryBudgetingRepository();
         useCase = new DeleteExpenseUseCase(repository);
-        expense = repository.save(Expense.create(
-                CategoryId.random(),
+
+        category = Category.create(
+                CategoryName.of("Food"),
+                YearMonth.of(2026, 11),
+                CategoryBudget.of(100.0));
+
+        expense = Expense.create(
+                category.id(),
                 Amount.of(10.00),
                 Description.of("Lunch"),
-                Currency.of("EUR")));
+                Currency.of("EUR"));
+
+        repository.save(expense, category);
     }
 
     @Test
     void deletesAnExistingExpense() {
-        DeleteExpenseResponse response = useCase.execute(new DeleteExpenseCommand(expense.id().asUuid()));
+        DeleteExpenseResponse response = useCase.execute(
+                new DeleteExpenseCommand(expense.id().asUuid()));
+
         assertTrue(response.success());
         assertTrue(repository.findById(expense.id()).isEmpty());
     }
 
     @Test
     void deletingAMissingExpenseIsReported() {
-        assertThrows(ExpenseNotFoundException.class, () -> useCase.execute(new DeleteExpenseCommand(ExpenseId.random().asUuid())));
+        assertThrows(
+                ExpenseNotFoundException.class,
+                () -> useCase.execute(
+                        new DeleteExpenseCommand(
+                                ExpenseId.random().asUuid())));
     }
 
     @Test
     void onlyTheChosenExpenseIsDeleted() {
-        Expense other = repository.save(Expense.create(
-                CategoryId.random(),
+        Expense other = Expense.create(
+                category.id(),
                 Amount.of(4.00),
                 Description.of("Bus"),
-                Currency.of("EUR")));
+                Currency.of("EUR"));
 
-        useCase.execute(new DeleteExpenseCommand(expense.id().asUuid()));
+        repository.save(other, category);
+
+        useCase.execute(
+                new DeleteExpenseCommand(expense.id().asUuid()));
+
+        assertTrue(repository.findById(expense.id()).isEmpty());
         assertTrue(repository.findById(other.id()).isPresent());
     }
 }
