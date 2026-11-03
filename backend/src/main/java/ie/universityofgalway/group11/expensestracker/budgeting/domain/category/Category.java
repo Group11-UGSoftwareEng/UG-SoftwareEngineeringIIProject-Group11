@@ -45,13 +45,13 @@ public class Category {
         return dateAdded.getMonthValue();
     }
 
-    public CategoryBudget budget() {
-        return budget;
-    }
+    public CategoryBudget budget() {return budget; }
 
-    // Domain Behaviour
+    public Set<Expense> expenses() {return Set.copyOf(expenses); }
 
-    public void changeName(CategoryName newName) {
+// Domain Behaviour
+
+        public void changeName(CategoryName newName) {
         this.name = newName;
     }
 

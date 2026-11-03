@@ -1,3 +1,5 @@
+
+
 /* Comment out the bottom two lines if wish to reset database.
 DROP TABLE IF EXISTS expense CASCADE;
 DROP TABLE IF EXISTS category CASCADE;
@@ -11,8 +13,17 @@ CREATE TABLE IF NOT EXISTS category
     year   INTEGER      NOT NULL,
     month  INTEGER      NOT NULL,
     CONSTRAINT pk_category PRIMARY KEY (id),
-    CONSTRAINT uc_category_name UNIQUE (name)
+    CONSTRAINT uc_category_name_period UNIQUE (name, year, month)
 );
+ALTER TABLE category
+    DROP CONSTRAINT IF EXISTS uc_category_name;
+
+ALTER TABLE category
+    DROP CONSTRAINT IF EXISTS uc_category_name_period;
+
+ALTER TABLE category
+    ADD CONSTRAINT uc_category_name_period
+        UNIQUE (name, year, month);
 
 CREATE TABLE IF NOT EXISTS expense
 (
@@ -84,3 +95,32 @@ VALUES
         '2026-10-29'
     )
     ON CONFLICT DO NOTHING;
+
+
+-- Budget Setting
+CREATE TABLE IF NOT EXISTS monthly_budget_limit (
+    scope_key VARCHAR(100) PRIMARY KEY,
+    budget_month VARCHAR(7) NOT NULL,
+    currency VARCHAR(3) NOT NULL,
+    category_id UUID,
+    limit_amount NUMERIC(19,2) NOT NULL,
+
+    CONSTRAINT positive_monthly_budget
+        CHECK (limit_amount > 0),
+
+    CONSTRAINT valid_budget_month
+        CHECK (
+            budget_month ~
+            '^[0-9]{4}-(0[1-9]|1[0-2])$'
+        ),
+
+    CONSTRAINT valid_budget_currency
+        CHECK (currency IN ('EUR', 'USD', 'GBP'))
+);
+
+CREATE INDEX IF NOT EXISTS
+    idx_monthly_budget_period_currency
+ON monthly_budget_limit (
+    budget_month,
+    currency
+);

@@ -4,15 +4,19 @@ package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.p
 // and therefore not have its own repository.
 // It is an aggregate root for now.
 
+import java.time.YearMonth;
+
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryBudget;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.*;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Amount;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Currency;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Description;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryEntity;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseEntity;
-
-import java.time.YearMonth;
 
 public class AdapterHelper {
 
@@ -28,21 +32,23 @@ public class AdapterHelper {
     }
 
     public Expense toExpenseDomain(ExpenseEntity entity) {
-        Expense expense = Expense.createWithId(
+        return Expense.createWithId(
                 ExpenseId.of(entity.getId()),
                 toCategoryId(entity.getCategory()),
                 Amount.of(entity.getAmount()),
+                entity.getDate(),
                 Description.of(entity.getDescription()),
                 Currency.of(entity.getCurrency())
-                );
-        return expense;
+        );
     }
 
     public CategoryEntity toCategoryEntity(Category category) {
         CategoryEntity entity = new CategoryEntity();
         entity.setId(category.id().asUuid());
         entity.setName(category.name().name());
-        entity.setBudget(category.budget().value().doubleValue());
+        entity.setBudget(category.budget() == null ? null : category.budget().value().doubleValue());
+        entity.setYear(category.year());
+        entity.setMonth(category.month());
 
         return entity;
     }
@@ -52,7 +58,7 @@ public class AdapterHelper {
                 CategoryId.of(entity.getId()),
                 CategoryName.of(entity.getName()),
                 YearMonth.of(entity.getYear(), entity.getMonth()),
-                CategoryBudget.of(entity.getBudget())
+                entity.getBudget() == null ? null : CategoryBudget.of(entity.getBudget())
                 );
         return category;
     }

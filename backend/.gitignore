@@ -1,3 +1,4 @@
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
@@ -35,3 +36,12 @@ build/
 my-maven/
 .m2/
 .DS_Store
+
+# Local IDE and generated build output
+.idea/
+out/
+*.class
+
+# Local secrets should not be committed
+.env
+.env.*
