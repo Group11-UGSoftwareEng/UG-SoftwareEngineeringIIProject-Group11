@@ -12,27 +12,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.application.MonthlySpendingForecastService;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.MonthlySpendingProjectionService;
 
 @RestController
 @RequestMapping("/api/expenses/forecast")
-public class MonthlySpendingForecastController {
+public class MonthlySpendingProjectionController {
 
-    private final MonthlySpendingForecastService service;
+    private final MonthlySpendingProjectionService service;
 
-    public MonthlySpendingForecastController(
-            MonthlySpendingForecastService service
-    ) {
+    public MonthlySpendingProjectionController(
+            MonthlySpendingProjectionService service) {
         this.service = service;
     }
 
     @GetMapping
-    public MonthlySpendingForecastService.ForecastResult forecast(
-            @RequestParam(defaultValue = "EUR") String currency,
-            @RequestParam(required = false) LocalDate asOf
-    ) {
+    public MonthlySpendingProjectionService.ForecastResult forecast(
+            @RequestParam(defaultValue = "EUR")
+            String currency) {
+
         return service.forecast(
-                asOf == null ? LocalDate.now() : asOf,
+                LocalDate.now(),
                 currency
         );
     }
@@ -40,8 +39,8 @@ public class MonthlySpendingForecastController {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> invalid(
-            IllegalArgumentException exception
-    ) {
+            IllegalArgumentException exception) {
+
         return Map.of(
                 "error",
                 exception.getMessage() == null

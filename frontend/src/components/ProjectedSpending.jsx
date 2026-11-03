@@ -18,7 +18,7 @@ const styles = `
     box-sizing: border-box;
   }
 
-  .ps-header {
+  .projected-spending .ps-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -28,60 +28,78 @@ const styles = `
     border-bottom: 1px solid #cccccc;
   }
 
-  .ps-header h2 {
+  .projected-spending .ps-header h2 {
     margin: 0 0 6px;
     color: #222222;
     font-size: 21px;
     font-weight: bold;
   }
 
-  .ps-subtitle {
+  .projected-spending .ps-subtitle {
     color: #666666;
     font-size: 13px;
     margin: 0;
   }
 
-  .ps-button {
+  .projected-spending .ps-button {
     padding: 10px 16px;
     background: #333333;
     border: 1px solid #333333;
-    color: white;
+    color: #ffffff;
     border-radius: 2px;
     font-size: 13px;
     cursor: pointer;
   }
 
-  .ps-button:hover {
+  .projected-spending .ps-button:hover {
     background: #555555;
   }
 
-  .ps-button:disabled {
+  .projected-spending .ps-button:disabled {
     opacity: 0.5;
     cursor: wait;
   }
 
-  .ps-summary {
+  .projected-spending .ps-currency {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    color: #444444;
+    font-size: 13px;
+  }
+
+  .projected-spending .ps-currency select {
+    border: 1px solid #cccccc;
+    background: white;
+    color: #222222;
+    padding: 7px;
+    border-radius: 2px;
+    font-size: 13px;
+  }
+
+  .projected-spending .ps-summary {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     margin-bottom: 25px;
   }
 
-  .ps-card {
+  .projected-spending .ps-card {
     background: #f5f5f5;
     border: 1px solid #d5d5d5;
     padding: 20px;
     min-width: 0;
   }
 
-  .ps-card-label {
+  .projected-spending .ps-card-label {
     display: block;
     color: #555555;
     font-size: 13px;
     margin-bottom: 12px;
   }
 
-  .ps-card-value {
+  .projected-spending .ps-card-value {
     display: block;
     color: #222222;
     font-size: 25px;
@@ -90,22 +108,23 @@ const styles = `
     overflow-wrap: anywhere;
   }
 
-  .ps-section-title {
+  .projected-spending .ps-section-title {
     color: #222222;
     font-size: 16px;
     font-weight: bold;
     margin: 0 0 15px;
   }
 
-  .ps-table {
+  .projected-spending .ps-table {
     border: 1px solid #d5d5d5;
     width: 100%;
   }
 
-  .ps-table-header,
-  .ps-table-row {
+  .projected-spending .ps-table-header,
+  .projected-spending .ps-table-row {
     display: grid;
-    grid-template-columns: minmax(110px, 1.3fr)
+    grid-template-columns:
+      minmax(110px, 1.3fr)
       minmax(80px, 1fr)
       minmax(80px, 1fr)
       minmax(90px, 1.5fr);
@@ -115,54 +134,54 @@ const styles = `
     font-size: 13px;
   }
 
-  .ps-table-header {
+  .projected-spending .ps-table-header {
     background: #eeeeee;
     border-bottom: 1px solid #cccccc;
     color: #333333;
     font-weight: bold;
   }
 
-  .ps-table-row {
+  .projected-spending .ps-table-row {
     background: #ffffff;
     border-bottom: 1px solid #eeeeee;
     color: #333333;
   }
 
-  .ps-table-row:last-child {
+  .projected-spending .ps-table-row:last-child {
     border-bottom: none;
   }
 
-  .ps-category-name {
+  .projected-spending .ps-category-name {
     color: #222222;
     font-weight: 600;
     overflow-wrap: anywhere;
   }
 
-  .ps-amount {
+  .projected-spending .ps-amount {
     font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
   }
 
-  .ps-bar-background {
+  .projected-spending .ps-bar-background {
     width: 100%;
     height: 14px;
     background: #e6e6e6;
   }
 
-  .ps-bar-fill {
+  .projected-spending .ps-bar-fill {
     height: 100%;
     background: #555555;
     transition: width 0.2s ease;
   }
 
-  .ps-note {
+  .projected-spending .ps-note {
     margin-top: 16px;
     color: #666666;
     font-size: 12px;
     line-height: 1.6;
   }
 
-  .ps-error {
+  .projected-spending .ps-error {
     padding: 14px;
     background: #f5f5f5;
     border: 1px solid #aaaaaa;
@@ -171,7 +190,7 @@ const styles = `
     margin-bottom: 15px;
   }
 
-  .ps-empty {
+  .projected-spending .ps-empty {
     border: 1px solid #d5d5d5;
     padding: 20px;
     background: #f5f5f5;
@@ -179,22 +198,22 @@ const styles = `
     font-size: 13px;
   }
 
-  .ps-loading {
+  .projected-spending .ps-loading {
     color: #666666;
     font-size: 13px;
   }
 
   @media (max-width: 750px) {
-    .ps-summary {
+    .projected-spending .ps-summary {
       grid-template-columns: 1fr;
     }
 
-    .ps-table-header,
-    .ps-table-row {
+    .projected-spending .ps-table-header,
+    .projected-spending .ps-table-row {
       grid-template-columns: 1fr 1fr;
     }
 
-    .ps-bar-background {
+    .projected-spending .ps-bar-background {
       grid-column: 1 / -1;
     }
   }
@@ -204,7 +223,7 @@ const styles = `
       padding: 14px;
     }
 
-    .ps-header {
+    .projected-spending .ps-header {
       align-items: flex-start;
       flex-direction: column;
     }
@@ -216,24 +235,32 @@ export default function ProjectedSpending({
   currency = 'EUR',
   refreshKey = 0
 }) {
+
   const [forecast, setForecast] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [reload, setReload] = useState(0)
 
-  // Fetch the existing expenses through the forecast API.
+  const [selectedCurrency, setSelectedCurrency] =
+    useState(currency)
+
+  // Load the latest forecast from the backend.
   useEffect(() => {
+
     const controller = new AbortController()
 
     async function loadForecast() {
+      if (controller.signal.aborted) return
+
       setLoading(true)
       setError('')
 
       try {
         const response = await fetch(
-          `${apiBase}/expenses/forecast?currency=${encodeURIComponent(currency)}`,
+          `${apiBase}/expenses/forecast?currency=${encodeURIComponent(selectedCurrency)}`,
           {
             signal: controller.signal,
+            cache: 'no-store',
             headers: {
               Accept: 'application/json'
             }
@@ -245,7 +272,9 @@ export default function ProjectedSpending({
 
         if (!contentType.includes('application/json')) {
           throw new Error(
-            'The server returned HTML instead of JSON. Check Spring Boot'
+            'The server did not return JSON. ' +
+            'Check that Spring Boot is running and ' +
+            'that the API proxy is configured.'
           )
         }
 
@@ -261,13 +290,20 @@ export default function ProjectedSpending({
         if (!controller.signal.aborted) {
           setForecast(result)
         }
+
       } catch (err) {
-        if (err.name !== 'AbortError') {
+
+        if (
+          err.name !== 'AbortError' &&
+          !controller.signal.aborted
+        ) {
           setForecast(null)
           setError(
-            err.message || 'Unable to retrieve spending forecast.'
+            err.message ||
+            'Unable to retrieve spending forecast.'
           )
         }
+
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false)
@@ -277,14 +313,21 @@ export default function ProjectedSpending({
 
     loadForecast()
 
-    return () => controller.abort()
-  }, [apiBase, currency, refreshKey, reload])
+    // Check the database for updates every 15 seconds.
+    const timer = setInterval(loadForecast, 15000)
 
-  // Format values as currency.
+    return () => {
+      clearInterval(timer)
+      controller.abort()
+    }
+
+  }, [apiBase, selectedCurrency, refreshKey, reload])
+
+  // Format all money amounts in the selected currency.
   function formatMoney(value) {
     return new Intl.NumberFormat('en-IE', {
       style: 'currency',
-      currency
+      currency: selectedCurrency
     }).format(Number(value ?? 0))
   }
 
@@ -297,51 +340,80 @@ export default function ProjectedSpending({
     )
   )
 
+  function refreshForecast() {
+    setReload(value => value + 1)
+  }
+
   return (
     <>
       <style>{styles}</style>
 
       <section className="projected-spending">
 
+        {/* Header */}
         <div className="ps-header">
+
           <div>
             <h2>Projected Spending</h2>
+
             <p className="ps-subtitle">
-              {forecast?.month || 'Current Month'} |
-              {' '}Category-based spending forecast
+              {forecast?.month || 'Current Month'}
+              {' | '}
+              Category-based spending forecast
             </p>
+
+            <label className="ps-currency">
+              Currency:
+
+              <select
+                value={selectedCurrency}
+                onChange={event =>
+                  setSelectedCurrency(event.target.value)
+                }
+              >
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </label>
           </div>
 
           <button
             className="ps-button"
             type="button"
             disabled={loading}
-            onClick={() => setReload(value => value + 1)}
+            onClick={refreshForecast}
           >
             {loading ? 'Loading...' : 'Refresh'}
           </button>
+
         </div>
 
+        {/* API errors */}
         {error && (
           <div className="ps-error" role="alert">
             {error}
           </div>
         )}
 
-        {loading && !forecast && (
-          <p className="ps-loading">       
+        {loading && !forecast && !error && (
+          <p className="ps-loading" role="status">
+            Loading spending forecast...
           </p>
         )}
 
+        {/* Forecast data */}
         {forecast && (
           <>
-            {/* Overall month projection */}
+
+            {/* Three summary cards */}
             <div className="ps-summary">
 
               <div className="ps-card">
                 <span className="ps-card-label">
                   Spent This Month
                 </span>
+
                 <strong className="ps-card-value">
                   {formatMoney(forecast.currentMonthSpent)}
                 </strong>
@@ -351,6 +423,7 @@ export default function ProjectedSpending({
                 <span className="ps-card-label">
                   Projected Month-End
                 </span>
+
                 <strong className="ps-card-value">
                   {formatMoney(forecast.projectedCurrentMonth)}
                 </strong>
@@ -360,6 +433,7 @@ export default function ProjectedSpending({
                 <span className="ps-card-label">
                   Estimated Remaining Spending
                 </span>
+
                 <strong className="ps-card-value">
                   {formatMoney(forecast.estimatedRemaining)}
                 </strong>
@@ -374,9 +448,13 @@ export default function ProjectedSpending({
 
             {categories.length === 0 ? (
               <div className="ps-empty">
-                No expenses have been recorded this month.
-                Add expenses through the existing API to
-                generate a projection.
+                No expenses have been recorded this month
+                in {selectedCurrency}.
+
+                <p>
+                  Add expenses through the existing app
+                  to generate a projection.
+                </p>
               </div>
             ) : (
               <div className="ps-table">
@@ -389,6 +467,7 @@ export default function ProjectedSpending({
                 </div>
 
                 {categories.map(category => {
+
                   const projected = Number(
                     category.projectedMonthEnd ?? 0
                   )
@@ -401,8 +480,10 @@ export default function ProjectedSpending({
                       className="ps-table-row"
                       key={category.categoryId}
                     >
+
                       <span className="ps-category-name">
-                        {category.categoryName}
+                        {category.categoryName ||
+                          'Uncategorized'}
                       </span>
 
                       <span className="ps-amount">
@@ -427,6 +508,7 @@ export default function ProjectedSpending({
                           }}
                         />
                       </div>
+
                     </div>
                   )
                 })}
@@ -434,19 +516,22 @@ export default function ProjectedSpending({
               </div>
             )}
 
+            {/* Explanation */}
             <div className="ps-note">
               <p>
                 {forecast.note}
               </p>
+
               <p>
-                Based on expenses recorded during the current
-                month. Projections use the average amount spent
-                per elapsed day to estimate the total at month-end.
+              </p>
+
+              <p>
               </p>
             </div>
 
           </>
         )}
+
       </section>
     </>
   )
