@@ -30,10 +30,6 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
     }
 
     @Override
-    public void deleteById(CategoryId id) {
-        categoryJpaRepository.deleteById(id.asUuid());
-    }
-    @Override
     public List<Category> findAllCategories() {
         List<Category> categories = new ArrayList<>();
 
@@ -82,6 +78,12 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
 
         categoryJpaRepository.saveAll(entities);
     }
+
+    @Override
+    public boolean existsByName(CategoryName name) {
+        return categoryJpaRepository.existsByName(name.name());
+    }
+
     @Override
     @Transactional
     public Category save(Category category) {

@@ -89,15 +89,6 @@ public class ProjectConfig {
     public YearMonth budgetingPeriod() {
         return YearMonth.now();
     }
-    @Bean
-    public DeleteExpenseUseCase deleteExpenseUseCase(ExpenseRepository expenseRepository) {
-        return new DeleteExpenseUseCase(expenseRepository);
-    }
-
-    @Bean
-    public EditExpenseUseCase editExpenseUseCase(ExpenseRepository expenseRepository, CategoryRepository categoryRepository) {
-        return new EditExpenseUseCase(expenseRepository, categoryRepository);
-    }
 
     @Bean
     public DeleteCategoryUseCase deleteCategoryUseCase(CategoryRepository categoryRepository, ExpenseRepository expenseRepository) {
@@ -111,10 +102,5 @@ public class ProjectConfig {
     @Bean
     public EditExpenseUseCase editExpenseUseCase(ExpenseRepository expenseRepository, CategoryRepository categoryRepository) {
         return new EditExpenseUseCase(expenseRepository, categoryRepository);
-    }
-
-    @Bean
-    public DeleteCategoryUseCase deleteCategoryUseCase(CategoryRepository categoryRepository, ExpenseRepository expenseRepository) {
-        return new DeleteCategoryUseCase(categoryRepository, expenseRepository);
     }
 }
