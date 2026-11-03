@@ -58,6 +58,9 @@ class ViewCategoriesUseCaseTest {
             public List<Category> findAllCategories() {
                 return categories;
             }
+            @Override
+            public void deleteById(CategoryId id) { 
+            }
         };
     }
 }

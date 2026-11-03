@@ -32,7 +32,7 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
     }
     @Override
     public Optional<Expense> findById(ExpenseId id) {
-        return Optional.empty();
+        return expenseJpaRepository.findById(id.asUuid()).map(helper::toExpenseDomain);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
 
     @Override
     public void deleteById(ExpenseId id) {
-
+        expenseJpaRepository.deleteById(id.asUuid());
     }
     @Override
     public List<Expense> findByCategoryId(CategoryId categoryId) {

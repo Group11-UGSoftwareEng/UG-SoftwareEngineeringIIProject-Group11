@@ -9,13 +9,14 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Cu
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Description;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.InMemoryBudgetingRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.InMemoryBudgetingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DeleteExpenseUseCaseTest {
+
     private InMemoryBudgetingRepository repository;
     private DeleteExpenseUseCase useCase;
     private Expense expense;
@@ -28,7 +29,7 @@ class DeleteExpenseUseCaseTest {
                 CategoryId.random(),
                 Amount.of(10.00),
                 Description.of("Lunch"),
-                Currency.of("EUR")));
+                Currency.of("EUR")), null);
     }
 
     @Test
@@ -49,8 +50,7 @@ class DeleteExpenseUseCaseTest {
                 CategoryId.random(),
                 Amount.of(4.00),
                 Description.of("Bus"),
-                Currency.of("EUR")));
-
+                Currency.of("EUR")), null);
         useCase.execute(new DeleteExpenseCommand(expense.id().asUuid()));
         assertTrue(repository.findById(other.id()).isPresent());
     }

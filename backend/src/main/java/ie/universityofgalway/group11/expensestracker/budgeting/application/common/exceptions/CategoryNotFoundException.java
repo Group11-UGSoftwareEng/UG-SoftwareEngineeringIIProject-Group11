@@ -3,7 +3,7 @@ package ie.universityofgalway.group11.expensestracker.budgeting.application.comm
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 
 public class CategoryNotFoundException extends RuntimeException {
-//   public CategoryNotFoundException(CategoryId id) {
-//        super("Category not found: " + id);
-//    }
+   public CategoryNotFoundException(CategoryId id) {
+        super("Category not found: " + id);
+    }
 }

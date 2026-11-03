@@ -22,7 +22,7 @@ public class DeleteCategoryUseCase implements UseCase<DeleteCategoryCommand, Del
     public DeleteCategoryResponse execute(DeleteCategoryCommand command) {
         CategoryId id = CategoryId.of(command.categoryId());
         Category category = categoryRepository.findById(id).orElseThrow(() -> new CategoryNotFoundException(id));
-        long expenseCount = expenseRepository.findAll().stream().filter(expense -> expense.categoryId().equals(id)).count();
+        int expenseCount = expenseRepository.findByCategoryId(id).size();
         if (expenseCount > 0) {
             throw new CategoryInUseException(expenseCount);
         }

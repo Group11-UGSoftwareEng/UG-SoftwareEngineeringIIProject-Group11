@@ -14,6 +14,9 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.DeleteCategoryUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.DeleteExpenseUseCase;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.EditExpenseUseCase;
 @Configuration
 public class ProjectConfig {
 
@@ -58,5 +61,19 @@ public class ProjectConfig {
     public ViewCategoriesUseCase viewCategoriesUseCase(
             CategoryRepository categoryRepository) {
         return new ViewCategoriesUseCase(categoryRepository);
+    }
+    @Bean
+    public DeleteExpenseUseCase deleteExpenseUseCase(ExpenseRepository expenseRepository) {
+        return new DeleteExpenseUseCase(expenseRepository);
+    }
+
+    @Bean
+    public EditExpenseUseCase editExpenseUseCase(ExpenseRepository expenseRepository, CategoryRepository categoryRepository) {
+        return new EditExpenseUseCase(expenseRepository, categoryRepository);
+    }
+
+    @Bean
+    public DeleteCategoryUseCase deleteCategoryUseCase(CategoryRepository categoryRepository, ExpenseRepository expenseRepository) {
+        return new DeleteCategoryUseCase(categoryRepository, expenseRepository);
     }
 }
