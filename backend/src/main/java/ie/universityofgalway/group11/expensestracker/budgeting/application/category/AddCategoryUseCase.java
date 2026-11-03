@@ -1,5 +1,7 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.application.category;
 
+import java.time.YearMonth;
+
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.UseCase;
@@ -7,8 +9,6 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.commo
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
-
-import java.time.YearMonth;
 
 public class AddCategoryUseCase implements UseCase<AddCategoryCommand, AddCategoryResponse> {
 

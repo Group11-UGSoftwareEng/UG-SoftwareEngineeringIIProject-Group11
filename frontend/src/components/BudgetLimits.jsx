@@ -23,36 +23,35 @@ const styles = `
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
     gap: 15px;
-    padding-bottom: 18px;
     border-bottom: 1px solid #cccccc;
+    padding-bottom: 18px;
     margin-bottom: 20px;
   }
 
   .budget-limits h2 {
-    margin: 0 0 6px;
-    font-size: 21px;
-    color: #222222;
+  margin: 0 0 6px;
+  font-size: 21px;
+  font-weight: 700;
+  color: #222222 !important;
   }
 
   .budget-limits h3 {
+    margin: 0 0 15px;
     font-size: 16px;
-    margin: 22px 0 15px;
-    color: #222222;
   }
 
   .budget-limits .bl-subtitle {
-    margin: 0;
     color: #666666;
     font-size: 13px;
+    margin: 0;
   }
 
   .budget-limits button {
     padding: 10px 16px;
     background: #333333;
+    color: white;
     border: 1px solid #333333;
-    color: #ffffff;
     border-radius: 2px;
     cursor: pointer;
     font-size: 13px;
@@ -70,30 +69,32 @@ const styles = `
   .budget-limits input,
   .budget-limits select {
     padding: 10px;
-    border: 1px solid #cccccc;
-    background: #ffffff;
+    background: white;
     color: #222222;
+    border: 1px solid #cccccc;
     border-radius: 2px;
     font-size: 13px;
-    min-width: 0;
   }
 
-  .budget-limits .bl-currency {
+  .budget-limits .bl-filters {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 15px 0 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 22px;
+  }
+
+  .budget-limits .bl-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
     font-size: 13px;
   }
 
-  .budget-limits .bl-overall {
+  .budget-limits .bl-panel {
+    padding: 20px;
     border: 1px solid #d5d5d5;
     background: #f5f5f5;
-    padding: 20px;
-  }
-
-  .budget-limits .bl-overall h3 {
-    margin-top: 0;
+    margin-bottom: 22px;
   }
 
   .budget-limits .bl-cards {
@@ -105,9 +106,9 @@ const styles = `
 
   .budget-limits .bl-card-label {
     display: block;
-    font-size: 13px;
     color: #555555;
-    margin-bottom: 9px;
+    font-size: 13px;
+    margin-bottom: 10px;
   }
 
   .budget-limits .bl-card-value {
@@ -119,56 +120,29 @@ const styles = `
 
   .budget-limits .bl-form {
     display: flex;
-    align-items: center;
     flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
-    margin-top: 15px;
-  }
-
-  .budget-limits .bl-form label {
-    font-size: 13px;
-    color: #444444;
+    margin-top: 18px;
   }
 
   .budget-limits .bl-form input {
     flex: 1;
+    min-width: 120px;
     max-width: 250px;
   }
 
   .budget-limits .bl-bar {
-    background: #dddddd;
     height: 12px;
-    width: 100%;
+    background: #dddddd;
     margin: 12px 0 8px;
     overflow: hidden;
   }
 
   .budget-limits .bl-fill {
-    background: #555555;
     height: 100%;
+    background: #555555;
     transition: width 0.2s ease;
-  }
-
-  .budget-limits .bl-category {
-    padding: 18px 0;
-    border-bottom: 1px solid #dddddd;
-  }
-
-  .budget-limits .bl-category-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .budget-limits .bl-name {
-    font-size: 14px;
-    font-weight: bold;
-  }
-
-  .budget-limits .bl-amount {
-    color: #444444;
-    font-size: 13px;
   }
 
   .budget-limits .bl-status {
@@ -178,22 +152,13 @@ const styles = `
   }
 
   .budget-limits .bl-warning {
-    font-weight: bold;
     color: #8a5800;
+    font-weight: bold;
   }
 
   .budget-limits .bl-exceeded {
-    font-weight: bold;
     color: #ab2525;
-  }
-
-  .budget-limits .bl-error {
-    padding: 13px;
-    border: 1px solid #cccccc;
-    background: #f5f5f5;
-    color: #a12626;
-    margin: 12px 0;
-    font-size: 13px;
+    font-weight: bold;
   }
 
   .budget-limits .bl-message {
@@ -204,13 +169,11 @@ const styles = `
     font-size: 13px;
   }
 
-  .budget-limits .bl-loading {
-    color: #666666;
-    font-size: 13px;
+  .budget-limits .bl-error {
+    color: #a12626;
   }
 
   .budget-limits .bl-note {
-    margin-top: 20px;
     color: #666666;
     font-size: 12px;
     line-height: 1.6;
@@ -221,80 +184,71 @@ const styles = `
       grid-template-columns: 1fr;
     }
 
-    .budget-limits {
-      padding: 14px;
+    .budget-limits .bl-header {
+      flex-direction: column;
+      align-items: flex-start;
     }
 
-    .budget-limits .bl-form input {
-      width: 100%;
-      max-width: none;
+    .budget-limits {
+      padding: 14px;
     }
   }
 `
 
-function BudgetProgress({ budget, formatMoney }) {
-  const hasLimit = budget.limit !== null &&
-                   budget.limit !== undefined
+function BudgetProgress({ budget, money }) {
+  if (!budget || budget.limit == null) {
+    return (
+      <p className="bl-status">
+        No budget limit has been set.
+      </p>
+    )
+  }
 
-  const percentage = hasLimit
-    ? Number(budget.percentageUsed ?? 0)
-    : 0
+  const percentage = Number(budget.percentageUsed ?? 0)
+  const remaining = Number(budget.remaining ?? 0)
 
-  const status = budget.status
+  let message = `${money(remaining)} remaining`
 
-  let message = 'No budget limit set'
+  if (budget.status === 'WARNING') {
+    message = `Approaching limit — ${money(remaining)} remaining`
+  }
 
-  if (status === 'OK') {
-    message = `${formatMoney(budget.remaining)} remaining`
-  } else if (status === 'WARNING') {
-    message =
-      `Approaching limit — ${formatMoney(budget.remaining)} remaining`
-  } else if (status === 'EXCEEDED') {
-    message = Number(budget.remaining) < 0
-      ? `Over budget by ${formatMoney(
-          Math.abs(Number(budget.remaining))
-        )}`
+  if (budget.status === 'EXCEEDED') {
+    message = remaining < 0
+      ? `Over budget by ${money(Math.abs(remaining))}`
       : 'Budget limit reached'
   }
 
   return (
     <>
-      {hasLimit && (
-        <div
-          className="bl-bar"
-          role="progressbar"
-          aria-label="Budget usage"
-          aria-valuenow={Math.min(
-            100,
-            Math.max(0, percentage)
-          )}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <div
-            className="bl-fill"
-            style={{
-              width: `${Math.min(
-                100,
-                Math.max(0, percentage)
-              )}%`
-            }}
-          />
-        </div>
-      )}
-
       <div
-        className={`bl-status ${
-          status === 'EXCEEDED'
-            ? 'bl-exceeded'
-            : status === 'WARNING'
-              ? 'bl-warning'
-              : ''
-        }`}
+        className="bl-bar"
+        role="progressbar"
+        aria-label="Budget usage"
+        aria-valuenow={Math.max(0, Math.min(100, percentage))}
+        aria-valuemin={0}
+        aria-valuemax={100}
       >
-        {hasLimit && `${percentage.toFixed(1)}% used · `}
-        {message}
+        <div
+          className="bl-fill"
+          style={{
+            width: `${Math.max(
+              0,
+              Math.min(100, percentage)
+            )}%`
+          }}
+        />
       </div>
+
+      <p className={`bl-status ${
+        budget.status === 'EXCEEDED'
+          ? 'bl-exceeded'
+          : budget.status === 'WARNING'
+            ? 'bl-warning'
+            : ''
+      }`}>
+        {percentage.toFixed(1)}% used — {message}
+      </p>
     </>
   )
 }
@@ -305,106 +259,110 @@ export default function BudgetLimits({
   const [currency, setCurrency] = useState('EUR')
   const [data, setData] = useState(null)
 
+  const [selectedCategoryId, setSelectedCategoryId] =
+    useState('')
+
   const [overallInput, setOverallInput] = useState('')
-  const [categoryInputs, setCategoryInputs] = useState({})
+  const [categoryInput, setCategoryInput] = useState('')
 
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
-
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [revision, setRevision] = useState(0)
+  const [refresh, setRefresh] = useState(0)
 
-  // Retrieve saved limits and expenses from PostgreSQL
-  // through the Spring Boot REST API.
   const loadBudgets = useCallback(async (signal) => {
-    try {
-      const response = await fetch(
-        `${apiBase}/budgets/monthly?currency=${
-          encodeURIComponent(currency)
-        }`,
-        {
-          signal,
-          cache: 'no-store',
-          headers: {
-            Accept: 'application/json'
-          }
-        }
-      )
-
-      const contentType =
-        response.headers.get('content-type') || ''
-
-      if (!contentType.includes('application/json')) {
-        throw new Error(
-          'The server did not return JSON. ' +
-          'Check that Spring Boot is running and ' +
-          'the API proxy is configured.'
-        )
+    const response = await fetch(
+      `${apiBase}/budgets/monthly?currency=${
+        encodeURIComponent(currency)
+      }`,
+      {
+        signal,
+        cache: 'no-store',
+        headers: { Accept: 'application/json' }
       }
+    )
 
-      const result = await response.json()
+    const result = await response.json()
 
-      if (!response.ok) {
-        throw new Error(
-          result.error || `HTTP ${response.status}`
-        )
-      }
-
-      if (!signal.aborted) {
-        setData(result)
-        setError('')
-      }
-
-    } catch (err) {
-      if (err.name !== 'AbortError' && !signal.aborted) {
-        setError(
-          err.message || 'Could not load budgets.'
-        )
-      }
+    if (!response.ok) {
+      throw new Error(result.error || `HTTP ${response.status}`)
     }
+
+    return result
   }, [apiBase, currency])
 
-  // Initial load and automatic updates.
   useEffect(() => {
     const controller = new AbortController()
+    let requestNumber = 0
 
-    async function refresh() {
+    async function update() {
       if (controller.signal.aborted) return
 
+      const currentRequest = ++requestNumber
       setLoading(true)
 
       try {
-        await loadBudgets(controller.signal)
+        const result = await loadBudgets(controller.signal)
+
+        if (!controller.signal.aborted &&
+            currentRequest === requestNumber) {
+          setData(result)
+          setError('')
+        }
+      } catch (err) {
+        if (!controller.signal.aborted &&
+            currentRequest === requestNumber) {
+          setError(err.message || 'Could not load budgets.')
+        }
       } finally {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted &&
+            currentRequest === requestNumber) {
           setLoading(false)
         }
       }
     }
 
-    refresh()
+    update()
 
-    const timer = setInterval(refresh, 15000)
+    const timer = setInterval(update, 15000)
 
     return () => {
       controller.abort()
       clearInterval(timer)
     }
-  }, [loadBudgets, revision])
+  }, [loadBudgets, refresh])
 
-  // Save overall or category budgets.
-  async function saveBudget(url, value) {
-    const raw = String(value).trim()
-    const amount = Number(raw)
+  const categories = data?.categories ?? []
 
-    if (
-      !/^\d+(\.\d{1,2})?$/.test(raw) ||
-      !Number.isFinite(amount) ||
-      amount <= 0
-    ) {
+  // Use existing category IDs; do not create new categories.
+  const activeCategoryId = categories.some(
+    category => category.categoryId === selectedCategoryId
+  )
+    ? selectedCategoryId
+    : (categories[0]?.categoryId ?? '')
+
+  const activeCategory = categories.find(
+    category => category.categoryId === activeCategoryId
+  )
+
+  const overall = data?.overall
+
+  function money(value) {
+    return new Intl.NumberFormat('en-IE', {
+      style: 'currency',
+      currency
+    }).format(Number(value ?? 0))
+  }
+
+  async function saveBudget(url, input) {
+    const raw = String(input).trim()
+
+    if (!/^\d+(\.\d{1,2})?$/.test(raw) ||
+        Number(raw) <= 0 ||
+        !Number.isFinite(Number(raw))) {
       setError(
-        'Enter a positive budget amount with at most 2 decimal places.'
+        'Enter a positive amount with at most 2 decimal places.'
       )
       return
     }
@@ -422,100 +380,74 @@ export default function BudgetLimits({
         },
         body: JSON.stringify({
           currency,
-          limit: amount
+          limit: Number(raw)
         })
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(
-          result.error || `HTTP ${response.status}`
-        )
+        throw new Error(result.error || `HTTP ${response.status}`)
       }
 
       setData(result)
-      setMessage('Budget limit saved successfully.')
-
-      // Fetch latest expenses and limits.
-      setRevision(current => current + 1)
-
+      setMessage('Budget saved successfully.')
+      setRefresh(value => value + 1)
     } catch (err) {
-      setError(
-        err.message || 'Unable to save budget.'
-      )
+      setError(err.message || 'Unable to save budget.')
     } finally {
       setSaving(false)
     }
   }
-
-  function formatMoney(amount) {
-    return new Intl.NumberFormat('en-IE', {
-      style: 'currency',
-      currency
-    }).format(Number(amount ?? 0))
-  }
-
-  function refreshBudgets() {
-    setMessage('')
-    setRevision(current => current + 1)
-  }
-
-  const overall = data?.overall
-  const categories = data?.categories ?? []
 
   return (
     <>
       <style>{styles}</style>
 
       <section className="budget-limits">
-
-        {/* Page heading */}
         <div className="bl-header">
           <div>
             <h2>Budget Limits</h2>
-
             <p className="bl-subtitle">
               {data?.month || 'Current Month'}
               {' | '}
-              Overall and category spending limits
+              Overall and category limits
             </p>
           </div>
 
           <button
             type="button"
-            onClick={refreshBudgets}
             disabled={loading || saving}
+            onClick={() => setRefresh(v => v + 1)}
           >
             {loading ? 'Refreshing...' : 'Refresh'}
           </button>
         </div>
 
-        {/* Currency selection */}
-        <label className="bl-currency">
-          Currency
+        <div className="bl-filters">
+          <label className="bl-filter">
+            Currency
+            <select
+              value={currency}
+              disabled={saving}
+              onChange={e => {
+                setCurrency(e.target.value)
+                setData(null)
+                setMessage('')
+                setError('')
+                setOverallInput('')
+                setCategoryInput('')
+              }}
+            >
+              <option value="EUR">EUR</option>
+              <option value="USD">USD</option>
+              <option value="GBP">GBP</option>
+            </select>
+          </label>
+        </div>
 
-          <select
-            value={currency}
-            disabled={saving}
-            onChange={event => {
-              setCurrency(event.target.value)
-              setData(null)
-              setOverallInput('')
-              setCategoryInputs({})
-              setError('')
-              setMessage('')
-            }}
-          >
-            <option value="EUR">EUR</option>
-            <option value="USD">USD</option>
-            <option value="GBP">GBP</option>
-          </select>
-        </label>
-
-        {/* Messages */}
         {error && (
-          <div className="bl-error" role="alert">
+          <div className="bl-message bl-error" role="alert">
             {error}
           </div>
         )}
@@ -527,16 +459,12 @@ export default function BudgetLimits({
         )}
 
         {loading && !data && (
-          <p className="bl-loading" role="status">
-            Loading budget information...
-          </p>
+          <p>Loading budget information...</p>
         )}
 
-        {/* Overall monthly budget */}
         {overall && (
           <>
-            <div className="bl-overall">
-
+            <div className="bl-panel">
               <h3>Overall Monthly Budget</h3>
 
               <div className="bl-cards">
@@ -544,11 +472,10 @@ export default function BudgetLimits({
                   <span className="bl-card-label">
                     Monthly Limit
                   </span>
-
                   <strong className="bl-card-value">
-                    {overall.limit === null
+                    {overall.limit == null
                       ? 'Not Set'
-                      : formatMoney(overall.limit)}
+                      : money(overall.limit)}
                   </strong>
                 </div>
 
@@ -556,9 +483,8 @@ export default function BudgetLimits({
                   <span className="bl-card-label">
                     Spent So Far
                   </span>
-
                   <strong className="bl-card-value">
-                    {formatMoney(overall.spent)}
+                    {money(overall.spent)}
                   </strong>
                 </div>
 
@@ -566,165 +492,172 @@ export default function BudgetLimits({
                   <span className="bl-card-label">
                     Remaining
                   </span>
-
                   <strong className="bl-card-value">
-                    {overall.remaining === null
+                    {overall.remaining == null
                       ? '—'
-                      : formatMoney(overall.remaining)}
+                      : money(overall.remaining)}
                   </strong>
                 </div>
               </div>
 
-              <BudgetProgress
-                budget={overall}
-                formatMoney={formatMoney}
-              />
+              <BudgetProgress budget={overall} money={money} />
 
-              {/* Set overall limit */}
               <form
                 className="bl-form"
-                onSubmit={event => {
-                  event.preventDefault()
-
+                onSubmit={e => {
+                  e.preventDefault()
                   saveBudget(
                     `${apiBase}/budgets/monthly/overall`,
                     overallInput
                   )
                 }}
               >
-                <label htmlFor="overall-budget-input">
-                  Set overall limit
+                <label htmlFor="overall-limit">
+                  Overall limit
                 </label>
 
                 <input
-                  id="overall-budget-input"
+                  id="overall-limit"
                   type="number"
                   min="0.01"
                   step="0.01"
                   placeholder={
-                    overall.limit === null
-                      ? 'Enter monthly limit'
+                    overall.limit == null
+                      ? 'Enter limit'
                       : String(overall.limit)
                   }
                   value={overallInput}
-                  onChange={event =>
-                    setOverallInput(event.target.value)
-                  }
+                  onChange={e => setOverallInput(e.target.value)}
                   disabled={saving}
                   required
                 />
 
-                <button
-                  type="submit"
-                  disabled={saving}
-                >
-                  {saving ? 'Saving...' : 'Save Overall Budget'}
+                <button type="submit" disabled={saving}>
+                  Save Overall Budget
                 </button>
               </form>
-
             </div>
 
-            {/* Individual category limits */}
-            <h3>Category Budget Limits</h3>
+            <div className="bl-panel">
+              <h3>Individual Category Budget</h3>
 
-            {categories.length === 0 && (
-              <div className="bl-message">
-                No categories are available.
-                Create categories using the existing application.
-              </div>
-            )}
-
-            {categories.map(category => (
-              <div
-                className="bl-category"
-                key={category.categoryId}
-              >
-
-                <div className="bl-category-header">
-                  <span className="bl-name">
-                    {category.categoryName}
-                  </span>
-
-                  <span className="bl-amount">
-                    {formatMoney(category.budget.spent)}
-                    {' / '}
-                    {category.budget.limit === null
-                      ? 'No limit'
-                      : formatMoney(category.budget.limit)}
-                  </span>
-                </div>
-
-                <BudgetProgress
-                  budget={category.budget}
-                  formatMoney={formatMoney}
-                />
-
-                {/* Category limit form */}
-                <form
-                  className="bl-form"
-                  onSubmit={event => {
-                    event.preventDefault()
-
-                    saveBudget(
-                      `${apiBase}/budgets/monthly/categories/${
-                        category.categoryId
-                      }`,
-                      categoryInputs[
-                        category.categoryId
-                      ] || ''
-                    )
-                  }}
-                >
-                  <label
-                    htmlFor={`budget-${category.categoryId}`}
-                  >
-                    Category limit
+              {categories.length === 0 ? (
+                <p>
+                  No categories exist. Add categories
+                  using the expense tracker above.
+                </p>
+              ) : (
+                <>
+                  <label className="bl-filter">
+                    Select an existing category
+                    <select
+                      value={activeCategoryId}
+                      disabled={saving}
+                      onChange={e => {
+                        setSelectedCategoryId(e.target.value)
+                        setCategoryInput('')
+                        setMessage('')
+                      }}
+                    >
+                      {categories.map(category => (
+                        <option
+                          key={category.categoryId}
+                          value={category.categoryId}
+                        >
+                          {category.categoryName}
+                        </option>
+                      ))}
+                    </select>
                   </label>
 
-                  <input
-                    id={`budget-${category.categoryId}`}
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    placeholder={
-                      category.budget.limit === null
-                        ? 'Enter limit'
-                        : String(category.budget.limit)
-                    }
-                    value={
-                      categoryInputs[
-                        category.categoryId
-                      ] ?? ''
-                    }
-                    onChange={event => {
-                      setCategoryInputs(current => ({
-                        ...current,
-                        [category.categoryId]:
-                          event.target.value
-                      }))
-                    }}
-                    disabled={saving}
-                    required
-                  />
+                  {activeCategory && (
+                    <>
+                      <div className="bl-cards">
+                        <div>
+                          <span className="bl-card-label">
+                            Category Limit
+                          </span>
+                          <strong className="bl-card-value">
+                            {activeCategory.budget.limit == null
+                              ? 'Not Set'
+                              : money(activeCategory.budget.limit)}
+                          </strong>
+                        </div>
 
-                  <button
-                    type="submit"
-                    disabled={saving}
-                  >
-                    {saving ? 'Saving...' : 'Save Limit'}
-                  </button>
-                </form>
+                        <div>
+                          <span className="bl-card-label">
+                            Spent So Far
+                          </span>
+                          <strong className="bl-card-value">
+                            {money(activeCategory.budget.spent)}
+                          </strong>
+                        </div>
 
-              </div>
-            ))}
+                        <div>
+                          <span className="bl-card-label">
+                            Remaining
+                          </span>
+                          <strong className="bl-card-value">
+                            {activeCategory.budget.remaining == null
+                              ? '—'
+                              : money(activeCategory.budget.remaining)}
+                          </strong>
+                        </div>
+                      </div>
+
+                      <BudgetProgress
+                        budget={activeCategory.budget}
+                        money={money}
+                      />
+
+                      <form
+                        className="bl-form"
+                        onSubmit={e => {
+                          e.preventDefault()
+                          saveBudget(
+                            `${apiBase}/budgets/monthly/categories/${
+                              activeCategory.categoryId
+                            }`,
+                            categoryInput
+                          )
+                        }}
+                      >
+                        <label htmlFor="category-limit">
+                          Set category limit
+                        </label>
+
+                        <input
+                          id="category-limit"
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          placeholder={
+                            activeCategory.budget.limit == null
+                              ? 'Enter limit'
+                              : String(activeCategory.budget.limit)
+                          }
+                          value={categoryInput}
+                          onChange={e =>
+                            setCategoryInput(e.target.value)
+                          }
+                          disabled={saving}
+                          required
+                        />
+
+                        <button type="submit" disabled={saving}>
+                          Save Category Budget
+                        </button>
+                      </form>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
           </>
         )}
 
-        {/* Explanation */}
-        <div className="bl-note">
-
-        </div>
-
+        <p className="bl-note">
+        </p>
       </section>
     </>
   )

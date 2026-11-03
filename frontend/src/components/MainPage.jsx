@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import ExpenseForm from "./ExpenseForm";
 import Expense from "./Expense";
@@ -151,6 +152,7 @@ export default function MainPage() {
                     );
                 })}
             </div>
+            <BudgetLimits />
         </div>
     );
 }

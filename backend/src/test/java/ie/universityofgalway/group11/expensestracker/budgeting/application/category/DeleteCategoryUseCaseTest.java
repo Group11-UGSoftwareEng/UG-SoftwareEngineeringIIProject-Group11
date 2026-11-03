@@ -1,4 +1,19 @@
+
 package ie.universityofgalway.group11.expensestracker.budgeting.application.category;
+
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.DeleteCategoryCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.DeleteCategoryResponse;
@@ -14,17 +29,6 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Cu
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Description;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.InMemoryBudgetingRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DeleteCategoryUseCaseTest {
     static class FakeCategoryRepository implements CategoryRepository {
@@ -45,6 +49,38 @@ class DeleteCategoryUseCaseTest {
         public void deleteById(CategoryId id) { 
             store.remove(id); 
         }
+
+        @Override
+        public Category save(Category category) {
+            store.put(category.id(), category);
+            return category;
+        }
+
+        @Override
+        public boolean existsByName(CategoryName name) {
+            return store.values().stream().anyMatch(c ->
+                    c.name().name().equalsIgnoreCase(name.name()));
+        }
+
+        @Override
+        public List<Category> findByPeriod(YearMonth period) {
+            return findAllCategories().stream()
+                    .filter(c -> c.year() == period.getYear() && c.month() == period.getMonthValue())
+                    .toList();
+        }
+
+        @Override
+        public Optional<YearMonth> findLatestPeriod() {
+            return findAllCategories().stream()
+                    .map(c -> YearMonth.of(c.year(), c.month()))
+                    .max(YearMonth::compareTo);
+        }
+
+        @Override
+        public void saveAll(List<Category> categories) {
+            categories.forEach(this::save);
+        }
+
     }
 
     private FakeCategoryRepository categories;

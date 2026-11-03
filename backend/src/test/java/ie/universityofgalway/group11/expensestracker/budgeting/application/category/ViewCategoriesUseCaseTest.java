@@ -1,15 +1,20 @@
-package ie.universityofgalway.group11.expensestracker.budgeting.application.category;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesCommand;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.*;
-import org.junit.jupiter.api.Test;
+package ie.universityofgalway.group11.expensestracker.budgeting.application.category;
 
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesCommand;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryBudget;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
 
 class ViewCategoriesUseCaseTest {
 
@@ -55,11 +60,6 @@ class ViewCategoriesUseCaseTest {
     private CategoryRepository repositoryWith(List<Category> categories) {
         return new CategoryRepository() {
             @Override
-            public void deleteById(CategoryId id) {
-                throw new UnsupportedOperationException(
-                        "Deleting is not needed in these view tests.");
-            }
-            @Override
             public Optional<Category> findById(CategoryId categoryId) {
                 return categories.stream()
                         .filter(category -> category.id().equals(categoryId))
@@ -94,6 +94,17 @@ class ViewCategoriesUseCaseTest {
             public void saveAll(List<Category> categories) {
                 throw new UnsupportedOperationException(
                         "Saving is not needed in these view tests.");
+            }
+
+            @Override
+            public Category save(Category category) {
+                throw new UnsupportedOperationException("Not needed in view tests.");
+            }
+
+            @Override
+            public boolean existsByName(CategoryName name) {
+                return categories.stream().anyMatch(c ->
+                        c.name().name().equalsIgnoreCase(name.name()));
             }
         };
     }

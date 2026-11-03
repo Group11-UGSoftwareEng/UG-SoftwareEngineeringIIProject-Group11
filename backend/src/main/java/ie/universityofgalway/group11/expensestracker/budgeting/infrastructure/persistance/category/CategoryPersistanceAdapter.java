@@ -1,17 +1,18 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.AdapterHelper;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Repository;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
-
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Repository;
+
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.AdapterHelper;
+import jakarta.transaction.Transactional;
 @Repository
 public class CategoryPersistanceAdapter implements CategoryRepository {
 
@@ -87,14 +88,20 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
     @Override
     @Transactional
     public Category save(Category category) {
+        // Insert new categories and update existing ones without changing their IDs.
         CategoryEntity entity = categoryJpaRepository
                 .findById(category.id().asUuid())
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Category not found."));
+                .orElseGet(CategoryEntity::new);
 
+        entity.setId(category.id().asUuid());
         entity.setName(category.name().name());
-        categoryJpaRepository.save(entity);
+        entity.setYear(category.year());
+        entity.setMonth(category.month());
+        entity.setBudget(category.budget() == null
+                ? null
+                : category.budget().value().doubleValue());
 
+        categoryJpaRepository.save(entity);
         return category;
     }
 }

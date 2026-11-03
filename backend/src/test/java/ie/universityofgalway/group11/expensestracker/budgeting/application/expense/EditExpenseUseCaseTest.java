@@ -1,4 +1,16 @@
+
 package ie.universityofgalway.group11.expensestracker.budgeting.application.expense;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.exceptions.ExpenseNotFoundException;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.expense.dto.EditExpenseCommand;
@@ -14,16 +26,6 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.De
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.InMemoryBudgetingRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class EditExpenseUseCaseTest {
     static class SingleCategoryRepository implements CategoryRepository {
@@ -42,6 +44,32 @@ class EditExpenseUseCaseTest {
         @Override 
         public void deleteById(CategoryId id) 
         { }
+
+        @Override
+        public Category save(Category value) {
+            return value;
+        }
+
+        @Override
+        public List<Category> findByPeriod(YearMonth period) {
+            return category.year() == period.getYear() && category.month() == period.getMonthValue()
+                    ? List.of(category) : List.of();
+        }
+
+        @Override
+        public Optional<YearMonth> findLatestPeriod() {
+            return Optional.of(YearMonth.of(category.year(), category.month()));
+        }
+
+        @Override
+        public void saveAll(List<Category> categories) {
+            throw new UnsupportedOperationException("Not needed in expense tests.");
+        }
+
+        @Override
+        public boolean existsByName(CategoryName name) {
+            return category.name().name().equalsIgnoreCase(name.name());
+        }
     }
     private InMemoryBudgetingRepository expenses;
     private EditExpenseUseCase useCase;

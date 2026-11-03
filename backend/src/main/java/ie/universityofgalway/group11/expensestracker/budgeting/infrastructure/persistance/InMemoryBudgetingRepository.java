@@ -1,62 +1,45 @@
+
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.*;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Amount;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Currency;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Description;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
 
-import java.time.YearMonth;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+/**
+ * In-memory repository used for testing and prototyping.
+ *
+ * Each new repository starts empty.
+ * Categories and expenses must be added explicitly.
+ *
+ * This does not affect PostgreSQL persistence.
+ */
+public class InMemoryBudgetingRepository
+        implements ExpenseRepository, CategoryRepository {
 
-/** Stub repository for the prototype; replace with a database-backed one later. */
-public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryRepository {
+    private final Map<ExpenseId, Expense> expenseStore =
+            new ConcurrentHashMap<>();
 
-    private final Map<ExpenseId, Expense> expenseStore = new ConcurrentHashMap<>();
-    private final Map<CategoryId, Category> categoryStore = new ConcurrentHashMap<>();
+    private final Map<CategoryId, Category> categoryStore =
+            new ConcurrentHashMap<>();
 
     public InMemoryBudgetingRepository() {
-        CategoryId id1 = CategoryId.of(UUID.fromString(
-                "7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843"));
-        CategoryId id2 = CategoryId.of(UUID.fromString(
-                "3f6a1b2c-9d84-4e71-a6c3-5b8f02d9471a"));
-
-        Category category1 = Category.createWithId(
-                id1, CategoryName.of("Example Category 1"),
-                YearMonth.of(2026, 10), CategoryBudget.of(10.0));
-
-        Category category2 = Category.createWithId(
-                id2, CategoryName.of("Example Category 2"),
-                YearMonth.of(2026, 10), CategoryBudget.of(1.0));
-
-        categoryStore.put(id1, category1);
-        categoryStore.put(id2, category2);
-
-        Expense expense1 = Expense.create(
-                id1, Amount.of(2.50),
-                Description.of("Coffee"), Currency.of("EUR"));
-
-        Expense expense2 = Expense.create(
-                id1, Amount.of(4.00),
-                Description.of("Lunch"), Currency.of("EUR"));
-
-        Expense expense3 = Expense.create(
-                id2, Amount.of(0.50),
-                Description.of("Sample purchase"), Currency.of("EUR"));
-
-        category1.addExpenseToTheCategory(expense1);
-        category1.addExpenseToTheCategory(expense2);
-        category2.addExpenseToTheCategory(expense3);
-
-        expenseStore.put(expense1.id(), expense1);
-        expenseStore.put(expense2.id(), expense2);
-        expenseStore.put(expense3.id(), expense3);
+        // Start with an empty repository.
     }
 
-    // Expense Repository
+    // ========================================
+    // EXPENSE REPOSITORY
+    // ========================================
 
     @Override
     public Optional<Expense> findById(ExpenseId id) {
@@ -80,7 +63,9 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
     }
 
     @Override
-    public List<Expense> findByCategoryId(CategoryId categoryId) {
+    public List<Expense> findByCategoryId(
+            CategoryId categoryId) {
+
         List<Expense> expenses = new ArrayList<>();
 
         for (Expense expense : expenseStore.values()) {
@@ -91,30 +76,17 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
 
         return expenses;
     }
-    // Category Repository
+
+    // ========================================
+    // CATEGORY REPOSITORY
+    // ========================================
 
     @Override
     public Optional<Category> findById(CategoryId categoryId) {
-        // TODO: remove placeholders when possible to add categories. They match the frontend examples (UUIDs must match). they do not match the database samples.
-        CategoryId id1 = CategoryId.of(UUID.fromString("7f3a9c21-8d64-4e2b-a5f0-1c9e6b72d843"));
-        CategoryId id2 =  CategoryId.of(UUID.fromString("3f6a1b2c-9d84-4e71-a6c3-5b8f02d9471a"));
-        categoryStore.putIfAbsent(id1,
-                        Category.createWithId(id1, CategoryName.of("Example Category 1"), YearMonth.of(2026, 10), CategoryBudget.of(10.0)));
-        categoryStore.putIfAbsent(id2,
-                Category.createWithId(id2, CategoryName.of("Example Category 2"), YearMonth.of(2026, 10), CategoryBudget.of(1.0)));
-
-        return Optional.ofNullable(categoryStore.get(categoryId));
+        return Optional.ofNullable(
+                categoryStore.get(categoryId)
+        );
     }
-
-    @Override
-    public void deleteById(CategoryId id) {
-        categoryStore.remove(id);
-    }
-    @Override
-    public List<Category> findAllCategories() {
-        return new ArrayList<>(categoryStore.values());
-    }
-
 
     @Override
     public Category save(Category category) {
@@ -123,12 +95,24 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
     }
 
     @Override
+    public void deleteById(CategoryId id) {
+        categoryStore.remove(id);
+    }
+
+    @Override
+    public List<Category> findAllCategories() {
+        return new ArrayList<>(categoryStore.values());
+    }
+
+    @Override
     public List<Category> findByPeriod(YearMonth period) {
+
         List<Category> categories = new ArrayList<>();
 
         for (Category category : categoryStore.values()) {
             if (category.year() == period.getYear()
                     && category.month() == period.getMonthValue()) {
+
                 categories.add(category);
             }
         }
@@ -138,11 +122,15 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
 
     @Override
     public Optional<YearMonth> findLatestPeriod() {
+
         YearMonth latest = null;
 
         for (Category category : categoryStore.values()) {
-            YearMonth period =
-                    YearMonth.of(category.year(), category.month());
+
+            YearMonth period = YearMonth.of(
+                    category.year(),
+                    category.month()
+            );
 
             if (latest == null || period.isAfter(latest)) {
                 latest = period;
@@ -154,13 +142,24 @@ public class InMemoryBudgetingRepository implements ExpenseRepository, CategoryR
 
     @Override
     public void saveAll(List<Category> categories) {
+
         for (Category category : categories) {
-            categoryStore.put(category.id(), category);
+            categoryStore.put(
+                    category.id(),
+                    category
+            );
         }
     }
 
     @Override
     public boolean existsByName(CategoryName name) {
-        return false;
+
+        return categoryStore.values()
+                .stream()
+                .anyMatch(category ->
+                        category.name()
+                                .name()
+                                .equalsIgnoreCase(name.name())
+                );
     }
 }

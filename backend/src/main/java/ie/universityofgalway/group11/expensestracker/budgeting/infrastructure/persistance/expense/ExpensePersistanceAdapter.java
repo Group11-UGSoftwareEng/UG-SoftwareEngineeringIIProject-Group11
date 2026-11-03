@@ -1,19 +1,20 @@
+
 package ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddExpenseToCategoryUseCase;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Expense;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseId;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.ExpenseRepository;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.AdapterHelper;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryEntity;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryJPARepository;
-import org.springframework.stereotype.Repository;
-import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class ExpensePersistanceAdapter implements ExpenseRepository {
@@ -37,7 +38,11 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
 
     @Override
     public Expense save(Expense expense, Category toCategory) {
-        CategoryEntity categoryEntity = helper.toCategoryEntity(toCategory);
+        // Use the persisted category; a freshly converted category entity
+        // would be transient and could break the foreign-key relationship.
+        CategoryEntity categoryEntity = categoryJpaRepository
+                .findById(expense.categoryId().asUuid())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found."));
         ExpenseEntity expenseEntity = helper.toExpenseEntity(expense, categoryEntity);
         expenseJpaRepository.save(expenseEntity);
         return expense;
