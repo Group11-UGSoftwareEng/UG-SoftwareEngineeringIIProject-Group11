@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
-import MainPage from './components/MainPage'
+import Expense from './components/Expense'
+import ProjectedSpending from './components/ProjectedSpending'
 
 
 function App() {
@@ -8,7 +9,8 @@ function App() {
 
   return (
     <>
-        <MainPage />
+        <Expense />
+        <ProjectedSpending />
     </>
   )
 }
