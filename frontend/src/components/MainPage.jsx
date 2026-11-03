@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ExpenseForm from "./ExpenseForm";
 import Expense from "./Expense";
+import BudgetLimits from "./BudgetLimits";
 import { useExpenses } from "./contexts/ExpenseContext";
 import CategoryNameEditor from "./CategoryNameEditor";
 import {
