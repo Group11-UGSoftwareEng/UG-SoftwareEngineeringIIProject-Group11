@@ -7,6 +7,9 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 @Repository
 public class CategoryPersistanceAdapter implements CategoryRepository {
@@ -17,12 +20,62 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
     public CategoryPersistanceAdapter(CategoryJPARepository categoryJpaRepository) {
         this.categoryJpaRepository = categoryJpaRepository;
         this.helper = new AdapterHelper();
-
     }
 
     @Override
     public Optional<Category> findById(CategoryId categoryId) {
-       return categoryJpaRepository.findById(categoryId.asUuid()).map(helper::toCategoryDomain);
+        return categoryJpaRepository.findById(categoryId.asUuid())
+                .map(helper::toCategoryDomain);
+    }
+
+    @Override
+    public List<Category> findAllCategories() {
+        List<Category> categories = new ArrayList<>();
+
+        for (CategoryEntity entity : categoryJpaRepository.findAll()) {
+            categories.add(helper.toCategoryDomain(entity));
+        }
+
+        return categories;
+    }
+    @Override
+    @Transactional
+    public void deleteById(CategoryId id) {
+        categoryJpaRepository.deleteById(id.asUuid());
+    }
+
+    @Override
+    public List<Category> findByPeriod(YearMonth period) {
+        List<CategoryEntity> entities =
+                categoryJpaRepository.findByYearAndMonth(
+                        period.getYear(), period.getMonthValue());
+
+        List<Category> categories = new ArrayList<>();
+
+        for (CategoryEntity entity : entities) {
+            categories.add(helper.toCategoryDomain(entity));
+        }
+
+        return categories;
+    }
+
+    @Override
+    public Optional<YearMonth> findLatestPeriod() {
+        return categoryJpaRepository.findFirstByOrderByYearDescMonthDesc()
+                .map(entity ->
+                        YearMonth.of(entity.getYear(), entity.getMonth()));
+    }
+
+    @Override
+    @Transactional
+    public void saveAll(List<Category> categories) {
+        List<CategoryEntity> entities = new ArrayList<>();
+
+        for (Category category : categories) {
+            entities.add(helper.toCategoryEntity(category));
+        }
+
+        categoryJpaRepository.saveAll(entities);
     }
     @Override
     @Transactional
@@ -38,43 +91,3 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
         return category;
     }
 }
-
-//
-//@Repository
-//public class StudentPersistenceAdapter implements StudentRepository {
-//
-//    private final StudentJPARepository jpaRepository;
-//
-//    public StudentPersistenceAdapter(StudentJPARepository jpaRepository) {
-//        this.jpaRepository = jpaRepository;
-//    }
-//
-//    @Override
-//    public Optional<Student> findById(StudentId id) {
-//        return jpaRepository.findById(id.asUuid())
-//                .map(this::toDomain);
-//    }
-//
-//    @Override
-//    public List<Student> findAll() {
-//        return jpaRepository.findAll().stream()
-//                .map(this::toDomain)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public Optional<Student> findByEmail(EmailAddress email) {
-//        return jpaRepository.findByEmail(email.value())
-//                .map(this::toDomain);
-//    }
-//
-//    @Override
-//    public void save(Student student) {
-//        jpaRepository.save(toEntity(student));
-//    }
-//
-//    @Override
-//    public void deleteById(StudentId id) {
-//        jpaRepository.deleteById(id.asUuid());
-//    }
-//

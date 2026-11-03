@@ -34,9 +34,24 @@ public class Expense {
                 ExpenseId.random(), categoryId, amount, date, desc, currency);
     }
 
-    public static Expense createWithId(ExpenseId id, CategoryId categoryId, Amount amount, Description desc, Currency currency) {
+    public static Expense create(
+            CategoryId categoryId,
+            Amount amount,
+            LocalDate date,
+            Description desc,
+            Currency currency) {
+        return new Expense(
+                ExpenseId.random(), categoryId, amount, date, desc, currency);
+    }
 
+    public static Expense createWithId(ExpenseId id, CategoryId categoryId, Amount amount, Description desc, Currency currency) {
         return new Expense(id, categoryId, amount, LocalDate.now(), desc, currency);
+    }
+    public static Expense createWithId(
+            ExpenseId id, CategoryId categoryId, Amount amount,
+            LocalDate date, Description desc, Currency currency) {
+
+        return new Expense(id, categoryId, amount, date, desc, currency);
     }
 
     // Domain Behaviour
