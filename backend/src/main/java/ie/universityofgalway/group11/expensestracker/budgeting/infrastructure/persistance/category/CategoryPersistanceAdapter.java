@@ -78,6 +78,12 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
 
         categoryJpaRepository.saveAll(entities);
     }
+
+    @Override
+    public boolean existsByName(CategoryName name) {
+        return categoryJpaRepository.existsByName(name.name());
+    }
+
     @Override
     @Transactional
     public Category save(Category category) {
