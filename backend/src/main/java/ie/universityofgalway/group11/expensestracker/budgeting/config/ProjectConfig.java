@@ -66,6 +66,7 @@ public class ProjectConfig {
             CategoryRepository categoryRepository) {
 
         return new EditCategoryDetailsUseCase(categoryRepository);
+    }
 
     @Bean
     public ViewCategoriesUseCase viewCategoriesUseCase(
