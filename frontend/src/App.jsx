@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import './App.css'
-import MainPage from './components/MainPage'
+import Expense from './components/Expense'
+import BudgetLimits from './components/BudgetLimits'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-        <MainPage />
+        <Expense />
+        <BudgetLimits />
     </>
   )
 }
