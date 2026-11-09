@@ -23,6 +23,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.exceptions.CategoryException;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.rest.category.dto.AddCategoryRequest;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
@@ -88,9 +89,8 @@ public class CategoryController {
         return ResponseEntity.ok("Category name updated.");
     }
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleInvalidInput(
-            IllegalArgumentException error) {
-        return ResponseEntity.badRequest().body(error.getMessage());
+    public ResponseEntity<Object> handleInvalidInput(IllegalArgumentException error) {
+        return ResponseEntity.badRequest().body(Map.of("message", error.getMessage()));
     }
 //    @PostMapping
 //    public ResponseEntity<AddCategoryResponse> addCategory(@RequestBody AddCategoryCommand command) {

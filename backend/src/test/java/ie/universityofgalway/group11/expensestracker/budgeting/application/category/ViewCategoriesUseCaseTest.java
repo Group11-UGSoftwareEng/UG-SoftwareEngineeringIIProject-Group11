@@ -67,6 +67,11 @@ class ViewCategoriesUseCaseTest {
             }
 
             @Override
+            public Category save(Category category) {
+                return null;
+            }
+
+            @Override
             public List<Category> findAllCategories() {
                 return categories;
             }
@@ -92,6 +97,11 @@ class ViewCategoriesUseCaseTest {
             public void saveAll(List<Category> categories) {
                 throw new UnsupportedOperationException(
                         "Saving is not needed in these view tests.");
+            }
+
+            @Override
+            public boolean existsByName(CategoryName name) {
+                return false;
             }
         };
     }

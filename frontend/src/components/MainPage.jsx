@@ -4,7 +4,8 @@ import Expense from "./Expense";
 import { useExpenses } from "./contexts/ExpenseContext";
 import {
     getCategories,
-    getCategoryExpenses
+    getCategoryExpenses,
+    saveCategory // <-- Imported the new API function
 } from "../api/categoryApi";
 
 export default function MainPage() {
@@ -15,6 +16,9 @@ export default function MainPage() {
     const [formCategoryIds, setFormCategoryIds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    // <-- New state for the category input field
+    const [newCategoryName, setNewCategoryName] = useState("");
 
     useEffect(() => {
         let cancelled = false;
@@ -56,6 +60,24 @@ export default function MainPage() {
         };
     }, []);
 
+    // <-- New function to handle the Add Category button click
+    async function handleAddCategory(e) {
+        e.preventDefault();
+        if (!newCategoryName.trim()) return;
+
+        try {
+            await saveCategory({ name: newCategoryName });
+            setNewCategoryName(""); // Clear the input field
+
+            // Refresh the categories list so the new one appears instantly
+            const updatedCategories = await getCategories();
+            setCategories(updatedCategories);
+        } catch (err) {
+            console.error(err);
+            alert("Failed to add category. Check the console for details.");
+        }
+    }
+
     function toggleCategory(categoryId) {
         setOpenCategoryIds((previous) =>
             previous.includes(categoryId)
@@ -83,6 +105,18 @@ export default function MainPage() {
     return (
         <div>
             <h1>Expenses tracker</h1>
+
+            {/* <-- New Add Category Form UI --> */}
+            <form onSubmit={handleAddCategory} style={{ marginBottom: "30px", display: "flex", gap: "10px" }}>
+                <input
+                    type="text"
+                    placeholder="New category name..."
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    style={{ padding: "8px" }}
+                />
+                <button type="submit" style={{ padding: "8px 16px" }}>Add Category</button>
+            </form>
 
             {expenses.length === 0 && (
                 <p>You have not added any expenses yet.</p>

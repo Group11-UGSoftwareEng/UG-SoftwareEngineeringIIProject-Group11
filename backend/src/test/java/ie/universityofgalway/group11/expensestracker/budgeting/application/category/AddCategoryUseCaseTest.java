@@ -10,6 +10,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.C
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +35,34 @@ class AddCategoryUseCaseTest {
         }
 
         @Override
-        public void save(Category category) {
+        public Category save(Category category) {
             saved.add(category);
+            return category;
+        }
+
+        @Override
+        public List<Category> findAllCategories() {
+            return List.of();
+        }
+
+        @Override
+        public void deleteById(CategoryId id) {
+
+        }
+
+        @Override
+        public List<Category> findByPeriod(YearMonth period) {
+            return List.of();
+        }
+
+        @Override
+        public Optional<YearMonth> findLatestPeriod() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void saveAll(List<Category> categories) {
+
         }
     }
 
