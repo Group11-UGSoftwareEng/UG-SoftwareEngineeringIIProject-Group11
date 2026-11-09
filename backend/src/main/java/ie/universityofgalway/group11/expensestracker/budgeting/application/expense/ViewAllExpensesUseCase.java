@@ -9,14 +9,28 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.re
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Loads all expenses and sorts them by date, newest first.
+ */
 public class ViewAllExpensesUseCase implements UseCase<ViewAllExpensesQuery, ViewAllExpensesResponse> {
 
     private final ExpenseRepository expenseRepository;
 
+    /**
+     * Creates the expense viewing use case.
+     *
+     * @param expenseRepository repository used to load expenses
+     */
     public ViewAllExpensesUseCase(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
     }
 
+    /**
+     * Returns expenses ordered from newest to oldest.
+     *
+     * @param query request to view all expenses
+     * @return response containing the sorted expenses, or an empty list
+     */
     @Override
     public ViewAllExpensesResponse execute(ViewAllExpensesQuery query) {
         List<Expense> expenses =

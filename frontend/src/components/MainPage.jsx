@@ -11,6 +11,11 @@ import {
   getCategoryExpenses
 } from "../api/categoryApi";
 
+
+/**
+ * Loads saved categories and their expenses.
+ * Displays category names, expense lists and expense forms.
+ */
 export default function MainPage() {
   const { expenses, setCategoryExpenses } = useExpenses();
 
@@ -23,6 +28,7 @@ export default function MainPage() {
   useEffect(() => {
     let cancelled = false;
 
+    // Loads categories and their expenses, then updates the page if still mounted.
     async function loadData() {
       try {
         const savedCategories = await getCategories();
@@ -74,6 +80,7 @@ export default function MainPage() {
     setCategoryExpenses(categoryId, latestExpenses);
   }
 
+  // Shows or hides the selected category's expenses.
   function toggleCategory(categoryId) {
     setOpenCategoryIds(previous =>
       previous.includes(categoryId)
@@ -82,6 +89,7 @@ export default function MainPage() {
     );
   }
 
+  // Shows or hides the form for adding an expense.
   function toggleForm(categoryId) {
     setFormCategoryIds(previous =>
       previous.includes(categoryId)
