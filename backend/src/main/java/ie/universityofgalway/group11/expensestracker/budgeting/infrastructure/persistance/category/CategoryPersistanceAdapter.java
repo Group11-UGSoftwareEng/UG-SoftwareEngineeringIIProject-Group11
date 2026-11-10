@@ -79,12 +79,22 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
         categoryJpaRepository.saveAll(entities);
     }
     @Override
+    public boolean existsByName(CategoryName name) {
+        return false;
+    }
+    @Override
     @Transactional
     public Category save(Category category) {
         CategoryEntity entity = categoryJpaRepository
                 .findById(category.id().asUuid())
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Category not found."));
+                .orElseGet(() -> {
+                    CategoryEntity newEntity = new CategoryEntity();
+                    newEntity.setId(category.id().asUuid());
+                    newEntity.setYear(YearMonth.now().getYear());
+                    newEntity.setMonth(YearMonth.now().getMonthValue());
+                    newEntity.setBudget(1.0);
+                    return newEntity;
+                });
 
         entity.setName(category.name().name());
         categoryJpaRepository.save(entity);

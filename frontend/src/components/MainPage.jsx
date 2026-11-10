@@ -4,7 +4,8 @@ import Expense from "./Expense";
 import { useExpenses } from "./contexts/ExpenseContext";
 import {
     getCategories,
-    getCategoryExpenses
+    getCategoryExpenses,
+    saveCategory
 } from "../api/categoryApi";
 
 export default function MainPage() {
@@ -15,6 +16,8 @@ export default function MainPage() {
     const [formCategoryIds, setFormCategoryIds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const [newCategoryName, setNewCategoryName] = useState("");
 
     useEffect(() => {
         let cancelled = false;
@@ -72,6 +75,22 @@ export default function MainPage() {
         );
     }
 
+    async function handleAddCategory() {
+        if (!newCategoryName.trim()) return;
+
+        try {
+            await saveCategory({ name: newCategoryName });
+            const updatedCategories = await getCategories();
+            setCategories(updatedCategories);
+
+            setNewCategoryName("");
+            setError("");
+        } catch (err) {
+            console.error("Failed to add category:", err);
+            setError("Failed to add new category. Please try again.");
+        }
+    }
+
     if (loading) {
         return <p>Loading expenses...</p>;
     }
@@ -83,6 +102,18 @@ export default function MainPage() {
     return (
         <div>
             <h1>Expenses tracker</h1>
+
+            <div style={{ marginBottom: "20px" }}>
+                <input
+                    type="text"
+                    placeholder="New category name"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                />
+                <button onClick={handleAddCategory} style={{ marginLeft: "10px" }}>
+                    Add Category
+                </button>
+            </div>
 
             {expenses.length === 0 && (
                 <p>You have not added any expenses yet.</p>

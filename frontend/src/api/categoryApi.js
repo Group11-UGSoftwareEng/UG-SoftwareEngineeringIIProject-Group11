@@ -21,3 +21,8 @@ export const saveExpense = async (categoryId, expense) => {
     );
     return response.data;
 };
+
+export const saveCategory = async (category) => {
+    const response = await axios.post(BASE_URL, category);
+    return response.data;
+};
