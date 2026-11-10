@@ -13,4 +13,5 @@ public interface CategoryJPARepository extends JpaRepository<CategoryEntity, UUI
 
     boolean existsByNameIgnoreCase(String name);
 
+    boolean existsByName(String name);
 }

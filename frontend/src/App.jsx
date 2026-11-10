@@ -1,15 +1,15 @@
-import { useState } from 'react'
+
 import './App.css'
 import MainPage from './components/MainPage'
+import SpendingSummary from './components/SpendingSummary'
+import ProjectedSpending from './components/ProjectedSpending'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
     <>
-        <MainPage />
+      <MainPage />
+      <SpendingSummary />
+      <ProjectedSpending />
     </>
   )
 }
-
-export default App
