@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class EditCategoryPersistenceTest {
+class EditCategoryPersistenceIT {
 
     @Autowired
     private CategoryRepository categoryRepository;
