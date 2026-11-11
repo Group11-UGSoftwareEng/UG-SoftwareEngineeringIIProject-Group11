@@ -1,23 +1,29 @@
 import { useEffect, useState } from "react";
+
 import ExpenseForm from "./ExpenseForm";
 import Expense from "./Expense";
-import { useExpenses } from "./contexts/ExpenseContext";
 import CategoryNameEditor from "./CategoryNameEditor";
 import CategoryDeleteButton from "./CategoryDeleteButton";
+import BudgetLimits from "./BudgetLimits";
+import { useExpenses } from "./contexts/ExpenseContext";
 
 import {
-    getCategories,
-    getCategoryExpenses,
-    saveCategory
+  getCategories,
+  getCategoryExpenses,
+  saveCategory,
 } from "../api/categoryApi";
 
-
-export default function MainPage({onDataChanged}) {
-  const { expenses, setCategoryExpenses, removeExpenseFromContext} = useExpenses();
+export default function MainPage({ onDataChanged }) {
+  const {
+    expenses,
+    setCategoryExpenses,
+    removeExpenseFromContext,
+  } = useExpenses();
 
   const [categories, setCategories] = useState([]);
   const [openCategoryIds, setOpenCategoryIds] = useState([]);
   const [formCategoryIds, setFormCategoryIds] = useState([]);
+  const [newCategoryName, setNewCategoryName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -31,72 +37,100 @@ export default function MainPage({onDataChanged}) {
         const results = await Promise.all(
           savedCategories.map(async (category) => ({
             categoryId: category.id,
-            expenses: await getCategoryExpenses(category.id)
+            expenses: await getCategoryExpenses(category.id),
           }))
         );
 
-    const [categories, setCategories] = useState([]);
-    const [openCategoryIds, setOpenCategoryIds] = useState([]);
-    const [formCategoryIds, setFormCategoryIds] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+        if (cancelled) return;
 
-    const [newCategoryName, setNewCategoryName] = useState("");
+        setCategories(savedCategories);
+        results.forEach(({ categoryId, expenses: categoryExpenses }) => {
+          setCategoryExpenses(categoryId, categoryExpenses);
+        });
+      } catch (loadError) {
+        if (!cancelled) {
+          console.error("Failed to load expenses:", loadError);
+          setError("Could not load your expenses. Please try refreshing.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
 
-    useEffect(() => {
-        let cancelled = false;
+    loadData();
 
-        async function loadData() {
-            try {
-                const savedCategories = await getCategories();
+    return () => {
+      cancelled = true;
+    };
+    // Load once on mount; the context action may be recreated by its provider.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-                const results = await Promise.all(
-                    savedCategories.map(async (category) => ({
-                        categoryId: category.id,
-                        expenses: await getCategoryExpenses(category.id)
-                    }))
-                );
-
-                if (cancelled) return;
-
-                setCategories(savedCategories);
-
-                results.forEach((result) => {
-                    setCategoryExpenses(result.categoryId, result.expenses);
-                });
-            } catch (loadError) {
-                if (!cancelled) {
-                    console.error(loadError);
-                    setError("Could not load your expenses. Please try refreshing.");
-  function toggleForm(categoryId) {
-    setFormCategoryIds(previous =>
+  function toggleCategory(categoryId) {
+    setOpenCategoryIds((previous) =>
       previous.includes(categoryId)
-        ? previous.filter(id => id !== categoryId)
+        ? previous.filter((id) => id !== categoryId)
         : [...previous, categoryId]
     );
   }
 
-  function handleExpenseDeleted(expenseId) {
-    removeExpenseFromContext(expenseId);
+  function toggleForm(categoryId) {
+    setFormCategoryIds((previous) =>
+      previous.includes(categoryId)
+        ? previous.filter((id) => id !== categoryId)
+        : [...previous, categoryId]
+    );
+  }
 
-    if (onDataChanged) {
-      onDataChanged();
+  async function refreshCategoryExpenses(categoryId) {
+    const updatedExpenses = await getCategoryExpenses(categoryId);
+    setCategoryExpenses(categoryId, updatedExpenses);
+  }
+
+  async function handleExpenseUpdated(categoryId) {
+    try {
+      await refreshCategoryExpenses(categoryId);
+      onDataChanged?.();
+    } catch (updateError) {
+      console.error("Failed to refresh category expenses:", updateError);
+      setError("Could not refresh your expenses. Please try again.");
     }
   }
 
-  function handleCategoryDeleted(categoryId) {
-    setCategories(previous =>
-      previous.filter(item => item.id !== categoryId)
-    );
-    setOpenCategoryIds(previous =>
-      previous.filter(id => id !== categoryId)
-    );
-    setFormCategoryIds(previous =>
-      previous.filter(id => id !== categoryId)
-    );
+  function handleExpenseDeleted(expenseId) {
+    removeExpenseFromContext(expenseId);
+    onDataChanged?.();
+  }
 
-    if (onDataChanged) {
-      onDataChanged();
+  function handleCategoryDeleted(categoryId) {
+    setCategories((previous) =>
+      previous.filter((category) => category.id !== categoryId)
+    );
+    setOpenCategoryIds((previous) =>
+      previous.filter((id) => id !== categoryId)
+    );
+    setFormCategoryIds((previous) =>
+      previous.filter((id) => id !== categoryId)
+    );
+    onDataChanged?.();
+  }
+
+  async function handleAddCategory() {
+    const trimmedName = newCategoryName.trim();
+    if (!trimmedName) return;
+
+    try {
+      setError("");
+      await saveCategory({ name: trimmedName });
+      const updatedCategories = await getCategories();
+      setCategories(updatedCategories);
+      setNewCategoryName("");
+      onDataChanged?.();
+    } catch (addError) {
+      console.error("Failed to add category:", addError);
+      setError("Failed to add new category. Please try again.");
     }
   }
 
@@ -112,52 +146,57 @@ export default function MainPage({onDataChanged}) {
     <div>
       <h1>Expenses tracker</h1>
 
+      <div style={{ marginBottom: "20px" }}>
+        <input
+          type="text"
+          placeholder="New category name"
+          value={newCategoryName}
+          onChange={(event) => setNewCategoryName(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") handleAddCategory();
+          }}
+        />
+        <button
+          type="button"
+          onClick={handleAddCategory}
+          style={{ marginLeft: "10px" }}
+        >
+          Add Category
+        </button>
+      </div>
+
       {expenses.length === 0 && (
         <p>You have not added any expenses yet.</p>
       )}
 
-      {categories.length === 0 && (
-        <p>No categories added yet.</p>
-      )}
+      {categories.length === 0 && <p>No categories added yet.</p>}
 
       <div
         style={{
           display: "flex",
           flexWrap: "wrap",
-          gap: "40px"
+          gap: "40px",
         }}
       >
-        {categories.map(category => {
+        {categories.map((category) => {
           const categoryExpenses = expenses
-            .filter(
-              expense =>
-                expense.categoryId === category.id
-            )
+            .filter((expense) => expense.categoryId === category.id)
             .sort((a, b) =>
-              (b.date ?? b.dateAdded ?? "")
-                .localeCompare(
-                  a.date ?? a.dateAdded ?? ""
-                )
+              (b.date ?? b.dateAdded ?? "").localeCompare(
+                a.date ?? a.dateAdded ?? ""
+              )
             );
 
-          const isOpen = openCategoryIds.includes(
-            category.id
-          );
-
-          const isFormOpen = formCategoryIds.includes(
-            category.id
-          );
+          const isOpen = openCategoryIds.includes(category.id);
+          const isFormOpen = formCategoryIds.includes(category.id);
 
           return (
-            <section
-              key={category.id}
-              style={{ minWidth: "280px" }}
-            >
+            <section key={category.id} style={{ minWidth: "280px" }}>
               <CategoryNameEditor
                 category={category}
                 onRenamed={(categoryId, newName) => {
-                  setCategories(previous =>
-                    previous.map(item =>
+                  setCategories((previous) =>
+                    previous.map((item) =>
                       item.id === categoryId
                         ? { ...item, name: newName }
                         : item
@@ -172,156 +211,29 @@ export default function MainPage({onDataChanged}) {
               />
 
               <button
-                onClick={() =>
-                  toggleCategory(category.id)
-                }
-            } finally {
-                if (!cancelled) {
-                    setLoading(false);
-                }
-            }
-        }
+                type="button"
+                onClick={() => toggleCategory(category.id)}
+                aria-expanded={isOpen}
+              >
+                {isOpen ? "Hide expenses" : "View expenses"}
+              </button>
 
-        loadData();
+              <button type="button" onClick={() => toggleForm(category.id)}>
+                {isFormOpen ? "Hide form" : "Add an expense"}
+              </button>
 
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    function toggleCategory(categoryId) {
-        setOpenCategoryIds((previous) =>
-            previous.includes(categoryId)
-                ? previous.filter((id) => id !== categoryId)
-                : [...previous, categoryId]
-        );
-    }
-
-    function toggleForm(categoryId) {
-        setFormCategoryIds((previous) =>
-            previous.includes(categoryId)
-                ? previous.filter((id) => id !== categoryId)
-                : [...previous, categoryId]
-        );
-    }
-
-    async function handleAddCategory() {
-        if (!newCategoryName.trim()) return;
-
-        try {
-            await saveCategory({ name: newCategoryName });
-            const updatedCategories = await getCategories();
-            setCategories(updatedCategories);
-
-            setNewCategoryName("");
-            setError("");
-        } catch (err) {
-            console.error("Failed to add category:", err);
-            setError("Failed to add new category. Please try again.");
-        }
-    }
-
-    if (loading) {
-        return <p>Loading expenses...</p>;
-    }
-
-    if (error) {
-        return <p role="alert">{error}</p>;
-    }
-
-    return (
-        <div>
-            <h1>Expenses tracker</h1>
-
-            <div style={{ marginBottom: "20px" }}>
-                <input
-                    type="text"
-                    placeholder="New category name"
-                    value={newCategoryName}
-                    onChange={(e) => setNewCategoryName(e.target.value)}
-                />
-                <button onClick={handleAddCategory} style={{ marginLeft: "10px" }}>
-                    Add Category
-                </button>
-            </div>
-
-            {expenses.length === 0 && (
-                <p>You have not added any expenses yet.</p>
-            )}
-
-            {categories.length === 0 && <p>No categories added yet.</p>}
-
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "40px" }}>
-                {categories.map((category) => {
-                    const categoryExpenses = expenses
-                        .filter((expense) => expense.categoryId === category.id)
-                        .sort((a, b) =>
-                            (b.date ?? b.dateAdded ?? "").localeCompare(
-                                a.date ?? a.dateAdded ?? ""
-                            )
-                        );
-
-                    const isOpen = openCategoryIds.includes(category.id);
-                    const isFormOpen = formCategoryIds.includes(category.id);
-
-                    return (
-                        <section key={category.id} style={{ minWidth: "280px" }}>
-                            <h2>{category.name}</h2>
-
-                            <button
-                                onClick={() => toggleCategory(category.id)}
-                                aria-expanded={isOpen}
-                            >
-                                {isOpen ? "Hide expenses" : "View expenses"}
-                            </button>
-
-                            <button onClick={() => toggleForm(category.id)}>
-                                {isFormOpen ? "Hide form" : "Add an expense"}
-                            </button>
-
-                            {isFormOpen && (
-                                <ExpenseForm categoryId={category.id} />
-                            )}
-
-                            {isOpen && (
-                                <div style={{ marginTop: "12px" }}>
-                                    {categoryExpenses.length === 0 ? (
-                                        <p>No expenses in this category yet.</p>
-                                    ) : (
-                                        categoryExpenses.map((expense) => (
-                                            <Expense key={expense.id} {...expense} />
-                                        ))
-                                    )}
-                                </div>
-                            )}
-                        </section>
-                    );
-                })}
-            </div>
-        </div>
-    );
-              )}
+              {isFormOpen && <ExpenseForm categoryId={category.id} />}
 
               {isOpen && (
                 <div style={{ marginTop: "12px" }}>
                   {categoryExpenses.length === 0 ? (
-                    <p>
-                      No expenses in this category yet.
-                    </p>
+                    <p>No expenses in this category yet.</p>
                   ) : (
-                    categoryExpenses.map(expense => (
+                    categoryExpenses.map((expense) => (
                       <Expense
                         key={expense.id}
                         {...expense}
-                        onUpdated={async() => {
-                          await refreshCategoryExpenses(
-                            category.id
-                          );
-
-                          if (onDataChanged) {
-                            onDataChanged();
-                          }
-                        }}
+                        onUpdated={() => handleExpenseUpdated(category.id)}
                         onDeleted={handleExpenseDeleted}
                       />
                     ))
