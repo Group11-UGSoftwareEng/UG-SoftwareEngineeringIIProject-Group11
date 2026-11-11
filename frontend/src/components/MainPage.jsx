@@ -5,19 +5,19 @@ import Expense from "./Expense";
 import BudgetLimits from "./BudgetLimits";
 import { useExpenses } from "./contexts/ExpenseContext";
 import CategoryNameEditor from "./CategoryNameEditor";
+import CategoryDeleteButton from "./CategoryDeleteButton";
 
 import {
   getCategories,
   getCategoryExpenses
 } from "../api/categoryApi";
 
-
 /**
  * Loads saved categories and their expenses.
  * Displays category names, expense lists and expense forms.
  */
-export default function MainPage() {
-  const { expenses, setCategoryExpenses } = useExpenses();
+export default function MainPage({onDataChanged}) {
+  const { expenses, setCategoryExpenses, removeExpenseFromContext} = useExpenses();
 
   const [categories, setCategories] = useState([]);
   const [openCategoryIds, setOpenCategoryIds] = useState([]);
@@ -98,6 +98,30 @@ export default function MainPage() {
     );
   }
 
+  function handleExpenseDeleted(expenseId) {
+    removeExpenseFromContext(expenseId);
+
+    if (onDataChanged) {
+      onDataChanged();
+    }
+  }
+
+  function handleCategoryDeleted(categoryId) {
+    setCategories(previous =>
+      previous.filter(item => item.id !== categoryId)
+    );
+    setOpenCategoryIds(previous =>
+      previous.filter(id => id !== categoryId)
+    );
+    setFormCategoryIds(previous =>
+      previous.filter(id => id !== categoryId)
+    );
+
+    if (onDataChanged) {
+      onDataChanged();
+    }
+  }
+
   if (loading) {
     return <p>Loading expenses...</p>;
   }
@@ -164,6 +188,11 @@ export default function MainPage() {
                 }}
               />
 
+              <CategoryDeleteButton
+                category={category}
+                onDeleted={handleCategoryDeleted}
+              />
+
               <button
                 onClick={() =>
                   toggleCategory(category.id)
@@ -202,11 +231,16 @@ export default function MainPage() {
                       <Expense
                         key={expense.id}
                         {...expense}
-                        onUpdated={() =>
-                          refreshCategoryExpenses(
+                        onUpdated={async() => {
+                          await refreshCategoryExpenses(
                             category.id
-                          )
-                        }
+                          );
+
+                          if (onDataChanged) {
+                            onDataChanged();
+                          }
+                        }}
+                        onDeleted={handleExpenseDeleted}
                       />
                     ))
                   )}

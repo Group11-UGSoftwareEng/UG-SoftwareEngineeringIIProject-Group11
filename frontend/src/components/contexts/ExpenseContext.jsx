@@ -12,6 +12,12 @@ export function ExpensesProvider({ children }) {
     ]);
   };
 
+  const removeExpenseFromContext = (expenseId) => {
+    setExpenses((previous) =>
+      previous.filter((item) => item.id !== expenseId)
+    );
+  };
+
   const setCategoryExpenses = (categoryId, categoryExpenses) => {
     setExpenses((previous) => [
       ...previous.filter((item) => item.categoryId !== categoryId),
@@ -24,6 +30,7 @@ export function ExpensesProvider({ children }) {
           value={{
             expenses,
             addExpenseToContext,
+            removeExpenseFromContext,
             setCategoryExpenses
           }}
       >

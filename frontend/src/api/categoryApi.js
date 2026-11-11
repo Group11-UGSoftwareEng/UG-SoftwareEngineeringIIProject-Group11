@@ -35,3 +35,10 @@ export const renameCategory = async (categoryId, newName) => {
   )
   return response.data
 }
+
+export const deleteCategory = async (categoryId) => {
+  const response = await axios.delete(
+    `${BASE_URL}/${encodeURIComponent(categoryId)}`
+  )
+  return response.data
+}
