@@ -2,11 +2,13 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8080/api/categories";
 
+// Loads saved categories from the backend.
 export const getCategories = async () => {
     const response = await axios.get(BASE_URL);
     return response.data.categories;
 };
 
+// Loads expenses belonging to the selected category.
 export const getCategoryExpenses = async (categoryId) => {
     const response = await axios.get(
         `${BASE_URL}/${categoryId}/expenses`
@@ -14,6 +16,7 @@ export const getCategoryExpenses = async (categoryId) => {
     return response.data.expenses;
 };
 
+// Saves a new expense in the selected category.
 export const saveExpense = async (categoryId, expense) => {
     const response = await axios.post(
         `${BASE_URL}/${categoryId}`,
@@ -27,6 +30,7 @@ export const saveCategory = async (category) => {
     return response.data;
 };
 
+// Sends the new category name to the backend.
 export const renameCategory = async (categoryId, newName) => {
   const response = await axios.put(
     `${BASE_URL}/${encodeURIComponent(categoryId)}`,

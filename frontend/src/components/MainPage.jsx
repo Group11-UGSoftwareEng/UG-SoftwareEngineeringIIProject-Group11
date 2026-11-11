@@ -13,6 +13,11 @@ import {
   saveCategory,
 } from "../api/categoryApi";
 
+
+/**
+ * Loads saved categories and their expenses.
+ * Displays category names, expense lists and expense forms.
+ */
 export default function MainPage({ onDataChanged }) {
   const {
     expenses,
@@ -30,6 +35,7 @@ export default function MainPage({ onDataChanged }) {
   useEffect(() => {
     let cancelled = false;
 
+    // Loads categories and their expenses, then updates the page if still mounted.
     async function loadData() {
       try {
         const savedCategories = await getCategories();
@@ -68,6 +74,17 @@ export default function MainPage({ onDataChanged }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+
+  // Reload a category after an expense is edited.
+  async function refreshCategoryExpenses(categoryId) {
+    const latestExpenses = await getCategoryExpenses(
+      categoryId
+    );
+
+    setCategoryExpenses(categoryId, latestExpenses);
+  }
+
+  // Shows or hides the selected category's expenses.
   function toggleCategory(categoryId) {
     setOpenCategoryIds((previous) =>
       previous.includes(categoryId)
@@ -76,6 +93,7 @@ export default function MainPage({ onDataChanged }) {
     );
   }
 
+  // Shows or hides the form for adding an expense.
   function toggleForm(categoryId) {
     setFormCategoryIds((previous) =>
       previous.includes(categoryId)

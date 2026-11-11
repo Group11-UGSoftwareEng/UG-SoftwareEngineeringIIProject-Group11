@@ -9,15 +9,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Loads categories for a budgeting month.
+ * If none exist, copies names and budgets from the latest saved month.
+ * Existing categories and expenses remain unchanged.
+ */
 public class ResetBudgetingUseCase
         implements UseCase<YearMonth, List<Category>> {
 
     private final CategoryRepository categoryRepository;
 
+    /**
+     * Creates the monthly budgeting use case.
+     *
+     * @param categoryRepository repository used to load and save categories
+     */
     public ResetBudgetingUseCase(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
+    /**
+     * Returns existing categories or creates categories for the requested month.
+     * New categories have new IDs and no expenses.
+     *
+     * @param currentPeriod month to load
+     * @return categories for the month, or an empty list if no saved period exists
+     */
     @Override
     public List<Category> execute(YearMonth currentPeriod) {
         List<Category> currentCategories =

@@ -1,18 +1,27 @@
 import { useState } from "react";
 import { renameCategory } from "../api/categoryApi";
 
+/**
+ * Displays a category name with options to edit, save or cancel.
+ * Calls onRenamed after the backend saves the new name.
+ */
 export default function CategoryNameEditor({ category, onRenamed }) {
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(category.name);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
+    // Opens the editor with the current name and clears any previous error.
     function startEditing() {
         setName(category.name);
         setError("");
         setEditing(true);
     }
 
+    /**
+     * Rejects blank names and sends the new name to the backend.
+     * Updates the parent component after saving, or displays an error.
+     */
     async function handleSubmit(event) {
         event.preventDefault();
         if (saving) return;
