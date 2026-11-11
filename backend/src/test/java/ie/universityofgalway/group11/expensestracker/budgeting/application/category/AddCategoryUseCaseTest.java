@@ -1,16 +1,4 @@
-
 package ie.universityofgalway.group11.expensestracker.budgeting.application.category;
-
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryResponse;
@@ -19,6 +7,15 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.C
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class AddCategoryUseCaseTest {
 
@@ -39,40 +36,34 @@ class AddCategoryUseCaseTest {
 
         @Override
         public Category save(Category category) {
-            saved.removeIf(c -> c.id().equals(category.id()));
             saved.add(category);
             return category;
         }
 
         @Override
         public List<Category> findAllCategories() {
-            return new ArrayList<>(saved);
+            return List.of();
         }
 
         @Override
         public void deleteById(CategoryId id) {
-            saved.removeIf(c -> c.id().equals(id));
+
         }
 
         @Override
         public List<Category> findByPeriod(YearMonth period) {
-            return findAllCategories().stream()
-                    .filter(c -> c.year() == period.getYear() && c.month() == period.getMonthValue())
-                    .toList();
+            return List.of();
         }
 
         @Override
         public Optional<YearMonth> findLatestPeriod() {
-            return findAllCategories().stream()
-                    .map(c -> YearMonth.of(c.year(), c.month()))
-                    .max(YearMonth::compareTo);
+            return Optional.empty();
         }
 
         @Override
         public void saveAll(List<Category> categories) {
-            categories.forEach(this::save);
-        }
 
+        }
     }
 
     FakeCategoryRepository repo;
