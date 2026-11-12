@@ -15,7 +15,7 @@ Start `Group11ExpensesTrackerApplication`.
 
 ### 3. Frontend setup
 Open folder `frontend` as a project.  
-Open terminal and make sure it is open in `...\UG-SoftwareEngineeringIIProject-Group11\frontend`. 
+Open terminal and make sure it is open in `...\UG-SoftwareEngineeringIIProject-Group11\frontend`.  
 Do `npm install` then `npm run dev`.  
 (Frontend runs at http://localhost:5173 or http://localhost:5174)
 
