@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { editExpense } from "../api/expenseApi";
+import { editExpense, deleteExpense } from "../api/expenseApi";
 
 const styles = `
   .expense-row {
@@ -119,6 +119,37 @@ const styles = `
     gap: 10px;
     margin-top: 6px;
   }
+  
+  .expense-row .expense-delete {
+    background: #ffffff;
+    border: 1px solid #a12626;
+    color: #a12626;
+  }
+
+  .expense-row .expense-delete:hover {
+    background: #a12626;
+    color: #ffffff;
+  }
+
+  .expense-row .expense-confirm {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #dddddd;
+    font-size: 13px;
+  }
+
+  .expense-row .expense-confirm-yes {
+    background: #a12626;
+    border-color: #a12626;
+  }
+
+  .expense-row .expense-confirm-yes:hover {
+    background: #7d1c1c;
+  }
 
   .expense-row .expense-error {
     color: #a12626;
@@ -149,7 +180,8 @@ export default function Expense({
   description,
   amount,
   currency,
-  onUpdated
+  onUpdated,
+  onDeleted
 }) {
   const expenseDate = date ?? dateAdded ?? "";
 
@@ -157,6 +189,9 @@ export default function Expense({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const [editAmount, setEditAmount] = useState(
     String(amount ?? "")
@@ -251,6 +286,44 @@ export default function Expense({
     }
   }
 
+  async function handleDelete() {
+    if (!id) {
+      setDeleteError(
+        "Expense ID is missing. Refresh the category and try again."
+      );
+      return;
+    }
+
+    setDeleting(true);
+    setDeleteError("");
+
+    try {
+      await deleteExpense(id);
+
+      if (onDeleted) {
+        onDeleted(id);
+      }
+    } 
+    catch (deleteFailure) {
+      console.error("Error deleting expense:", deleteFailure);
+
+      if (deleteFailure.response?.status === 404 && onDeleted) {
+        onDeleted(id);
+        return;
+      }
+
+      const serverMessage = deleteFailure.response?.data;
+
+      setDeleteError(
+        typeof serverMessage === "string" && serverMessage
+          ? serverMessage
+          : serverMessage?.message ||
+            "Unable to delete this expense. Please try again."
+      );
+      setDeleting(false);
+    }
+  }
+
   return (
     <>
       <style>{styles}</style>
@@ -277,9 +350,22 @@ export default function Expense({
           <button
             type="button"
             onClick={startEditing}
-            disabled={editing || !id}
+            disabled={editing || deleting || !id}
           >
             Edit
+          </button>
+
+          <button
+            type="button"
+            className="expense-delete"
+            onClick={() => {
+              setDeleteError("");
+              setSuccess("");
+              setConfirmingDelete(true);
+            }}
+            disabled={confirmingDelete || deleting || !id}
+          >
+            Delete
           </button>
 
         </div>
@@ -360,6 +446,39 @@ export default function Expense({
               </button>
             </div>
           </form>
+        )}
+
+        {confirmingDelete && (
+          <div className="expense-confirm" role="alertdialog">
+            <span>Delete this expense? This cannot be undone.</span>
+
+            <button
+              type="button"
+              className="expense-confirm-yes"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Yes, delete"}
+            </button>
+
+            <button
+              type="button"
+              className="expense-cancel"
+              onClick={() => {
+                setConfirmingDelete(false);
+                setDeleteError("");
+              }}
+              disabled={deleting}
+            >
+              Keep it
+            </button>
+          </div>
+        )}
+
+        {deleteError && (
+          <div className="expense-error" role="alert">
+            {deleteError}
+          </div>
         )}
 
         {success && !editing && (

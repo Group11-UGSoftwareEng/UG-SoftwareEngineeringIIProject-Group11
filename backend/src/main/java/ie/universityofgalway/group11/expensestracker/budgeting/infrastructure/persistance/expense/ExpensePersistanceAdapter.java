@@ -16,6 +16,10 @@ import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.pe
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryEntity;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryJPARepository;
 
+/**
+ * JPA-backed implementation of the expense repository contract.
+ * It persists expense entities and converts them back into domain objects for application services.
+ */
 @Repository
 public class ExpensePersistanceAdapter implements ExpenseRepository {
 
@@ -23,6 +27,12 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
     private final CategoryJPARepository categoryJpaRepository;
     private final AdapterHelper helper;
 
+    /**
+     * Creates the adapter with the underlying JPA repositories.
+     *
+     * @param expenseJpaRepository repository for expense rows
+     * @param categoryJpaRepository repository for resolving category ownership
+     */
     public ExpensePersistanceAdapter(
             ExpenseJPARepository expenseJpaRepository,
             CategoryJPARepository categoryJPARepository) {
@@ -31,11 +41,25 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
         this.categoryJpaRepository = categoryJPARepository;
         this.helper = new AdapterHelper();
     }
+
+    /**
+     * Finds an expense by identifier.
+     *
+     * @param id expense identifier
+     * @return matching expense if present
+     */
     @Override
     public Optional<Expense> findById(ExpenseId id) {
         return expenseJpaRepository.findById(id.asUuid()).map(helper::toExpenseDomain);
     }
 
+    /**
+     * Saves an expense while ensuring the referenced category exists in the database.
+     *
+     * @param expense domain expense to save
+     * @param toCategory owning category
+     * @return saved expense
+     */
     @Override
     public Expense save(Expense expense, Category toCategory) {
         // Use the persisted category; a freshly converted category entity
@@ -48,18 +72,36 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
         return expense;
     }
 
+    /**
+     * @return the category repository used by this adapter
+     */
     public CategoryJPARepository getCategoryJpaRepository() {
         return categoryJpaRepository;
     }
 
+    /**
+     * @return the expense repository used by this adapter
+     */
     public ExpenseJPARepository getExpenseJpaRepository() {
         return expenseJpaRepository;
     }
 
+    /**
+     * Deletes an expense by identifier.
+     *
+     * @param id expense identifier to remove
+     */
     @Override
     public void deleteById(ExpenseId id) {
         expenseJpaRepository.deleteById(id.asUuid());
     }
+
+    /**
+     * Finds all expenses belonging to a category.
+     *
+     * @param categoryId category whose expenses should be returned
+     * @return list of domain expenses for that category
+     */
     @Override
     public List<Expense> findByCategoryId(CategoryId categoryId) {
         return expenseJpaRepository
@@ -69,6 +111,11 @@ public class ExpensePersistanceAdapter implements ExpenseRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Returns every expense currently stored.
+     *
+     * @return all expenses in the repository
+     */
     @Override
     public List<Expense> findAll() {
         return expenseJpaRepository.findAll().stream()

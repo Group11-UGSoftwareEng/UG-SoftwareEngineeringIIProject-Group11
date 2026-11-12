@@ -18,8 +18,19 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.category.CategoryEntity;
 import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseEntity;
 
+/**
+ * Shared conversion utility between domain aggregates and JPA entities.
+ * It centralises the translation logic used by both category and expense persistence adapters.
+ */
 public class AdapterHelper {
 
+    /**
+     * Converts a domain expense into an entity linked to the given category.
+     *
+     * @param expense domain expense to persist
+     * @param category owning category entity
+     * @return JPA expense entity
+     */
     public ExpenseEntity toExpenseEntity(Expense expense, CategoryEntity category) {
         ExpenseEntity entity = new ExpenseEntity();
         entity.setId(expense.id().asUuid());
@@ -31,6 +42,12 @@ public class AdapterHelper {
         return entity;
     }
 
+    /**
+     * Rebuilds a domain expense from a persisted expense entity.
+     *
+     * @param entity JPA expense entity
+     * @return equivalent domain object
+     */
     public Expense toExpenseDomain(ExpenseEntity entity) {
         return Expense.createWithId(
                 ExpenseId.of(entity.getId()),
@@ -42,6 +59,12 @@ public class AdapterHelper {
         );
     }
 
+    /**
+     * Converts a domain category to a JPA entity.
+     *
+     * @param category domain category
+     * @return persisted category entity
+     */
     public CategoryEntity toCategoryEntity(Category category) {
         CategoryEntity entity = new CategoryEntity();
         entity.setId(category.id().asUuid());
@@ -53,6 +76,12 @@ public class AdapterHelper {
         return entity;
     }
 
+    /**
+     * Converts a persisted category entity back into the domain model.
+     *
+     * @param entity JPA category entity
+     * @return equivalent category aggregate
+     */
     public Category toCategoryDomain(CategoryEntity entity) {
         Category category = Category.createWithId(
                 CategoryId.of(entity.getId()),
@@ -63,6 +92,12 @@ public class AdapterHelper {
         return category;
     }
 
+    /**
+     * Extracts the category identifier from a category entity.
+     *
+     * @param entity category entity
+     * @return category identifier value object
+     */
     public CategoryId toCategoryId(CategoryEntity entity) {
         return CategoryId.of(entity.getId());
     }

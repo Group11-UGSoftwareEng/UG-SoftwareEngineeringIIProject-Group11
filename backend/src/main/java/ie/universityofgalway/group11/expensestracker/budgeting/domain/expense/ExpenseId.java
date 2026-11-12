@@ -3,6 +3,9 @@ package ie.universityofgalway.group11.expensestracker.budgeting.domain.expense;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Value object used to uniquely identify an expense within the domain model.
+ */
 public class ExpenseId {
     private final UUID value;
 
@@ -10,14 +13,28 @@ public class ExpenseId {
         this.value = Objects.requireNonNull(value, "Expense id must not be null");
     }
 
+    /**
+     * Creates an expense identifier from an existing UUID.
+     *
+     * @param value source UUID
+     * @return typed expense identifier
+     */
     public static ExpenseId of(UUID value) {
         return new ExpenseId(value);
     }
 
+    /**
+     * Generates a new unique identifier for a newly created expense.
+     *
+     * @return a random expense identifier
+     */
     public static ExpenseId random() {
         return new ExpenseId(UUID.randomUUID());
     }
 
+    /**
+     * @return underlying UUID representation
+     */
     public UUID asUuid() {
         return value;
     }
