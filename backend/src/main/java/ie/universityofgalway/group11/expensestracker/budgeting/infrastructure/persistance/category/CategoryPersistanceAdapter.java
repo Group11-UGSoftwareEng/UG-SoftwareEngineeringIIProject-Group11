@@ -149,11 +149,18 @@ public class CategoryPersistanceAdapter implements CategoryRepository {
                     newEntity.setId(category.id().asUuid());
                     newEntity.setYear(YearMonth.now().getYear());
                     newEntity.setMonth(YearMonth.now().getMonthValue());
-                    newEntity.setBudget(1.0);
                     return newEntity;
                 });
 
         entity.setName(category.name().name());
+
+        // Save the budget if one was provided
+        if (category.budget() != null) {
+            entity.setBudget(category.budget().value().doubleValue());
+        } else {
+            entity.setBudget(null);
+        }
+
         categoryJpaRepository.save(entity);
 
         return category;

@@ -1,269 +1,279 @@
 import { useEffect, useState } from "react";
-
 import ExpenseForm from "./ExpenseForm";
 import Expense from "./Expense";
-import CategoryNameEditor from "./CategoryNameEditor";
-import CategoryDeleteButton from "./CategoryDeleteButton";
-import BudgetLimits from "./BudgetLimits";
 import { useExpenses } from "./contexts/ExpenseContext";
-
 import {
-  getCategories,
-  getCategoryExpenses,
-  saveCategory,
+    getCategories,
+    getCategoryExpenses,
+    saveCategory,
+    updateCategory
 } from "../api/categoryApi";
 
+export default function MainPage() {
+    const { expenses, setCategoryExpenses } = useExpenses();
 
-/**
- * Loads saved categories and their expenses.
- * Displays category names, expense lists and expense forms.
- */
-export default function MainPage({ onDataChanged }) {
-  const {
-    expenses,
-    setCategoryExpenses,
-    removeExpenseFromContext,
-  } = useExpenses();
+    const [categories, setCategories] = useState([]);
+    const [openCategoryIds, setOpenCategoryIds] = useState([]);
+    const [formCategoryIds, setFormCategoryIds] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-  const [categories, setCategories] = useState([]);
-  const [openCategoryIds, setOpenCategoryIds] = useState([]);
-  const [formCategoryIds, setFormCategoryIds] = useState([]);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+    const [newCategoryName, setNewCategoryName] = useState("");
+    const [newCategoryBudget, setNewCategoryBudget] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
+    const [editingCategoryId, setEditingCategoryId] = useState(null);
+    const [editCategoryName, setEditCategoryName] = useState("");
+    const [editCategoryBudget, setEditCategoryBudget] = useState("");
 
-    // Loads categories and their expenses, then updates the page if still mounted.
-    async function loadData() {
-      try {
-        const savedCategories = await getCategories();
+    useEffect(() => {
+        let cancelled = false;
 
-        const results = await Promise.all(
-          savedCategories.map(async (category) => ({
-            categoryId: category.id,
-            expenses: await getCategoryExpenses(category.id),
-          }))
+        async function loadData() {
+            try {
+                const savedCategories = await getCategories();
+
+                const results = await Promise.all(
+                    savedCategories.map(async (category) => ({
+                        categoryId: category.id,
+                        expenses: await getCategoryExpenses(category.id)
+                    }))
+                );
+
+                if (cancelled) return;
+
+                setCategories(savedCategories);
+
+                results.forEach((result) => {
+                    setCategoryExpenses(result.categoryId, result.expenses);
+                });
+            } catch (loadError) {
+                if (!cancelled) {
+                    console.error(loadError);
+                    setError("Could not load your expenses. Please try refreshing.");
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        loadData();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    function toggleCategory(categoryId) {
+        setOpenCategoryIds((previous) =>
+            previous.includes(categoryId)
+                ? previous.filter((id) => id !== categoryId)
+                : [...previous, categoryId]
         );
+    }
 
-        if (cancelled) return;
+    function toggleForm(categoryId) {
+        setFormCategoryIds((previous) =>
+            previous.includes(categoryId)
+                ? previous.filter((id) => id !== categoryId)
+                : [...previous, categoryId]
+        );
+    }
 
-        setCategories(savedCategories);
-        results.forEach(({ categoryId, expenses: categoryExpenses }) => {
-          setCategoryExpenses(categoryId, categoryExpenses);
-        });
-      } catch (loadError) {
-        if (!cancelled) {
-          console.error("Failed to load expenses:", loadError);
-          setError("Could not load your expenses. Please try refreshing.");
+    async function handleAddCategory() {
+        if (!newCategoryName.trim()) return;
+
+        try {
+            const budgetValue = newCategoryBudget ? parseFloat(newCategoryBudget) : null;
+
+            await saveCategory({ name: newCategoryName, budget: budgetValue });
+            const updatedCategories = await getCategories();
+            setCategories(updatedCategories);
+
+            setNewCategoryName("");
+            setNewCategoryBudget("");
+            setError("");
+        } catch (err) {
+            console.error("Failed to add category:", err);
+            setError("Failed to add new category. Please try again.");
         }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
+    }
+
+    function startEditingCategory(category) {
+        setEditingCategoryId(category.id);
+        setEditCategoryName(category.name);
+        setEditCategoryBudget(category.budget != null ? category.budget : "");
+    }
+
+    function cancelEditingCategory() {
+        setEditingCategoryId(null);
+        setEditCategoryName("");
+        setEditCategoryBudget("");
+    }
+
+    async function handleUpdateCategory(categoryId) {
+        if (!editCategoryName.trim()) return;
+
+        try {
+            const budgetValue = editCategoryBudget ? parseFloat(editCategoryBudget) : null;
+
+            await updateCategory(categoryId, {
+                newName: editCategoryName,
+                newBudget: budgetValue
+            });
+
+            const updatedCategories = await getCategories();
+            setCategories(updatedCategories);
+
+            cancelEditingCategory();
+            setError("");
+        } catch (err) {
+            console.error("Failed to update category:", err);
+            setError("Failed to update category. Please try again.");
         }
-      }
     }
 
-    loadData();
-
-    return () => {
-      cancelled = true;
-    };
-    // Load once on mount; the context action may be recreated by its provider.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-
-  // Reload a category after an expense is edited.
-  async function refreshCategoryExpenses(categoryId) {
-    const latestExpenses = await getCategoryExpenses(
-      categoryId
-    );
-
-    setCategoryExpenses(categoryId, latestExpenses);
-  }
-
-  // Shows or hides the selected category's expenses.
-  function toggleCategory(categoryId) {
-    setOpenCategoryIds((previous) =>
-      previous.includes(categoryId)
-        ? previous.filter((id) => id !== categoryId)
-        : [...previous, categoryId]
-    );
-  }
-
-  // Shows or hides the form for adding an expense.
-  function toggleForm(categoryId) {
-    setFormCategoryIds((previous) =>
-      previous.includes(categoryId)
-        ? previous.filter((id) => id !== categoryId)
-        : [...previous, categoryId]
-    );
-  }
-
-  async function refreshCategoryExpenses(categoryId) {
-    const updatedExpenses = await getCategoryExpenses(categoryId);
-    setCategoryExpenses(categoryId, updatedExpenses);
-  }
-
-  async function handleExpenseUpdated(categoryId) {
-    try {
-      await refreshCategoryExpenses(categoryId);
-      onDataChanged?.();
-    } catch (updateError) {
-      console.error("Failed to refresh category expenses:", updateError);
-      setError("Could not refresh your expenses. Please try again.");
+    if (loading) {
+        return <p>Loading expenses...</p>;
     }
-  }
 
-  function handleExpenseDeleted(expenseId) {
-    removeExpenseFromContext(expenseId);
-    onDataChanged?.();
-  }
-
-  function handleCategoryDeleted(categoryId) {
-    setCategories((previous) =>
-      previous.filter((category) => category.id !== categoryId)
-    );
-    setOpenCategoryIds((previous) =>
-      previous.filter((id) => id !== categoryId)
-    );
-    setFormCategoryIds((previous) =>
-      previous.filter((id) => id !== categoryId)
-    );
-    onDataChanged?.();
-  }
-
-  async function handleAddCategory() {
-    const trimmedName = newCategoryName.trim();
-    if (!trimmedName) return;
-
-    try {
-      setError("");
-      await saveCategory({ name: trimmedName });
-      const updatedCategories = await getCategories();
-      setCategories(updatedCategories);
-      setNewCategoryName("");
-      onDataChanged?.();
-    } catch (addError) {
-      console.error("Failed to add category:", addError);
-      setError("Failed to add new category. Please try again.");
+    if (error) {
+        return <p role="alert">{error}</p>;
     }
-  }
 
-  if (loading) {
-    return <p>Loading expenses...</p>;
-  }
+    return (
+        <div>
+            <h1>Expenses tracker</h1>
 
-  if (error) {
-    return <p role="alert">{error}</p>;
-  }
+            <div style={{ marginBottom: "20px" }}>
+                <input
+                    type="text"
+                    placeholder="New category name"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                />
+                <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Budget Limit (optional)"
+                    value={newCategoryBudget}
+                    onChange={(e) => setNewCategoryBudget(e.target.value)}
+                    style={{ marginLeft: "10px", width: "160px" }}
+                />
+                <button onClick={handleAddCategory} style={{ marginLeft: "10px" }}>
+                    Add Category
+                </button>
+            </div>
 
-  return (
-    <div>
-      <h1>Expenses tracker</h1>
+            {expenses.length === 0 && (
+                <p>You have not added any expenses yet.</p>
+            )}
 
-      <div style={{ marginBottom: "20px" }}>
-        <input
-          type="text"
-          placeholder="New category name"
-          value={newCategoryName}
-          onChange={(event) => setNewCategoryName(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") handleAddCategory();
-          }}
-        />
-        <button
-          type="button"
-          onClick={handleAddCategory}
-          style={{ marginLeft: "10px" }}
-        >
-          Add Category
-        </button>
-      </div>
+            {categories.length === 0 && <p>No categories added yet.</p>}
 
-      {expenses.length === 0 && (
-        <p>You have not added any expenses yet.</p>
-      )}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "40px" }}>
+                {categories.map((category) => {
+                    const categoryExpenses = expenses
+                        .filter((expense) => expense.categoryId === category.id)
+                        .sort((a, b) =>
+                            (b.date ?? b.dateAdded ?? "").localeCompare(
+                                a.date ?? a.dateAdded ?? ""
+                            )
+                        );
 
-      {categories.length === 0 && <p>No categories added yet.</p>}
+                    const isOpen = openCategoryIds.includes(category.id);
+                    const isFormOpen = formCategoryIds.includes(category.id);
+                    const totalSpent = categoryExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+                    const hasBudget = category.budget != null;
+                    const isOverBudget = hasBudget && totalSpent >= category.budget;
+                    const isEditing = editingCategoryId === category.id;
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "40px",
-        }}
-      >
-        {categories.map((category) => {
-          const categoryExpenses = expenses
-            .filter((expense) => expense.categoryId === category.id)
-            .sort((a, b) =>
-              (b.date ?? b.dateAdded ?? "").localeCompare(
-                a.date ?? a.dateAdded ?? ""
-              )
-            );
+                    return (
+                        <section
+                            key={category.id}
+                            style={{
+                                minWidth: "280px",
+                                padding: "16px",
+                                border: isOverBudget && !isEditing ? "2px solid red" : "1px solid #ccc",
+                                backgroundColor: isOverBudget && !isEditing ? "#ffeeee" : "transparent",
+                                borderRadius: "8px"
+                            }}
+                        >
+                            {isEditing ? (
+                                <div style={{ marginBottom: "10px" }}>
+                                    <input
+                                        type="text"
+                                        value={editCategoryName}
+                                        onChange={(e) => setEditCategoryName(e.target.value)}
+                                        style={{ display: "block", marginBottom: "8px", width: "100%", boxSizing: "border-box" }}
+                                    />
+                                    <input
+                                        type="number"
+                                        min="0.01"
+                                        step="0.01"
+                                        placeholder="Budget Limit (optional)"
+                                        value={editCategoryBudget}
+                                        onChange={(e) => setEditCategoryBudget(e.target.value)}
+                                        style={{ display: "block", marginBottom: "8px", width: "100%", boxSizing: "border-box" }}
+                                    />
+                                    <button onClick={() => handleUpdateCategory(category.id)}>Save</button>
+                                    <button onClick={cancelEditingCategory} style={{ marginLeft: "8px" }}>Cancel</button>
+                                </div>
+                            ) : (
+                                <>
+                                    <h2 style={{ color: isOverBudget ? "red" : "inherit", marginTop: "0" }}>
+                                        {category.name}
+                                    </h2>
 
-          const isOpen = openCategoryIds.includes(category.id);
-          const isFormOpen = formCategoryIds.includes(category.id);
+                                    {hasBudget ? (
+                                        <p style={{ fontWeight: "bold", color: isOverBudget ? "red" : "inherit" }}>
+                                            Spent: €{totalSpent.toFixed(2)} / €{category.budget.toFixed(2)}
+                                            {isOverBudget && " ⚠️ Over Budget!"}
+                                        </p>
+                                    ) : (
+                                        <p>Spent: €{totalSpent.toFixed(2)} (No Limit)</p>
+                                    )}
 
-          return (
-            <section key={category.id} style={{ minWidth: "280px" }}>
-              <CategoryNameEditor
-                category={category}
-                onRenamed={(categoryId, newName) => {
-                  setCategories((previous) =>
-                    previous.map((item) =>
-                      item.id === categoryId
-                        ? { ...item, name: newName }
-                        : item
-                    )
-                  );
-                }}
-              />
+                                    <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+                                        <button onClick={() => startEditingCategory(category)}>
+                                            Edit Category
+                                        </button>
+                                        <button
+                                            onClick={() => toggleCategory(category.id)}
+                                            aria-expanded={isOpen}
+                                        >
+                                            {isOpen ? "Hide expenses" : "View expenses"}
+                                        </button>
+                                        <button onClick={() => toggleForm(category.id)}>
+                                            {isFormOpen ? "Hide form" : "Add an expense"}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
 
-              <CategoryDeleteButton
-                category={category}
-                onDeleted={handleCategoryDeleted}
-              />
+                            {isFormOpen && !isEditing && (
+                                <div style={{ marginTop: "12px" }}>
+                                    <ExpenseForm categoryId={category.id} />
+                                </div>
+                            )}
 
-              <button
-                type="button"
-                onClick={() => toggleCategory(category.id)}
-                aria-expanded={isOpen}
-              >
-                {isOpen ? "Hide expenses" : "View expenses"}
-              </button>
-
-              <button type="button" onClick={() => toggleForm(category.id)}>
-                {isFormOpen ? "Hide form" : "Add an expense"}
-              </button>
-
-              {isFormOpen && <ExpenseForm categoryId={category.id} />}
-
-              {isOpen && (
-                <div style={{ marginTop: "12px" }}>
-                  {categoryExpenses.length === 0 ? (
-                    <p>No expenses in this category yet.</p>
-                  ) : (
-                    categoryExpenses.map((expense) => (
-                      <Expense
-                        key={expense.id}
-                        {...expense}
-                        onUpdated={() => handleExpenseUpdated(category.id)}
-                        onDeleted={handleExpenseDeleted}
-                      />
-                    ))
-                  )}
-                </div>
-              )}
-            </section>
-          );
-        })}
-      </div>
-
-      <BudgetLimits />
-    </div>
-  );
+                            {isOpen && !isEditing && (
+                                <div style={{ marginTop: "12px" }}>
+                                    {categoryExpenses.length === 0 ? (
+                                        <p>No expenses in this category yet.</p>
+                                    ) : (
+                                        categoryExpenses.map((expense) => (
+                                            <Expense key={expense.id} {...expense} />
+                                        ))
+                                    )}
+                                </div>
+                            )}
+                        </section>
+                    );
+                })}
+            </div>
+        </div>
+    );
 }

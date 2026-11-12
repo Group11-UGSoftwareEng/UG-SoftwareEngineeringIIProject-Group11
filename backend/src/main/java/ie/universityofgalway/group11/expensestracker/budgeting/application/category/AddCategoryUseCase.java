@@ -2,6 +2,7 @@ package ie.universityofgalway.group11.expensestracker.budgeting.application.cate
 
 import java.time.YearMonth;
 
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryBudget;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryResponse;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.common.UseCase;
@@ -27,8 +28,11 @@ public class AddCategoryUseCase implements UseCase<AddCategoryCommand, AddCatego
                     "A category with the name '" + input.categoryName() + "' already exists.");
         }
 
-        // No budget yet: that is set later by the SetCategoryBudget use case
-        Category category = Category.create(name, YearMonth.now(), null);
+        CategoryBudget budget = (input.budget() != null)
+                ? CategoryBudget.of(input.budget())
+                : null;
+
+        Category category = Category.create(name, YearMonth.now(), budget);
         categoryRepository.save(category);
 
         return new AddCategoryResponse(true,
