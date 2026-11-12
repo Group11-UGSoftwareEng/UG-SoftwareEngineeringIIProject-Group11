@@ -102,7 +102,7 @@ public class CategoryController {
             @RequestBody EditCategoryDetailsRequest request) {
 
         EditCategoryDetailsCommand command =
-                new EditCategoryDetailsCommand(categoryId, request.newName());
+                new EditCategoryDetailsCommand(categoryId, request.newName(), request.newBudget());
 
         editCategoryDetailsUseCase.execute(command);
 
@@ -120,7 +120,7 @@ public class CategoryController {
 @PostMapping
 public ResponseEntity<?> addCategory(@RequestBody AddCategoryRequest request) {
     try {
-        return ResponseEntity.ok(addCategoryUseCase.execute(new AddCategoryCommand(request.name())));
+        return ResponseEntity.ok(addCategoryUseCase.execute(new AddCategoryCommand(request.name(), request.budget())));
     } catch (CategoryException e) {
         return ResponseEntity.status(409).body(Map.of("message", e.getMessage()));
     } catch (IllegalArgumentException e) {

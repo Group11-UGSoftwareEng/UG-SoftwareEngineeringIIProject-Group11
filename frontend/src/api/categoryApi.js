@@ -26,3 +26,8 @@ export const saveCategory = async (category) => {
     const response = await axios.post(BASE_URL, category);
     return response.data;
 };
+
+export const updateCategory = async (categoryId, categoryData) => {
+    const response = await axios.put(`${BASE_URL}/${categoryId}`, categoryData);
+    return response.data;
+};

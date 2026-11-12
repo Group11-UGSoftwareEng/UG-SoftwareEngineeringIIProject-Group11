@@ -6,6 +6,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.C
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryId;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryName;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
+import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryBudget;
 
 public class EditCategoryDetailsUseCase
         implements UseCase<EditCategoryDetailsCommand, Category> {
@@ -25,6 +26,11 @@ public class EditCategoryDetailsUseCase
                         new IllegalArgumentException("Category not found."));
 
         category.changeName(CategoryName.of(input.newName()));
+
+        CategoryBudget updatedBudget = (input.newBudget() != null)
+                ? CategoryBudget.of(input.newBudget())
+                : null;
+        category.updateBudget(updatedBudget);
 
         return categoryRepository.save(category);
     }
