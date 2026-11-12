@@ -2,6 +2,24 @@
 This project is an expenses tracker application that helps users to keep track and have an overview of their expenses so that they have better insight into their spending habits and how to manage their money well.
 The system allows the user to create and edit categories, add expenses to those categories or remove existing expenses, set budgets and see projected spending. The system takes into account the month and automatically resets when a new month starts, while keeping the categories of the previous month.
 
+# Running the app locally
+
+### 1. Database setup
+Using pgAdmin, create PostgreSQL database `expenses_tracker`.  
+In `backend/` folder inside `application.properties`,  change `spring.datasource.username` and `spring.datasource.password` credentials to what are used in pgAdmin.  
+
+### 2. Backend setup
+Open folder `backend` as a project.
+Start `Group11ExpensesTrackerApplication`.  
+(Backend runs at http://localhost:8080)
+
+### 3. Frontend setup
+Open folder `frontend` as a project.  
+Open terminal and make sure it is open in `...\UG-SoftwareEngineeringIIProject-Group11\frontend`. 
+Do `npm install` then `npm run dev`.  
+(Frontend runs at http://localhost:5173 or http://localhost:5174)
+
+
 # Project structure
 
 The project follows clean architecture and domain-driven design principles. 
