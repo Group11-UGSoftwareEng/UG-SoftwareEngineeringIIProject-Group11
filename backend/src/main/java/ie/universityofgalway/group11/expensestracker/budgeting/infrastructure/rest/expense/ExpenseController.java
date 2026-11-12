@@ -27,6 +27,9 @@ import ie.universityofgalway.group11.expensestracker.budgeting.domain.expense.Ex
 
 import java.util.List;
 
+/**
+ * REST controller for expense-level operations such as viewing, editing, and deleting expenses.
+ */
 @RestController
 @RequestMapping("/api/expenses")
 public class ExpenseController {
@@ -34,17 +37,28 @@ public class ExpenseController {
     //TODO unused...
     private ExpenseRepository expenseRepository;
 
-
     private final ViewAllExpensesUseCase viewAllExpensesUseCase;
     private final EditExpenseUseCase editExpenseUseCase;
     private final DeleteExpenseUseCase deleteExpenseUseCase;
 
+    /**
+     * Creates the controller with the supporting use cases.
+     *
+     * @param viewAllExpensesUseCase service for listing expenses
+     * @param editExpenseUseCase service for modifying an expense
+     * @param deleteExpenseUseCase service for removing an expense
+     */
     public ExpenseController(ViewAllExpensesUseCase viewAllExpensesUseCase, EditExpenseUseCase editExpenseUseCase, DeleteExpenseUseCase deleteExpenseUseCase) {
         this.viewAllExpensesUseCase = viewAllExpensesUseCase;
         this.editExpenseUseCase = editExpenseUseCase;
         this.deleteExpenseUseCase = deleteExpenseUseCase;
     }
 
+    /**
+     * Lists all stored expenses as simple text output.
+     *
+     * @return human-readable expense summary
+     */
     @GetMapping(produces = "text/plain")
     public String viewExpenses() {
         ViewAllExpensesResponse response = viewAllExpensesUseCase.execute(new ViewAllExpensesQuery());
@@ -60,23 +74,38 @@ public class ExpenseController {
         }
         return result;
     }
+
+    /**
+     * Updates an existing expense's details.
+     *
+     * @param expenseId identifier of the target expense
+     * @param request new expense data
+     * @return updated expense or a structured error response
+     */
     @PutMapping("/{expenseId}")
     public ResponseEntity<?> editExpense(@PathVariable("expenseId") UUID expenseId, @RequestBody EditExpenseRequest request) {
         try {
             return ResponseEntity.ok(editExpenseUseCase.execute(new EditExpenseCommand(expenseId, request.amount(), request.date(), request.description())));
-        } 
+        }
         catch (ExpenseNotFoundException | CategoryNotFoundException error) {
             return ResponseEntity.status(404).body(error.getMessage());
-        } 
+        }
         catch (AmountException | IllegalArgumentException error) {
             return ResponseEntity.status(400).body(error.getMessage());
         }
     }
+
+    /**
+     * Deletes an expense by its identifier.
+     *
+     * @param expenseId expense to remove
+     * @return success response or 404 when not found
+     */
     @DeleteMapping("/{expenseId}")
     public ResponseEntity<?> deleteExpense(@PathVariable("expenseId") UUID expenseId) {
         try {
             return ResponseEntity.ok(deleteExpenseUseCase.execute(new DeleteExpenseCommand(expenseId)));
-        } 
+        }
         catch (ExpenseNotFoundException error) {
             return ResponseEntity.status(404).body(error.getMessage());
         }

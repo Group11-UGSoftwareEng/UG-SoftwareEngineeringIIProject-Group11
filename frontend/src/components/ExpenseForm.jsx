@@ -2,16 +2,27 @@ import React, { useState } from 'react';
 import { saveExpense } from "../api/categoryApi";
 import { useExpenses } from "./contexts/ExpenseContext";
 
+/**
+ * Form used to create a new expense for the selected category.
+ * It collects the amount, description, and currency, then sends the data to the backend.
+ *
+ * @param {Object} props
+ * @param {string} props.categoryId identifier of the category the expense belongs to
+ */
 export default function ExpenseForm({ categoryId }) {
 
+  // Local form state for the user-entered values.
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const { addExpenseToContext } = useExpenses();
 
+  /**
+   * Validates the input values, saves the new expense via the API, and updates the local expense list.
+   */
   async function handleAddExpense() {
 
-
+    // Build the payload expected by the backend and ensure blank descriptions are normalized.
     const newExpense = {
       categoryId: categoryId,
       date: new Date().toLocaleDateString("en-CA"),
