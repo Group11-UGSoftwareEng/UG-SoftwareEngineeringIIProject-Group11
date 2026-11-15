@@ -31,14 +31,19 @@ export default function MainPage({ onDataChanged }) {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const now = new Date();
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1); // 1-12
 
-  useEffect(() => {
+useEffect(() => {
     let cancelled = false;
 
     // Loads categories and their expenses, then updates the page if still mounted.
     async function loadData() {
+      setLoading(true);
+      setError("");
       try {
-        const savedCategories = await getCategories();
+        const savedCategories = await getCategories(selectedYear, selectedMonth);
 
         const results = await Promise.all(
           savedCategories.map(async (category) => ({
@@ -70,9 +75,8 @@ export default function MainPage({ onDataChanged }) {
     return () => {
       cancelled = true;
     };
-    // Load once on mount; the context action may be recreated by its provider.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedYear, selectedMonth]);
 
 
   // Reload a category after an expense is edited.
@@ -137,6 +141,7 @@ export default function MainPage({ onDataChanged }) {
 
   async function handleAddCategory() {
     const trimmedName = newCategoryName.trim();
+    const updatedCategories = await getCategories(selectedYear, selectedMonth);
     if (!trimmedName) return;
 
     try {
@@ -163,6 +168,38 @@ export default function MainPage({ onDataChanged }) {
   return (
     <div>
       <h1>Expenses tracker</h1>
+
+      <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "20px" }}>
+              <label htmlFor="month-select">
+                <strong>Viewing Period:</strong>
+              </label>
+              <select
+                id="month-select"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+              >
+                {[
+                  "January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December",
+                ].map((monthName, index) => (
+                  <option key={index + 1} value={index + 1}>
+                    {monthName}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                id="year-select"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+              >
+                {[2024, 2025, 2026].map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
 
       <div style={{ marginBottom: "20px" }}>
         <input
