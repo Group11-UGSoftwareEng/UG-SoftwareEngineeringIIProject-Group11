@@ -2,8 +2,13 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8080/api/categories";
 
-export const getCategories = async () => {
-    const response = await axios.get(BASE_URL);
+export const getCategories = async (year, month) => {
+    const params = {};
+    if (year != null && month != null) {
+        params.year = year;
+        params.month = month;
+    }
+    const response = await axios.get(BASE_URL, { params });
     return response.data.categories;
 };
 

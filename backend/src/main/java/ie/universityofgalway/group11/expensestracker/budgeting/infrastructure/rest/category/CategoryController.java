@@ -15,6 +15,9 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesResponse;
+
+import java.time.DateTimeException;
+import java.time.YearMonth;
 import java.util.UUID;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddCategoryUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryCommand;
@@ -53,12 +56,26 @@ public class CategoryController {
         this.deleteCategoryUseCase = deleteCategoryUseCase;
         this.addCategoryUseCase = addCategoryUseCase;
     }
-  
-  
-    @GetMapping
-    public ResponseEntity<ViewCategoriesResponse> getCategories() {
-        ViewCategoriesCommand command = new ViewCategoriesCommand();
 
+
+    @GetMapping
+    public ResponseEntity<ViewCategoriesResponse> getCategories(
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "month", required = false) Integer month) {
+        if ((year != null) != (month != null)) {
+            throw new IllegalArgumentException("Both year and month must be provided together.");
+        }
+
+        YearMonth period = null;
+        if (year != null) {
+            try {
+                period = YearMonth.of(year, month);
+            } catch (DateTimeException e) {
+                throw new IllegalArgumentException("Invalid year or month.");
+            }
+        }
+
+        ViewCategoriesCommand command = new ViewCategoriesCommand(period);
         return ResponseEntity.ok(viewCategoriesUseCase.execute(command));
     }
 
