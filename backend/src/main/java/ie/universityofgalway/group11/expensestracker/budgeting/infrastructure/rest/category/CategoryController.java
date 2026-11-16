@@ -15,8 +15,6 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.categ
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.ViewCategoriesUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesCommand;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.ViewCategoriesResponse;
-
-import java.time.YearMonth;
 import java.util.UUID;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.AddCategoryUseCase;
 import ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto.AddCategoryCommand;
@@ -58,15 +56,9 @@ public class CategoryController {
   
   
     @GetMapping
-    public ResponseEntity<ViewCategoriesResponse> getCategories(
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month) {
+    public ResponseEntity<ViewCategoriesResponse> getCategories() {
+        ViewCategoriesCommand command = new ViewCategoriesCommand();
 
-        YearMonth period = (year != null && month != null)
-                ? YearMonth.of(year, month)
-                : null;
-
-        ViewCategoriesCommand command = new ViewCategoriesCommand(period);
         return ResponseEntity.ok(viewCategoriesUseCase.execute(command));
     }
 
