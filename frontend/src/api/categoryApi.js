@@ -2,11 +2,19 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8080/api/categories";
 
-export const getCategories = async () => {
-    const response = await axios.get(BASE_URL);
+// Loads saved categories from the backend.
+export const getCategories = async (year, month) => {
+    const params = {};
+    if (year && month) {
+        params.year = year;
+        params.month = month;
+    }
+
+    const response = await axios.get(BASE_URL, { params });
     return response.data.categories;
 };
 
+// Loads expenses belonging to the selected category.
 export const getCategoryExpenses = async (categoryId) => {
     const response = await axios.get(
         `${BASE_URL}/${categoryId}/expenses`
@@ -14,6 +22,7 @@ export const getCategoryExpenses = async (categoryId) => {
     return response.data.expenses;
 };
 
+// Saves a new expense in the selected category.
 export const saveExpense = async (categoryId, expense) => {
     const response = await axios.post(
         `${BASE_URL}/${categoryId}`,
@@ -27,7 +36,19 @@ export const saveCategory = async (category) => {
     return response.data;
 };
 
-export const updateCategory = async (categoryId, categoryData) => {
-    const response = await axios.put(`${BASE_URL}/${categoryId}`, categoryData);
-    return response.data;
-};
+// Sends the new category name to the backend.
+export const renameCategory = async (categoryId, newName) => {
+  const response = await axios.put(
+    `${BASE_URL}/${encodeURIComponent(categoryId)}`,
+    { newName }
+  )
+  return response.data
+}
+
+export const deleteCategory = async (categoryId) => {
+  const response = await axios.delete(
+    `${BASE_URL}/${encodeURIComponent(categoryId)}`
+  )
+  return response.data
+}
+
