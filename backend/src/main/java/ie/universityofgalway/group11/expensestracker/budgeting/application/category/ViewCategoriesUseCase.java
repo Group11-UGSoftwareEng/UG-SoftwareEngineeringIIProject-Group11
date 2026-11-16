@@ -29,10 +29,16 @@ public class ViewCategoriesUseCase
 
         for (Category category :
                 resetBudgetingUseCase.execute(budgetingPeriod)) {
+
+
+            java.math.BigDecimal budgetValue = category.budget() != null
+                    ? category.budget().value()
+                    : null;
+
             categories.add(new ViewCategoriesResponse.CategoryDetails(
                     category.id().asUuid(),
                     category.name().name(),
-                    category.budget().value(),
+                    budgetValue,
                     category.year(),
                     category.month()
             ));
