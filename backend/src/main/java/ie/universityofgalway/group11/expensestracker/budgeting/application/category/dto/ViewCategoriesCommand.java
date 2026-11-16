@@ -1,4 +1,9 @@
 package ie.universityofgalway.group11.expensestracker.budgeting.application.category.dto;
 
-public record ViewCategoriesCommand() {
+import java.time.YearMonth;
+
+public record ViewCategoriesCommand(YearMonth period) {
+    public ViewCategoriesCommand() {
+        this(null);
+    }
 }
