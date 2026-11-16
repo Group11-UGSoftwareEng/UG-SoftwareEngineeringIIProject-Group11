@@ -2,7 +2,7 @@ package ie.universityofgalway.group11.expensestracker.budgeting.application.cate
 
 import java.util.UUID;
 
-public record EditCategoryDetailsCommand(UUID categoryId, String newName) {
+public record EditCategoryDetailsCommand(UUID categoryId, String newName, Double newBudget) {
 
     public EditCategoryDetailsCommand {
         if (categoryId == null) {
