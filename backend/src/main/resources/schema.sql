@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS expense
 
 /* SAMPLE DATA, TO BE REMOVED LATER */
 
-INSERT INTO category (id, budget, name, year, month)
+/*INSERT INTO category (id, budget, name, year, month)
 VALUES
 
 
@@ -124,3 +124,4 @@ ON monthly_budget_limit (
     budget_month,
     currency
 );
+ */
