@@ -29,7 +29,7 @@ jobs:
 
       # Step 3: Build and run tests
       - name: Build backend (skip tests) #- name: Build and test backend
-        run: mvn -B -f backend/pom.xml clean package -Dmaven.test.skip=true #  run: mvn -B -f backend/pom.xml clean verify # Use Maven to clean the project and run tests in batch mode (-B)
+        run: mvn -B -f backend/pom.xml clean package -Dmaven.test.skip=true #  TODO: run: mvn -B -f backend/pom.xml clean verify # Use Maven to clean the project and run tests in batch mode (-B)
 
 
   # Log in to GitHub Container Registry
@@ -42,10 +42,17 @@ jobs:
 
     # Push image
       - name: Push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' # will push only when the push is on main
         run: docker push ghcr.io/group11-ugsoftwareeng/expensestracker:latest
 
 
-    # Trigger Render deploy (optional)
+  deploy:
+    needs: build # build must succeed
+    runs-on: ubuntu-latest  # The type of runner to run the job on. Other options include windows-latest, macos-latest, etc.
+
+    steps:
+      -
+      # Trigger Render deploy (optional)
       - name: Deploy to Render
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' # deploy happens only on push to main
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
