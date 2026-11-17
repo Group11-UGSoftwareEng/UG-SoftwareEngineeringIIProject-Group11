@@ -15,6 +15,20 @@ jobs:
   build:  # Define a job named "build"
     runs-on: ubuntu-latest  # The type of runner to run the job on. Other options include windows-latest, macos-latest, etc.
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: expenses_tracker
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -U postgres -d expenses_tracker"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       # Step 1: Check out your code
       - name: Checkout repository #steps can have names to make them easier to identify
@@ -27,21 +41,36 @@ jobs:
           distribution: temurin # Use the Eclipse Temurin distribution of Java
           java-version: 21      # Specify the Java version to use
 
-      # Step 3: Build and run tests
-      - name: Build backend (skip tests) #- name: Build and test backend
-        run: mvn -B -f backend/pom.xml clean package -Dmaven.test.skip=true #  run: mvn -B -f backend/pom.xml clean verify # Use Maven to clean the project and run tests in batch mode (-B)
+          # Step 3: Run unit tests
+      - name: Run unit tests
+        run: mvn -B -f backend/pom.xml clean test "-Dtest=*,!*IT,!*ApplicationTests"
 
+      # Step 4: Package the backend
+      - name: Package backend
+        run: mvn -B -f backend/pom.xml package -DskipTests
+
+      # Step 5: Run integration tests
+      - name: Run integration tests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/expenses_tracker
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: test_password
+          SPRING_SQL_INIT_MODE: always
+        run: mvn -B -f backend/pom.xml test "-Dtest=*IT,*ApplicationTests"
 
   # Log in to GitHub Container Registry
       - name: Log in to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
 
       - name: Build Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: docker build -t ghcr.io/group11-ugsoftwareeng/expensestracker:latest ./backend
 
 
     # Push image
       - name: Push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: docker push ghcr.io/group11-ugsoftwareeng/expensestracker:latest
 
 
