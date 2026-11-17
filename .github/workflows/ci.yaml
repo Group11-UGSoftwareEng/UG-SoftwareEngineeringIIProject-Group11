@@ -27,7 +27,7 @@ jobs:
 
       # Step 3: Build and run tests
       - name: Build and test backend
-        run: mvn -B clean verify # Use Maven to clean the project and run tests in batch mode (-B)
+        run: mvn -B -f backend/pom.xml clean verify # Use Maven to clean the project and run tests in batch mode (-B)
 
 
   # Log in to GitHub Container Registry
@@ -35,7 +35,7 @@ jobs:
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
 
       - name: Build Docker image
-        run: docker build -t ghcr.io/Group11-UGSoftwareEng/expensestracker:latest .
+        run: docker build -t ghcr.io/Group11-UGSoftwareEng/expensestracker:latest ./backend
 
 
     # Push image
