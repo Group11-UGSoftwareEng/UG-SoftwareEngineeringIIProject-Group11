@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copy prebuilt JAR from CI output into the image
-COPY backend/target/Group11-expenses-tracker-0.0.1-SNAPSHOT.jar app.jar
+COPY target/Group11-expenses-tracker-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 # Run the JAR
 CMD ["java", "-jar", "app.jar"]
