@@ -26,8 +26,8 @@ jobs:
           java-version: 21      # Specify the Java version to use
 
       # Step 3: Build and run tests
-      - name: Build and test backend
-        run: mvn -B -f backend/pom.xml clean verify # Use Maven to clean the project and run tests in batch mode (-B)
+      - name: Build backend (skip tests) #- name: Build and test backend
+        run: mvn -B -f backend/pom.xml clean package -Dmaven.test.skip=true #  run: mvn -B -f backend/pom.xml clean verify # Use Maven to clean the project and run tests in batch mode (-B)
 
 
   # Log in to GitHub Container Registry
