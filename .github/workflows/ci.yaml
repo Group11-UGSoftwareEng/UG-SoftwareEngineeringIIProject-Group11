@@ -4,7 +4,9 @@ name: CI - Build and Test
 # When to run the workflow - the triger
 on:
   push:   #Run when someone pushes to the main branch.
-    branches: [ feature/** ]   # specify whichever branches you want to trigger the workflow
+    branches: # specify whichever branches you want to trigger the workflow
+      - 'feature/**'
+      - main
   pull_request: #Run when a pull request is opened against the main branch.
     branches: [ main ]
 
@@ -42,6 +44,8 @@ jobs:
       - name: Push Docker image
         run: docker push ghcr.io/group11-ugsoftwareeng/expensestracker:latest
 
-  # Trigger Render deploy (optional)
+
+    # Trigger Render deploy (optional)
       - name: Deploy to Render
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' # deploy happens only on push to main
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
