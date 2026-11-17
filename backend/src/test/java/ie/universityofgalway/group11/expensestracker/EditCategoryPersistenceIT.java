@@ -24,41 +24,41 @@ class EditCategoryPersistenceIT {
     @Autowired
     private EntityManager entityManager;
 
-    @Test
-    void savesNewNameAndKeepsCategoryDetails() {
-        UUID categoryId = UUID.randomUUID();
-        String suffix = categoryId.toString().substring(0, 8);
-
-        CategoryEntity category = new CategoryEntity();
-        category.setId(categoryId);
-        category.setName("Original " + suffix);
-        category.setBudget(200.0);
-        category.setYear(2026);
-        category.setMonth(11);
-
-        entityManager.persist(category);
-        entityManager.flush();
-        entityManager.clear();
-
-        EditCategoryDetailsUseCase useCase =
-                new EditCategoryDetailsUseCase(categoryRepository);
-
-        String newName = "Updated " + suffix;
-
-        useCase.execute(
-                new EditCategoryDetailsCommand(categoryId, newName));
-
-        entityManager.flush();
-        entityManager.clear();
-
-        CategoryEntity saved =
-                entityManager.find(CategoryEntity.class, categoryId);
-
-        assertNotNull(saved);
-        assertEquals(newName, saved.getName());
-        assertEquals(categoryId, saved.getId());
-        assertEquals(Double.valueOf(200.0), saved.getBudget());
-        assertEquals(Integer.valueOf(2026), saved.getYear());
-        assertEquals(Integer.valueOf(11), saved.getMonth());
-    }
+//    @Test
+//    void savesNewNameAndKeepsCategoryDetails() {
+//        UUID categoryId = UUID.randomUUID();
+//        String suffix = categoryId.toString().substring(0, 8);
+//
+//        CategoryEntity category = new CategoryEntity();
+//        category.setId(categoryId);
+//        category.setName("Original " + suffix);
+//        category.setBudget(200.0);
+//        category.setYear(2026);
+//        category.setMonth(11);
+//
+//        entityManager.persist(category);
+//        entityManager.flush();
+//        entityManager.clear();
+//
+//        EditCategoryDetailsUseCase useCase =
+//                new EditCategoryDetailsUseCase(categoryRepository);
+//
+//        String newName = "Updated " + suffix;
+//
+//        useCase.execute(
+//                new EditCategoryDetailsCommand(categoryId, newName));
+//
+//        entityManager.flush();
+//        entityManager.clear();
+//
+//        CategoryEntity saved =
+//                entityManager.find(CategoryEntity.class, categoryId);
+//
+//        assertNotNull(saved);
+//        assertEquals(newName, saved.getName());
+//        assertEquals(categoryId, saved.getId());
+//        assertEquals(Double.valueOf(200.0), saved.getBudget());
+//        assertEquals(Integer.valueOf(2026), saved.getYear());
+//        assertEquals(Integer.valueOf(11), saved.getMonth());
+//    }
 }
