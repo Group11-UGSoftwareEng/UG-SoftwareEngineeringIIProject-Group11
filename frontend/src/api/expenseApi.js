@@ -1,7 +1,7 @@
 
 import axios from "axios";
 
-const BASE_URL = "/api/expenses";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL + "/api/expenses";
 
 /**
  * Edit an existing expense.

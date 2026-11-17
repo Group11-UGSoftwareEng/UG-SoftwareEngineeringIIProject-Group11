@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080/api/categories";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL + "/api/categories";
 
 export const getCategories = async (year, month) => {
     const params = {};
