@@ -35,12 +35,12 @@ jobs:
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
 
       - name: Build Docker image
-        run: docker build -t ghcr.io/Group11-UGSoftwareEng/expensestracker:latest ./backend
+        run: docker build -t ghcr.io/group11-ugsoftwareeng/expensestracker:latest ./backend
 
 
     # Push image
       - name: Push Docker image
-        run: docker push ghcr.io/Group11-UGSoftwareEng/expensestracker:latest
+        run: docker push ghcr.io/group11-ugsoftwareeng/expensestracker:latest
 
   # Trigger Render deploy (optional)
       - name: Deploy to Render
