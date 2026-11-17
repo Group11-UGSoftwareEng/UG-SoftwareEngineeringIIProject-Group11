@@ -6,6 +6,7 @@ import ie.universityofgalway.group11.expensestracker.budgeting.application.commo
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.Category;
 import ie.universityofgalway.group11.expensestracker.budgeting.domain.category.CategoryRepository;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,23 +29,25 @@ public class ViewCategoriesUseCase
 
     @Override
     public ViewCategoriesResponse execute(ViewCategoriesCommand command) {
-        List<ViewCategoriesResponse.CategoryDetails> categories =
-                new ArrayList<>();
+        YearMonth requestedPeriod = (command != null && command.period() != null)
+                ? command.period()
+                : budgetingPeriod;
 
-        // If a specific past period is requested and it's not the current active period,
-        // fetch directly from the repository without auto-copying categories.
-        List<Category> domainCategories;
-        if (command.period() != null && !command.period().equals(budgetingPeriod)) {
-            domainCategories = categoryRepository.findByPeriod(command.period());
-        } else {
-            domainCategories = resetBudgetingUseCase.execute(budgetingPeriod);
-        }
+        List<Category> categoryList = requestedPeriod.equals(budgetingPeriod)
+                ? resetBudgetingUseCase.execute(budgetingPeriod)
+                : categoryRepository.findByPeriod(requestedPeriod);
 
-        for (Category category : domainCategories) {
+        List<ViewCategoriesResponse.CategoryDetails> categories = new ArrayList<>();
+
+        for (Category category : categoryList) {
+            BigDecimal budgetValue = category.budget() != null
+                    ? category.budget().value()
+                    : null;
+
             categories.add(new ViewCategoriesResponse.CategoryDetails(
                     category.id().asUuid(),
                     category.name().name(),
-                    category.budget().value(),
+                    budgetValue,
                     category.year(),
                     category.month()
             ));
