@@ -26,3 +26,15 @@ build/
 *.log
 
 **/.env
+
+# Build outputs
+dist/
+**/dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel/
