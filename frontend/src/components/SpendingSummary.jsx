@@ -366,7 +366,7 @@ export default function SpendingSummary({
         {/* Header */}
         <div className="ss-header">
           <div>
-            <h2>Spending Summary</h2>
+            <h2>Spending Summary - TEST WORKING</h2>
 
             <p className="ss-subtitle">
               {summary?.from
