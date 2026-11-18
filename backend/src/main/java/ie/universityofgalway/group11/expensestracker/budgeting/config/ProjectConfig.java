@@ -137,9 +137,10 @@ public class ProjectConfig {
     @Bean
     public ViewCategoriesUseCase viewCategoriesUseCase(
             ResetBudgetingUseCase resetBudgetingUseCase,
+            CategoryRepository categoryRepository,
             YearMonth budgetingPeriod) {
         return new ViewCategoriesUseCase(
-                resetBudgetingUseCase, budgetingPeriod);
+                resetBudgetingUseCase, categoryRepository, budgetingPeriod);
     }
 
     /**
