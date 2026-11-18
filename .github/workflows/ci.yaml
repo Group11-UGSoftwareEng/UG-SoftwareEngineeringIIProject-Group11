@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest  # The type of runner to run the job on. Other options include windows-latest, macos-latest, etc.
 
     steps:
-      -
+      
       # Trigger Render deploy (optional)
       - name: Deploy to Render
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' # deploy happens only on push to main
