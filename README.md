@@ -63,8 +63,8 @@ Under src/ :
 - App.jsx - main application. Has only one page.
 
 ### Clean architecture diagram
-<img width="801" height="698" alt="image" src="https://github.com/user-attachments/assets/ba6a875e-e6f6-4786-9a23-582df9af4604" />
-Additional Category Use Cases: (TODO: everyone to add their use cases, remove the todo)
+<img width="801" height="698" alt="image" src="https://github.com/user-attachments/assets/ba6a875e-e6f6-4786-9a23-582df9af4604" />  
+Additional Category Use Cases: (TODO: everyone to add their use cases, remove the todo)  
 Additional Expense Use Cases: (TODO: everyone to add their use cases, remove the todo)
 
 ### UML Class diagram
