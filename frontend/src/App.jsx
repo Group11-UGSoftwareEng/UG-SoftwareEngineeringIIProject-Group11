@@ -9,8 +9,7 @@ export default function App() {
   return (
     <>
       <MainPage onDataChanged={() => setRefreshKey(value => value + 1)}/>
-      <SpendingSummary refreshKey={refreshKey}/>
-      <ProjectedSpending refreshKey={refreshKey}/>
+      
     </>
   )
 }
