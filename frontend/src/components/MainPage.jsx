@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ExpenseForm from "./ExpenseForm";
 import Expense from "./Expense";
+import CategoryDeleteButton from "./CategoryDeleteButton";
 import { useExpenses } from "./contexts/ExpenseContext";
 import {
     getCategories,
@@ -24,8 +25,8 @@ const MONTHS = [
     { value: 12, label: "December" }
 ];
 
-export default function MainPage() {
-    const { expenses, setCategoryExpenses } = useExpenses();
+export default function MainPage({onDataChanged}) {
+    const { expenses, setCategoryExpenses, removeExpenseFromContext } = useExpenses();
 
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -112,6 +113,28 @@ export default function MainPage() {
                 ? previous.filter((id) => id !== categoryId)
                 : [...previous, categoryId]
         );
+    }
+
+    function notifyDataChanged() {
+        if (onDataChanged) onDataChanged();
+    }
+
+    function handleExpenseDeleted(expenseId) {
+        removeExpenseFromContext(expenseId);
+        notifyDataChanged();
+    }
+    
+    async function handleExpenseUpdated(categoryId) {
+        const updatedExpenses = await getCategoryExpenses(categoryId);
+        setCategoryExpenses(categoryId, updatedExpenses);
+        notifyDataChanged();
+    }
+    
+    function handleCategoryDeleted(categoryId) {
+        setCategories((previous) => previous.filter((item) => item.id !== categoryId));
+        setOpenCategoryIds((previous) => previous.filter((id) => id !== categoryId));
+        setFormCategoryIds((previous) => previous.filter((id) => id !== categoryId));
+        notifyDataChanged();
     }
 
     async function handleAddCategory() {
@@ -332,6 +355,12 @@ export default function MainPage() {
                                                     {isFormOpen ? "Hide form" : "Add an expense"}
                                                 </button>
                                             )}
+                                            {isCurrentPeriod && (
+                                                <CategoryDeleteButton
+                                                    category={category}
+                                                    onDeleted={handleCategoryDeleted}
+                                                />
+                                            )}
                                         </div>
                                     </>
                                 )}
@@ -348,7 +377,12 @@ export default function MainPage() {
                                             <p>No expenses in this category yet.</p>
                                         ) : (
                                             categoryExpenses.map((expense) => (
-                                                <Expense key={expense.id} {...expense} />
+                                                <Expense 
+                                                    key={expense.id} 
+                                                    {...expense}
+                                                    onUpdated={() => handleExpenseUpdated(category.id)}
+                                                    onDeleted={handleExpenseDeleted}
+                                                />
                                             ))
                                         )}
                                     </div>
