@@ -6,7 +6,8 @@ The system allows the user to create and edit categories, add expenses to those 
 
 ### 1. Database setup
 Using pgAdmin, create PostgreSQL database `expenses_tracker`.  
-In `backend/` folder inside `application.properties`,  change `spring.datasource.username` and `spring.datasource.password` credentials to what are used in pgAdmin.  
+In `backend/` folder inside `application.properties`,  comment cloud hosting section and uncomment the local hosting section.
+change `spring.datasource.username` and `spring.datasource.password` credentials to what are used in pgAdmin.  
 
 ### 2. Backend setup
 Open folder `backend` as a project.
@@ -14,7 +15,8 @@ Start `Group11ExpensesTrackerApplication`.
 (Backend runs at http://localhost:8080)
 
 ### 3. Frontend setup
-Open folder `frontend` as a project.  
+Open folder `frontend` as a project. 
+open the .env file in the `frontend` folder, uncomment the localhost option and comment out the other option.
 Open terminal and make sure it is open in `...\UG-SoftwareEngineeringIIProject-Group11\frontend`.  
 Do `npm install` then `npm run dev`.  
 (Frontend runs at http://localhost:5173 or http://localhost:5174)
@@ -62,10 +64,23 @@ Under src/ :
 
 ### Clean architecture diagram
 <img width="801" height="698" alt="image" src="https://github.com/user-attachments/assets/ba6a875e-e6f6-4786-9a23-582df9af4604" />
+Additional Category Use Cases: (TODO: everyone to add their use cases, remove the todo)
+Additional Expense Use Cases: (TODO: everyone to add their use cases, remove the todo)
 
 ### UML Class diagram
 <img width="10782" height="6848" alt="budgeting" src="https://github.com/user-attachments/assets/fffa5bae-86f0-422a-9844-00233b7f0461" />
 (no exception classes and DTOs for slightly simpler-to-follow overview)
+
+# Deployment
+
+The frontend is hosted on Vercel: https://ug-software-engineering-group11.vercel.app/
+The hosted frontend is connected to the backend (hosted on Render) and the database (hosted on Neon)  
+
+The project uses `.github/workflows/ci.yaml` for automatic building, testing and backend deployment to Render. Deployment happens only on pushes to main (protected branch), building and testing happen with any push done on branches with the prefix "/feature" and with pull request opened against main. The project uses a separate `.github/workflows/deploy-vercel.yaml` to update frontend on the cloud when push is done on main. This is added since Github organization automatically deploys to vercel for only the organization owner.
+
+#### To reproduce the deployment strategy, follow these steps:
+
+1. 
 
 
 # Development Strategy
