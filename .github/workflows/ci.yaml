@@ -43,15 +43,19 @@ jobs:
           java-version: 21      # Specify the Java version to use
 
       # Step 3: Build and run tests
-      - name: Run unit tests
-        run: mvn -B -f backend/pom.xml test "-Dtest=EditCategoryDetailsUseCaseTest"
-
-      - name: Run integration tests
+      - name: Run all unit tests
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/expenses_tracker_test
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: postgres
-        run: mvn -B -f backend/pom.xml test "-Dtest=EditCategoryPersistenceIT,Group11ExpensesTrackerApplicationTests"
+        run: mvn -B -f backend/pom.xml test
+
+      - name: Run all integration tests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/expenses_tracker_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
+        run: mvn -B -f backend/pom.xml test "-Dtest=*IT"
 
       - name: Build backend
         run: mvn -B -f backend/pom.xml package -DskipTests # Use Maven to clean the project and run tests in batch mode (-B)
