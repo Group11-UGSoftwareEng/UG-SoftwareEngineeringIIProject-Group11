@@ -132,19 +132,22 @@ export default function MainPage() {
             setError("Failed to add new category. Please try again.");
         }
     }
-
+    
+    // Opens the editor with the category's current name and budget.
     function startEditingCategory(category) {
         setEditingCategoryId(category.id);
         setEditCategoryName(category.name);
         setEditCategoryBudget(category.budget != null ? category.budget : "");
     }
-
+    
+    // Closes the editor and clears any unsaved changes
     function cancelEditingCategory() {
         setEditingCategoryId(null);
         setEditCategoryName("");
         setEditCategoryBudget("");
     }
-
+    
+    // Saves the changes and reloads the categories for the selected month
     async function handleUpdateCategory(categoryId) {
         if (!editCategoryName.trim() || !isCurrentPeriod) return;
 
