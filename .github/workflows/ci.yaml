@@ -13,7 +13,22 @@ on:
 # Define the jobs to be run in this workflow
 jobs:
   build:  # Define a job named "build"
-    runs-on: ubuntu-latest  # The type of runner to run the job on. Other options include windows-latest, macos-latest, etc.
+    runs-on: ubuntu-latest 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: expenses_tracker_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+ # The type of runner to run the job on. Other options include windows-latest, macos-latest, etc.
 
     steps:
       # Step 1: Check out your code
@@ -28,8 +43,18 @@ jobs:
           java-version: 21      # Specify the Java version to use
 
       # Step 3: Build and run tests
-      - name: Build backend (skip tests) #- name: Build and test backend
-        run: mvn -B -f backend/pom.xml clean package -Dmaven.test.skip=true #  TODO: run: mvn -B -f backend/pom.xml clean verify # Use Maven to clean the project and run tests in batch mode (-B)
+      - name: Run unit tests
+        run: mvn -B -f backend/pom.xml test "-Dtest=EditCategoryDetailsUseCaseTest"
+
+      - name: Run integration tests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/expenses_tracker_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
+        run: mvn -B -f backend/pom.xml test "-Dtest=EditCategoryPersistenceIT,Group11ExpensesTrackerApplicationTests"
+
+      - name: Build backend
+        run: mvn -B -f backend/pom.xml package -DskipTests # Use Maven to clean the project and run tests in batch mode (-B)
 
 
   # Log in to GitHub Container Registry
@@ -51,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest  # The type of runner to run the job on. Other options include windows-latest, macos-latest, etc.
 
     steps:
-      -
+      
       # Trigger Render deploy (optional)
       - name: Deploy to Render
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' # deploy happens only on push to main
