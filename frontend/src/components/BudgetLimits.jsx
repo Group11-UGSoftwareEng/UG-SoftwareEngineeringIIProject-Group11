@@ -254,8 +254,8 @@ function BudgetProgress({ budget, money }) {
 }
 
 export default function BudgetLimits({
-  apiBase = '/api'
-}) {
+  apiBase = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/api`}) 
+{
   const [currency, setCurrency] = useState('EUR')
   const [data, setData] = useState(null)
 

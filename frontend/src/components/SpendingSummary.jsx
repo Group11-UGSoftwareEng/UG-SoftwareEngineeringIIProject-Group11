@@ -251,7 +251,7 @@ const styles = `
 `
 
 export default function SpendingSummary({
-  apiBase = '/api',
+  apiBase = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/api`,
   refreshKey = 0
 }) {
   const [from, setFrom] = useState(dateInput(new Date(startingToday.getFullYear(), startingToday.getMonth(), 1)))
