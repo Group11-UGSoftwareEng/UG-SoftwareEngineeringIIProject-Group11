@@ -8,6 +8,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -225,25 +226,87 @@ public class BudgetLimitService {
             }
         }
 
-        List<CategoryBudgetStatus> categories =
-                new ArrayList<>();
+        // Use categories for the current month only.
+        // Group identical names to avoid duplicate display rows.
+        Map<String, CategoryBudgetStatus> grouped =
+                new LinkedHashMap<>();
 
-        for (CategoryEntity category :
-                categoryRepository.findAll()) {
+        List<CategoryEntity> monthlyCategories =
+                categoryRepository.findByYearAndMonth(
+                        month.getYear(),
+                        month.getMonthValue()
+                );
+
+        for (CategoryEntity category : monthlyCategories) {
 
             UUID categoryId = category.getId();
 
-            categories.add(new CategoryBudgetStatus(
-                    categoryId,
-                    category.getName(),
-                    calculateStatus(
-                            limits.get(categoryId),
-                            categorySpending.getOrDefault(
-                                    categoryId, BigDecimal.ZERO
-                            )
-                    )
-            ));
+            String name = category.getName();
+
+            if (name == null || name.isBlank()) {
+                name = "Unlabelled category";
+            }
+
+            name = name.trim();
+
+            String normalizedName =
+                    name.toLowerCase(Locale.ROOT);
+
+            BigDecimal spent =
+                    categorySpending.getOrDefault(
+                            categoryId,
+                            BigDecimal.ZERO
+                    );
+
+            BigDecimal limit = limits.get(categoryId);
+
+            CategoryBudgetStatus existing =
+                    grouped.get(normalizedName);
+
+            if (existing == null) {
+
+                grouped.put(
+                        normalizedName,
+                        new CategoryBudgetStatus(
+                                categoryId,
+                                name,
+                                calculateStatus(limit, spent)
+                        )
+                );
+
+            } else {
+
+                BudgetStatus previous =
+                        existing.budget();
+
+                BigDecimal combinedSpent =
+                        previous.spent().add(spent);
+
+                BigDecimal combinedLimit =
+                        previous.limit();
+
+                if (limit != null) {
+                    combinedLimit = combinedLimit == null
+                            ? limit
+                            : combinedLimit.add(limit);
+                }
+
+                grouped.put(
+                        normalizedName,
+                        new CategoryBudgetStatus(
+                                existing.categoryId(),
+                                existing.categoryName(),
+                                calculateStatus(
+                                        combinedLimit,
+                                        combinedSpent
+                                )
+                        )
+                );
+            }
         }
+
+        List<CategoryBudgetStatus> categories =
+                new ArrayList<>(grouped.values());
 
         categories.sort(
                 Comparator.comparing(

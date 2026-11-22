@@ -1,184 +1,182 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+/* SpendTrack: unified light theme */
+
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #222;
+  background: #f5f6f8;
+  color-scheme: light;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+* {
+  box-sizing: border-box;
 }
 
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+body {
+  margin: 0;
+  background: #f5f6f8;
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
+#root {
   width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  display: block;
+  border: none;
+  text-align: left;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
+.spendtrack-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Shared main containers */
+
+.tracker-panel,
+.insights-area {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 22px;
+  margin-bottom: 24px;
+  color: #222;
+}
+
+/* Headings */
+
+.spendtrack-app h1 {
+  color: #222;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: normal;
+  margin: 0 0 20px;
+}
+
+.spendtrack-app h2 {
+  color: #222;
+  font-size: 21px;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.insights-heading {
+  padding-bottom: 18px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 18px;
+}
+
+.insights-heading p {
+  color: #666;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Main tracker category cards */
+
+.tracker-panel > div > div:has(> section) {
+  gap: 16px !important;
+}
+
+.tracker-panel section {
+  border-radius: 2px !important;
+  background: #f7f7f7;
+  color: #222;
+}
+
+.tracker-panel section h2 {
+  color: #222;
+}
+
+/* Form elements */
+
+.tracker-panel input,
+.tracker-panel select,
+.tracker-panel button {
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.tracker-panel input,
+.tracker-panel select {
+  padding: 10px;
+  background: #fff;
+  color: #222;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+.tracker-panel button {
+  padding: 10px 16px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.tracker-panel button:hover {
+  background: #555;
+}
+
+/* Feature selector */
+
+.insights-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.insights-tab {
+  padding: 11px 18px;
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  color: #333;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.insights-tab:hover {
+  background: #e2e2e2;
+}
+
+.insights-tab.active {
+  background: #333;
+  border-color: #333;
+  color: #fff;
+}
+
+/* Hidden panels remain mounted */
+
+.insights-area [hidden] {
+  display: none !important;
+}
+
+/* Let existing insight components retain their CSS */
+
+.insights-area .budget-limits,
+.insights-area .spending-summary,
+.insights-area .projected-spending {
+  margin: 18px 0 0;
+}
+
+/* Responsive layout */
+
+@media (max-width: 650px) {
+  .spendtrack-app {
+    padding: 12px;
   }
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
+  .tracker-panel,
+  .insights-area {
+    padding: 16px;
   }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+
+  .insights-tab {
+    flex: 1 1 100%;
   }
 }
