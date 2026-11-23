@@ -537,7 +537,7 @@ export default function BudgetLimits({
                 </button>
               </form>
             </div>
-
+{/*
             <div className="bl-panel">
               <h3>Individual Category Budget</h3>
 
@@ -653,6 +653,7 @@ export default function BudgetLimits({
                 </>
               )}
             </div>
+            */}
           </>
         )}
 
