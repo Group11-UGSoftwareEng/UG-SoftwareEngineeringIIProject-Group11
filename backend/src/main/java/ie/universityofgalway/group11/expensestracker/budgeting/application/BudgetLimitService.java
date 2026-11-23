@@ -8,6 +8,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -225,25 +226,47 @@ public class BudgetLimitService {
             }
         }
 
-        List<CategoryBudgetStatus> categories =
-                new ArrayList<>();
+        // Only use categories belonging to this month. Previous months
+        // can contain fresh UUIDs for categories with the same display name.
+        Map<String, CategoryBudgetStatus> uniqueCategories =
+                new LinkedHashMap<>();
 
         for (CategoryEntity category :
-                categoryRepository.findAll()) {
+                categoryRepository.findByYearAndMonth(
+                        month.getYear(), month.getMonthValue())) {
 
             UUID categoryId = category.getId();
+            String name = category.getName() == null || category.getName().isBlank()
+                    ? "Unlabelled category" : category.getName().trim();
+            String nameKey = name.toLowerCase(Locale.ROOT);
+            BigDecimal spent = categorySpending.getOrDefault(
+                    categoryId, BigDecimal.ZERO);
+            BigDecimal limit = limits.get(categoryId);
 
-            categories.add(new CategoryBudgetStatus(
-                    categoryId,
-                    category.getName(),
-                    calculateStatus(
-                            limits.get(categoryId),
-                            categorySpending.getOrDefault(
-                                    categoryId, BigDecimal.ZERO
-                            )
-                    )
-            ));
+            CategoryBudgetStatus previous = uniqueCategories.get(nameKey);
+            if (previous == null) {
+                uniqueCategories.put(nameKey,
+                        new CategoryBudgetStatus(categoryId, name,
+                                calculateStatus(limit, spent)));
+            } else {
+                // Preserve aggregate spending and limits if duplicates
+                // occur even within the same month. No records are deleted.
+                BudgetStatus prior = previous.budget();
+                BigDecimal combinedSpent = prior.spent().add(spent);
+                BigDecimal combinedLimit = prior.limit();
+                if (limit != null) {
+                    combinedLimit = combinedLimit == null
+                            ? limit : combinedLimit.add(limit);
+                }
+                uniqueCategories.put(nameKey,
+                        new CategoryBudgetStatus(previous.categoryId(),
+                                previous.categoryName(),
+                                calculateStatus(combinedLimit, combinedSpent)));
+            }
         }
+
+        List<CategoryBudgetStatus> categories =
+                new ArrayList<>(uniqueCategories.values());
 
         categories.sort(
                 Comparator.comparing(

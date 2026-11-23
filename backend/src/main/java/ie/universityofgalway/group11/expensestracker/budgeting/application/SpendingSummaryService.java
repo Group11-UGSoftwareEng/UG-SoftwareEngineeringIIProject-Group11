@@ -1,12 +1,6 @@
 
 package ie.universityofgalway.group11.expensestracker.budgeting.application;
 
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseEntity;
-import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.SpendingSummaryQueryRepository;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -19,6 +13,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.ExpenseEntity;
+import ie.universityofgalway.group11.expensestracker.budgeting.infrastructure.persistance.expense.SpendingSummaryQueryRepository;
 
 @Service
 public class SpendingSummaryService {
@@ -50,11 +50,13 @@ public class SpendingSummaryService {
 
     private static class CategoryTotals {
         String name;
+        String firstCategoryId;
         BigDecimal total = BigDecimal.ZERO;
         int count = 0;
 
-        CategoryTotals(String name) {
+        CategoryTotals(String name, String firstCategoryId) {
             this.name = name;
+            this.firstCategoryId = firstCategoryId;
         }
 
         void add(BigDecimal amount) {
@@ -101,7 +103,7 @@ public class SpendingSummaryService {
                         from, to, selectedCurrency
                 );
 
-        Map<UUID, CategoryTotals> grouped =
+        Map<String, CategoryTotals> grouped =
                 new HashMap<>();
 
         BigDecimal overallTotal = BigDecimal.ZERO;
@@ -129,12 +131,16 @@ public class SpendingSummaryService {
             BigDecimal amount =
                     BigDecimal.valueOf(expense.getAmount());
 
-            String finalName = categoryName;
+            String displayName = categoryName.trim();
+            String nameKey = displayName.toLowerCase(Locale.ROOT);
 
             CategoryTotals totals =
                     grouped.computeIfAbsent(
-                            categoryId,
-                            id -> new CategoryTotals(finalName)
+                            nameKey,
+                            ignored -> new CategoryTotals(
+                                    displayName,
+                                    categoryId.toString()
+                            )
                     );
 
             totals.add(amount);
@@ -146,7 +152,7 @@ public class SpendingSummaryService {
         List<CategorySummary> categorySummaries =
                 new ArrayList<>();
 
-        for (Map.Entry<UUID, CategoryTotals> entry :
+        for (Map.Entry<String, CategoryTotals> entry :
                 grouped.entrySet()) {
 
             CategoryTotals totals = entry.getValue();
@@ -171,7 +177,7 @@ public class SpendingSummaryService {
 
             categorySummaries.add(
                     new CategorySummary(
-                            entry.getKey().toString(),
+                            totals.firstCategoryId,
                             totals.name,
                             money(totals.total),
                             percentage,
