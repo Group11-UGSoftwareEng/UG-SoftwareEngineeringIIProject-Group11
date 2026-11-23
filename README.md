@@ -64,8 +64,8 @@ Under src/ :
 
 ### Clean architecture diagram
 <img width="801" height="698" alt="image" src="https://github.com/user-attachments/assets/ba6a875e-e6f6-4786-9a23-582df9af4604" />  
-Additional Category Use Cases: (TODO: everyone to add their use cases, remove the todo)  
-Additional Expense Use Cases: (TODO: everyone to add their use cases, remove the todo)
+Additional Category Use Cases: DeleteCategoryUseCase  
+Additional Expense Use Cases: EditExpenseUseCase, DeleteExpenseUseCase
 
 ### UML Class diagram
 <img width="10782" height="6848" alt="budgeting" src="https://github.com/user-attachments/assets/fffa5bae-86f0-422a-9844-00233b7f0461" />
