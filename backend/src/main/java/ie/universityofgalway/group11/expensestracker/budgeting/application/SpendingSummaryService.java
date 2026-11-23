@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,11 +50,13 @@ public class SpendingSummaryService {
 
     private static class CategoryTotals {
         String name;
+        String firstCategoryId;
         BigDecimal total = BigDecimal.ZERO;
         int count = 0;
 
-        CategoryTotals(String name) {
+        CategoryTotals(String name, String firstCategoryId) {
             this.name = name;
+            this.firstCategoryId = firstCategoryId;
         }
 
         void add(BigDecimal amount) {
@@ -100,8 +103,6 @@ public class SpendingSummaryService {
                         from, to, selectedCurrency
                 );
 
-        // Group by normalized category name instead of UUID.
-        // Different IDs with the same name appear as one row.
         Map<String, CategoryTotals> grouped =
                 new HashMap<>();
 
@@ -116,6 +117,9 @@ public class SpendingSummaryService {
                 continue;
             }
 
+            UUID categoryId =
+                    expense.getCategory().getId();
+
             String categoryName =
                     expense.getCategory().getName();
 
@@ -124,18 +128,19 @@ public class SpendingSummaryService {
                 categoryName = "Unlabelled category";
             }
 
-            String displayName = categoryName.trim();
-
-            String categoryKey =
-                    displayName.toLowerCase(Locale.ROOT);
-
             BigDecimal amount =
                     BigDecimal.valueOf(expense.getAmount());
 
+            String displayName = categoryName.trim();
+            String nameKey = displayName.toLowerCase(Locale.ROOT);
+
             CategoryTotals totals =
                     grouped.computeIfAbsent(
-                            categoryKey,
-                            key -> new CategoryTotals(displayName)
+                            nameKey,
+                            ignored -> new CategoryTotals(
+                                    displayName,
+                                    categoryId.toString()
+                            )
                     );
 
             totals.add(amount);
@@ -172,7 +177,7 @@ public class SpendingSummaryService {
 
             categorySummaries.add(
                     new CategorySummary(
-                            entry.getKey(),
+                            totals.firstCategoryId,
                             totals.name,
                             money(totals.total),
                             percentage,
