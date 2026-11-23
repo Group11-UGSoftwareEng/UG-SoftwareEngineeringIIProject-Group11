@@ -64,6 +64,7 @@ Under src/ :
 
 ### Clean architecture diagram
 <img width="801" height="698" alt="image" src="https://github.com/user-attachments/assets/ba6a875e-e6f6-4786-9a23-582df9af4604" />  
+   
 Additional Category Use Cases: DeleteCategoryUseCase        
 
 Additional Expense Use Cases: EditExpenseUseCase, DeleteExpenseUseCase
