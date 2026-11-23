@@ -73,15 +73,12 @@ Additional Expense Use Cases: EditExpenseUseCase, DeleteExpenseUseCase
 
 # Deployment
 
-The frontend is hosted on Vercel: https://ug-software-engineering-group11.vercel.app/
+The frontend is hosted on Vercel: https://ug-software-engineering-group11.vercel.app/  
 The hosted frontend is connected to the backend (hosted on Render) and the database (hosted on Neon)  
 
-The project uses `.github/workflows/ci.yaml` for automatic building, testing and backend deployment to Render. Deployment happens only on pushes to main (protected branch), building and testing happen with any push done on branches with the prefix "/feature" and with pull request opened against main. The project uses a separate `.github/workflows/deploy-vercel.yaml` to update frontend on the cloud when push is done on main. This is added since Github organization automatically deploys to vercel for only the organization owner.
+The project uses `.github/workflows/ci.yaml` for automatic building, testing and backend deployment to Render. Deployment happens only on pushes to main (protected branch), building and testing happen with any push done on branches with the prefix "/feature" and with pull request opened against main. The project uses a separate `.github/workflows/deploy-vercel.yaml` to update frontend on the cloud when push is done on main. This is added since Github organization automatically deploys to vercel for only the organization owner.  
 
-#### To reproduce the deployment strategy, follow these steps:
-
-1. 
-
+The app gets deployed automatically with the pipelines. No manual steps for building or deploying are required.  
 
 # Development Strategy
 
