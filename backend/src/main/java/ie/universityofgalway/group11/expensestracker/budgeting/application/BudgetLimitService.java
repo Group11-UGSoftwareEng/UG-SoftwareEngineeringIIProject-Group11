@@ -60,16 +60,12 @@ public class BudgetLimitService {
             String month,
             String currency,
             BudgetStatus overall,
-            List<CategoryBudgetStatus> categories,
-            BigDecimal baseOverallLimit,
-            BigDecimal rolloverReceived,
-            boolean rolloverEnabled
+            List<CategoryBudgetStatus> categories
     ) {}
 
     public record SaveBudgetRequest(
             String currency,
-            BigDecimal limit,
-            Boolean rolloverEnabled
+            BigDecimal limit
     ) {}
 
     private String validateCurrency(String value) {
@@ -124,39 +120,20 @@ public class BudgetLimitService {
             SaveBudgetRequest request) {
 
         String currency = validateCurrency(request.currency());
+        BigDecimal limit = validateLimit(request.limit());
         String month = YearMonth.now().toString();
+
         String id = key(month, currency, null);
 
         BudgetLimitEntity entity = budgetRepository
                 .findById(id)
-                .orElse(null);
-
-        // Changing only the checkbox does not require a new limit.
-        BigDecimal limit = request.limit() == null
-                ? (entity == null ? null : entity.getLimitAmount())
-                : validateLimit(request.limit());
-
-        if (limit == null) {
-            throw new IllegalArgumentException(
-                    "Set an overall budget amount first"
-            );
-        }
-
-        if (entity == null) {
-            entity = new BudgetLimitEntity(
-                    id, month, currency, null, limit
-            );
-        }
+                .orElse(new BudgetLimitEntity(
+                        id, month, currency, null, limit
+                ));
 
         entity.setLimitAmount(limit);
-
-        if (request.rolloverEnabled() != null) {
-            entity.setRolloverEnabled(
-                    request.rolloverEnabled()
-            );
-        }
-
         budgetRepository.save(entity);
+
         return getMonthlyBudgets(currency);
     }
 
@@ -234,7 +211,6 @@ public class BudgetLimitService {
 
         Map<UUID, BigDecimal> limits = new HashMap<>();
         BigDecimal overallLimit = null;
-        boolean rolloverEnabled = false;
 
         for (BudgetLimitEntity budget :
                 budgetRepository.findByMonthAndCurrency(
@@ -242,7 +218,6 @@ public class BudgetLimitService {
 
             if (budget.getCategoryId() == null) {
                 overallLimit = budget.getLimitAmount();
-                rolloverEnabled = budget.isRolloverEnabled();
             } else {
                 limits.put(
                         budget.getCategoryId(),
@@ -251,67 +226,42 @@ public class BudgetLimitService {
             }
         }
 
-        // Keep the existing duplicate-category display fix.
+        // Only use categories belonging to this month. Previous months
+        // can contain fresh UUIDs for categories with the same display name.
         Map<String, CategoryBudgetStatus> uniqueCategories =
                 new LinkedHashMap<>();
 
         for (CategoryEntity category :
                 categoryRepository.findByYearAndMonth(
-                        month.getYear(),
-                        month.getMonthValue())) {
+                        month.getYear(), month.getMonthValue())) {
 
             UUID categoryId = category.getId();
-
-            String name = category.getName() == null ||
-                    category.getName().isBlank()
-                    ? "Unlabelled category"
-                    : category.getName().trim();
-
-            String nameKey =
-                    name.toLowerCase(Locale.ROOT);
-
-            BigDecimal spent =
-                    categorySpending.getOrDefault(
-                            categoryId,
-                            BigDecimal.ZERO
-                    );
-
+            String name = category.getName() == null || category.getName().isBlank()
+                    ? "Unlabelled category" : category.getName().trim();
+            String nameKey = name.toLowerCase(Locale.ROOT);
+            BigDecimal spent = categorySpending.getOrDefault(
+                    categoryId, BigDecimal.ZERO);
             BigDecimal limit = limits.get(categoryId);
 
-            CategoryBudgetStatus previous =
-                    uniqueCategories.get(nameKey);
-
+            CategoryBudgetStatus previous = uniqueCategories.get(nameKey);
             if (previous == null) {
-                uniqueCategories.put(
-                        nameKey,
-                        new CategoryBudgetStatus(
-                                categoryId,
-                                name,
-                                calculateStatus(limit, spent)
-                        )
-                );
+                uniqueCategories.put(nameKey,
+                        new CategoryBudgetStatus(categoryId, name,
+                                calculateStatus(limit, spent)));
             } else {
+                // Preserve aggregate spending and limits if duplicates
+                // occur even within the same month. No records are deleted.
                 BudgetStatus prior = previous.budget();
-
+                BigDecimal combinedSpent = prior.spent().add(spent);
                 BigDecimal combinedLimit = prior.limit();
-
                 if (limit != null) {
                     combinedLimit = combinedLimit == null
-                            ? limit
-                            : combinedLimit.add(limit);
+                            ? limit : combinedLimit.add(limit);
                 }
-
-                uniqueCategories.put(
-                        nameKey,
-                        new CategoryBudgetStatus(
-                                previous.categoryId(),
+                uniqueCategories.put(nameKey,
+                        new CategoryBudgetStatus(previous.categoryId(),
                                 previous.categoryName(),
-                                calculateStatus(
-                                        combinedLimit,
-                                        prior.spent().add(spent)
-                                )
-                        )
-                );
+                                calculateStatus(combinedLimit, combinedSpent)));
             }
         }
 
@@ -325,81 +275,12 @@ public class BudgetLimitService {
                 )
         );
 
-        BigDecimal rolloverReceived =
-                calculateIncomingRollover(month, currency, 120);
-
-        BigDecimal effectiveLimit = overallLimit == null
-                ? null
-                : overallLimit.add(rolloverReceived);
-
         return new MonthlyBudgetResponse(
                 month.toString(),
                 currency,
-                calculateStatus(effectiveLimit, totalSpent),
-                List.copyOf(categories),
-                overallLimit,
-                money(rolloverReceived),
-                rolloverEnabled
+                calculateStatus(overallLimit, totalSpent),
+                List.copyOf(categories)
         );
-    }
-
-    // A month carries its unused money forward only if
-    // rollover was enabled for that source month.
-    // Overspending does not become a negative rollover.
-    private BigDecimal calculateIncomingRollover(
-            YearMonth targetMonth,
-            String currency,
-            int monthsRemaining) {
-
-        if (monthsRemaining <= 0) {
-            return BigDecimal.ZERO;
-        }
-
-        YearMonth previous = targetMonth.minusMonths(1);
-
-        BudgetLimitEntity previousBudget = budgetRepository
-                .findById(
-                        key(previous.toString(), currency, null)
-                )
-                .orElse(null);
-
-        if (previousBudget == null ||
-                !previousBudget.isRolloverEnabled()) {
-            return BigDecimal.ZERO;
-        }
-
-        BigDecimal earlierCarry =
-                calculateIncomingRollover(
-                        previous,
-                        currency,
-                        monthsRemaining - 1
-                );
-
-        BigDecimal previousAvailable =
-                previousBudget.getLimitAmount()
-                        .add(earlierCarry);
-
-        BigDecimal previousSpent = BigDecimal.ZERO;
-
-        for (ExpenseEntity expense :
-                expenseRepository.findMonthlyExpenses(
-                        previous.atDay(1),
-                        previous.atEndOfMonth(),
-                        currency)) {
-
-            if (expense.getAmount() != null) {
-                previousSpent = previousSpent.add(
-                        BigDecimal.valueOf(
-                                expense.getAmount()
-                        )
-                );
-            }
-        }
-
-        return previousAvailable
-                .subtract(previousSpent)
-                .max(BigDecimal.ZERO)
-                .setScale(2, RoundingMode.HALF_UP);
     }
 
     private BudgetStatus calculateStatus(
@@ -424,11 +305,7 @@ public class BudgetLimitService {
 
         BigDecimal percentage = roundedSpent
                 .multiply(BigDecimal.valueOf(100))
-                .divide(
-                        limit,
-                        2,
-                        RoundingMode.HALF_UP
-                );
+                .divide(limit, 2, RoundingMode.HALF_UP);
 
         String status;
 
@@ -451,9 +328,6 @@ public class BudgetLimitService {
     }
 
     private BigDecimal money(BigDecimal amount) {
-        return amount.setScale(
-                2,
-                RoundingMode.HALF_UP
-        );
+        return amount.setScale(2, RoundingMode.HALF_UP);
     }
 }

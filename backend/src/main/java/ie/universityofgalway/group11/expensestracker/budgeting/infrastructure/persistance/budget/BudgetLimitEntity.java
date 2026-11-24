@@ -26,16 +26,9 @@ public class BudgetLimitEntity {
     @Column(name = "category_id")
     private UUID categoryId;
 
-    @Column(
-            name = "limit_amount",
-            nullable = false,
-            precision = 19,
-            scale = 2
-    )
+    @Column(name = "limit_amount", nullable = false,
+            precision = 19, scale = 2)
     private BigDecimal limitAmount;
-
-    @Column(name = "rollover_enabled", nullable = false)
-    private boolean rolloverEnabled = false;
 
     protected BudgetLimitEntity() {
     }
@@ -51,14 +44,6 @@ public class BudgetLimitEntity {
         this.currency = currency;
         this.categoryId = categoryId;
         this.limitAmount = limitAmount;
-    }
-
-    public boolean isRolloverEnabled() {
-        return rolloverEnabled;
-    }
-
-    public void setRolloverEnabled(boolean enabled) {
-        this.rolloverEnabled = enabled;
     }
 
     public String getScopeKey() {
